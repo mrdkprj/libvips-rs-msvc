@@ -1,0 +1,1 @@
+cl /LD vips.c /I include /I include\glib-2.0 /I lib\glib-2.0\include /link libvips-42.lib /DEF:vips.def
