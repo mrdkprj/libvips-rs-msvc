@@ -1,4 +1,3 @@
-
 #[derive(Debug)]
 pub enum Error {
     InitializationError(&'static str),
@@ -133,6 +132,8 @@ pub enum Error {
     GifloadError,
     GifloadBufferError,
     GifloadSourceError,
+    PdfloadError,
+    PdfloadBufferError,
     PngloadError,
     PngloadBufferError,
     PngloadSourceError,
@@ -280,16 +281,36 @@ pub enum Error {
     MatrixinvertError,
     MatchError,
     GlobalbalanceError,
+    OperationErrorExt(String),
 }
 
 impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Error::InitializationError(msg) => {
-                write!(f, "vips error: InitializationError - {}", msg)
+            Error::OperationErrorExt(msg) => {
+                write!(
+                    f,
+                    "vips error: OperationError - {}",
+                    msg
+                )
             }
-            Error::OperationError(msg) => write!(f, "vips error: OperationError - {}", msg),
-            Error::IOError(msg) => write!(f, "vips error: IOError - {}", msg),
+            Error::InitializationError(msg) => {
+                write!(
+                    f,
+                    "vips error: InitializationError - {}",
+                    msg
+                )
+            }
+            Error::OperationError(msg) => write!(
+                f,
+                "vips error: OperationError - {}",
+                msg
+            ),
+            Error::IOError(msg) => write!(
+                f,
+                "vips error: IOError - {}",
+                msg
+            ),
             Error::LinearError => write!(
                 f,
                 "vips error: LinearError. Check error buffer for more details"
@@ -805,6 +826,14 @@ impl std::fmt::Display for Error {
             Error::GifloadSourceError => write!(
                 f,
                 "vips error: GifloadSourceError. Check error buffer for more details"
+            ),
+            Error::PdfloadError => write!(
+                f,
+                "vips error: PdfloadError. Check error buffer for more details"
+            ),
+            Error::PdfloadBufferError => write!(
+                f,
+                "vips error: PdfloadBufferError. Check error buffer for more details"
             ),
             Error::PngloadError => write!(
                 f,

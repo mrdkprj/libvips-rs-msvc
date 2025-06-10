@@ -41,7 +41,7 @@ pub enum Align {
     Last = 3,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, Eq, PartialEq)]
 pub enum Angle {
     ///  `D0` -> VIPS_ANGLE_D0 = 0
     D0 = 0,
@@ -77,7 +77,7 @@ pub enum Angle45 {
     Last = 8,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq)]
 pub enum BandFormat {
     ///  `Notset` -> VIPS_FORMAT_NOTSET = -1
     Notset = -1,
@@ -231,7 +231,7 @@ pub enum Direction {
     Last = 2,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, Eq)]
 pub enum Extend {
     ///  `Black` -> VIPS_EXTEND_BLACK = 0
     Black = 0,
@@ -263,7 +263,7 @@ pub enum FailOn {
     Last = 4,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialOrd, PartialEq)]
 pub enum ForeignDzDepth {
     ///  `Onepixel` -> VIPS_FOREIGN_DZ_DEPTH_ONEPIXEL = 0
     Onepixel = 0,
@@ -337,6 +337,36 @@ pub enum ForeignKeep {
     All = 31,
 }
 
+pub fn ToForeignKeep(keep: i32) -> ForeignKeep {
+    match keep {
+        1 => ForeignKeep::Exif,
+        2 => ForeignKeep::Xmp,
+        4 => ForeignKeep::Iptc,
+        8 => ForeignKeep::Icc,
+        16 => ForeignKeep::Other,
+        31 => ForeignKeep::All,
+        _ => ForeignKeep::None,
+    }
+}
+
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq)]
+pub enum ForeignDzLayout {
+    Dz = 0,
+    Zoomify = 1,
+    Google = 2,
+    Iiif = 3,
+    Iiif3 = 4,
+    Last = 5,
+}
+
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum ForeignDzContainer {
+    Fs = 0,
+    Zip = 1,
+    Szi = 2,
+    Last = 3,
+}
+
 #[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
 pub enum ForeignPngFilter {
     ///  `None` -> VIPS_FOREIGN_PNG_FILTER_NONE = 8
@@ -381,7 +411,7 @@ pub enum ForeignSubsample {
     Last = 3,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum ForeignTiffCompression {
     ///  `None` -> VIPS_FOREIGN_TIFF_COMPRESSION_NONE = 0
     None = 0,
@@ -405,7 +435,7 @@ pub enum ForeignTiffCompression {
     Last = 9,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum ForeignTiffPredictor {
     ///  `None` -> VIPS_FOREIGN_TIFF_PREDICTOR_NONE = 1
     None = 1,
@@ -539,11 +569,13 @@ pub enum Kernel {
     Lanczos2 = 4,
     ///  `Lanczos3` -> VIPS_KERNEL_LANCZOS3 = 5
     Lanczos3 = 5,
-    ///  `Last` -> VIPS_KERNEL_LAST = 6
-    Last = 6,
+    ///  `Last` -> VIPS_KERNEL_MKS2013  = 6
+    Mks2013 = 6,
+    ///  `Last` -> VIPS_KERNEL_MKS2021  = 7
+    Mks2021 = 7,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum OperationBoolean {
     ///  `And` -> VIPS_OPERATION_BOOLEAN_AND = 0
     And = 0,
@@ -3025,7 +3057,7 @@ pub fn cache(inp: &VipsImage) -> Result<VipsImage> {
 
         let vips_op_response = bindings::vips_cache(
             inp_in,
-            &mut out_out
+            &mut out_out,
         );
         utils::result(
             vips_op_response,
@@ -3087,7 +3119,7 @@ pub fn cache_with_opts(inp: &VipsImage, cache_options: &CacheOptions) -> Result<
             tile_height_in_name.as_ptr(),
             tile_height_in,
             tile_width_in_name.as_ptr(),
-            tile_width_in
+            tile_width_in,
         );
         utils::result(
             vips_op_response,
@@ -3889,6 +3921,12 @@ impl std::default::Default for SmartcropOptions {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct SmartcropResult {
+    pub image: VipsImage,
+    pub attention_x: i32,
+    pub attention_y: i32,
+}
 /// VipsSmartcrop (smartcrop), extract an area from an image
 /// input: `&VipsImage` -> Input image
 /// width: `i32` -> Width of extract area
@@ -3902,17 +3940,17 @@ pub fn smartcrop_with_opts(
     width: i32,
     height: i32,
     smartcrop_options: &SmartcropOptions,
-) -> Result<VipsImage> {
+) -> Result<SmartcropResult> {
     unsafe {
         let input_in: *mut bindings::VipsImage = input.ctx;
         let width_in: i32 = width;
         let height_in: i32 = height;
         let mut out_out: *mut bindings::VipsImage = null_mut();
 
-        let attention_x_in: i32 = smartcrop_options.attention_x;
+        let mut attention_x_in: i32 = smartcrop_options.attention_x;
         let attention_x_in_name = utils::new_c_string("attention-x")?;
 
-        let attention_y_in: i32 = smartcrop_options.attention_y;
+        let mut attention_y_in: i32 = smartcrop_options.attention_y;
         let attention_y_in_name = utils::new_c_string("attention-y")?;
 
         let interesting_in: i32 = smartcrop_options.interesting as i32;
@@ -3927,9 +3965,9 @@ pub fn smartcrop_with_opts(
             width_in,
             height_in,
             attention_x_in_name.as_ptr(),
-            attention_x_in,
+            &mut attention_x_in as *mut i32,
             attention_y_in_name.as_ptr(),
-            attention_y_in,
+            &mut attention_y_in as *mut i32,
             interesting_in_name.as_ptr(),
             interesting_in,
             premultiplied_in_name.as_ptr(),
@@ -3938,8 +3976,12 @@ pub fn smartcrop_with_opts(
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
+            SmartcropResult {
+                image: VipsImage {
+                    ctx: out_out,
+                },
+                attention_x: attention_x_in,
+                attention_y: attention_y_in,
             },
             Error::SmartcropError,
         )
@@ -16542,6 +16584,7 @@ pub struct WebpsaveOptions {
     /// smart_subsample: `bool` -> Enable high quality chroma subsampling
     /// default: false
     pub smart_subsample: bool,
+    pub smart_deblock: bool,
     /// near_lossless: `bool` -> Enable preprocessing in lossless mode (uses Q)
     /// default: false
     pub near_lossless: bool,
@@ -16588,6 +16631,7 @@ impl std::default::Default for WebpsaveOptions {
             lossless: false,
             preset: ForeignWebpPreset::Default,
             smart_subsample: false,
+            smart_deblock: false,
             near_lossless: false,
             alpha_q: i32::from(100),
             min_size: false,
@@ -16628,6 +16672,9 @@ pub fn webpsave_with_opts(
 
         let smart_subsample_in: i32 = if webpsave_options.smart_subsample { 1 } else { 0 };
         let smart_subsample_in_name = utils::new_c_string("smart-subsample")?;
+
+        let smart_deblock_in: i32 = if webpsave_options.smart_deblock { 1 } else { 0 };
+        let smart_deblock_in_name = utils::new_c_string("smart-deblock")?;
 
         let near_lossless_in: i32 = if webpsave_options.near_lossless { 1 } else { 0 };
         let near_lossless_in_name = utils::new_c_string("near-lossless")?;
@@ -16675,6 +16722,8 @@ pub fn webpsave_with_opts(
             preset_in,
             smart_subsample_in_name.as_ptr(),
             smart_subsample_in,
+            smart_deblock_in_name.as_ptr(),
+            smart_deblock_in,
             near_lossless_in_name.as_ptr(),
             near_lossless_in,
             alpha_q_in_name.as_ptr(),
@@ -16754,6 +16803,7 @@ pub struct WebpsaveBufferOptions {
     /// smart_subsample: `bool` -> Enable high quality chroma subsampling
     /// default: false
     pub smart_subsample: bool,
+    pub smart_deblock: bool,
     /// near_lossless: `bool` -> Enable preprocessing in lossless mode (uses Q)
     /// default: false
     pub near_lossless: bool,
@@ -16800,6 +16850,7 @@ impl std::default::Default for WebpsaveBufferOptions {
             lossless: false,
             preset: ForeignWebpPreset::Default,
             smart_subsample: false,
+            smart_deblock: false,
             near_lossless: false,
             alpha_q: i32::from(100),
             min_size: false,
@@ -16839,6 +16890,9 @@ pub fn webpsave_buffer_with_opts(
 
         let smart_subsample_in: i32 = if webpsave_buffer_options.smart_subsample { 1 } else { 0 };
         let smart_subsample_in_name = utils::new_c_string("smart-subsample")?;
+
+        let smart_deblock_in: i32 = if webpsave_buffer_options.smart_deblock { 1 } else { 0 };
+        let smart_deblock_in_name = utils::new_c_string("smart-deblock")?;
 
         let near_lossless_in: i32 = if webpsave_buffer_options.near_lossless { 1 } else { 0 };
         let near_lossless_in_name = utils::new_c_string("near-lossless")?;
@@ -16887,6 +16941,8 @@ pub fn webpsave_buffer_with_opts(
             preset_in,
             smart_subsample_in_name.as_ptr(),
             smart_subsample_in,
+            smart_deblock_in_name.as_ptr(),
+            smart_deblock_in,
             near_lossless_in_name.as_ptr(),
             near_lossless_in,
             alpha_q_in_name.as_ptr(),
@@ -25466,6 +25522,673 @@ pub fn globalbalance_with_opts(
                 ctx: out_out,
             },
             Error::GlobalbalanceError,
+        )
+    }
+}
+
+pub struct PdfloadBufferOptions {
+    pub page: i32,
+    pub n: i32,
+    pub dpi: f64,
+    pub scale: f64,
+    pub background: Vec<f64>,
+}
+
+impl std::default::Default for PdfloadBufferOptions {
+    fn default() -> Self {
+        PdfloadBufferOptions {
+            page: i32::from(0),
+            n: i32::from(1),
+            dpi: f64::from(72.0),
+            scale: f64::from(0.0),
+            background: Vec::new(),
+        }
+    }
+}
+
+pub fn pdfload_buffer_with_opts(
+    buffer: &[u8],
+    pdfload_buffer_options: &PdfloadBufferOptions,
+) -> Result<VipsImage> {
+    unsafe {
+        let buffer_in: *mut c_void = buffer.as_ptr() as *mut c_void;
+        let mut out_out: *mut bindings::VipsImage = null_mut();
+
+        let page_in: i32 = pdfload_buffer_options.page;
+        let page_in_name = utils::new_c_string("page")?;
+
+        let n_in: i32 = pdfload_buffer_options.n;
+        let n_in_name = utils::new_c_string("n")?;
+
+        let dpi_in: f64 = pdfload_buffer_options.dpi;
+        let dpi_in_name = utils::new_c_string("dpi")?;
+
+        let scale_in: f64 = pdfload_buffer_options.scale;
+        let scale_in_name = utils::new_c_string("scale")?;
+
+        let background_wrapper =
+            utils::VipsArrayDoubleWrapper::from(&pdfload_buffer_options.background[..]);
+        let background_in = background_wrapper.ctx;
+        let background_in_name = utils::new_c_string("background")?;
+
+        let vips_op_response = bindings::vips_pdfload_buffer(
+            buffer_in,
+            buffer.len() as u64,
+            &mut out_out,
+            page_in_name.as_ptr(),
+            page_in,
+            n_in_name.as_ptr(),
+            n_in,
+            dpi_in_name.as_ptr(),
+            dpi_in,
+            scale_in_name.as_ptr(),
+            scale_in,
+            background_in_name.as_ptr(),
+            background_in,
+            NULL,
+        );
+        utils::result(
+            vips_op_response,
+            VipsImage {
+                ctx: out_out,
+            },
+            Error::PdfloadBufferError,
+        )
+    }
+}
+
+pub struct PdfloadOptions {
+    pub page: i32,
+    pub n: i32,
+    pub dpi: f64,
+    pub scale: f64,
+    pub background: Vec<f64>,
+    pub password: String,
+}
+
+impl std::default::Default for PdfloadOptions {
+    fn default() -> Self {
+        PdfloadOptions {
+            page: i32::from(0),
+            n: i32::from(1),
+            dpi: f64::from(72.0),
+            scale: f64::from(0.0),
+            background: Vec::new(),
+            password: String::new(),
+        }
+    }
+}
+
+pub fn pdfload_with_opts(filename: &str, pdfload__options: &PdfloadOptions) -> Result<VipsImage> {
+    unsafe {
+        let filename_in: CString = utils::new_c_string(filename)?;
+        let mut out_out: *mut bindings::VipsImage = null_mut();
+
+        let page_in: i32 = pdfload__options.page;
+        let page_in_name = utils::new_c_string("page")?;
+
+        let n_in: i32 = pdfload__options.n;
+        let n_in_name = utils::new_c_string("n")?;
+
+        let dpi_in: f64 = pdfload__options.dpi;
+        let dpi_in_name = utils::new_c_string("dpi")?;
+
+        let scale_in: f64 = pdfload__options.scale;
+        let scale_in_name = utils::new_c_string("scale")?;
+
+        let background_wrapper =
+            utils::VipsArrayDoubleWrapper::from(&pdfload__options.background[..]);
+        let background_in = background_wrapper.ctx;
+        let background_in_name = utils::new_c_string("background")?;
+
+        let password_in = utils::new_c_string(&pdfload__options.password)?;
+        let password_in_name = utils::new_c_string("password")?;
+
+        let vips_op_response = bindings::vips_pdfload(
+            filename_in.as_ptr(),
+            &mut out_out,
+            page_in_name.as_ptr(),
+            page_in,
+            n_in_name.as_ptr(),
+            n_in,
+            dpi_in_name.as_ptr(),
+            dpi_in,
+            scale_in_name.as_ptr(),
+            scale_in,
+            background_in_name.as_ptr(),
+            background_in,
+            password_in_name.as_ptr(),
+            password_in.as_ptr(),
+            NULL,
+        );
+        utils::result(
+            vips_op_response,
+            VipsImage {
+                ctx: out_out,
+            },
+            Error::PdfloadBufferError,
+        )
+    }
+}
+
+pub fn median(inp: &VipsImage, size: i32) -> Result<VipsImage> {
+    let inp_in: *mut bindings::VipsImage = inp.ctx;
+    let mut out_out: *mut bindings::VipsImage = null_mut();
+
+    let vips_op_response = unsafe {
+        bindings::vips_median(
+            inp_in,
+            &mut out_out,
+            size,
+        )
+    };
+    utils::result(
+        vips_op_response,
+        VipsImage {
+            ctx: out_out,
+        },
+        Error::GlobalbalanceError,
+    )
+}
+
+pub struct Jp2kSaveOptions {
+    pub q: i32,
+    pub lossless: bool,
+    pub tile_width: i32,
+    pub tile_height: i32,
+    pub subsample_mode: ForeignSubsample,
+}
+
+impl std::default::Default for Jp2kSaveOptions {
+    fn default() -> Self {
+        Jp2kSaveOptions {
+            q: i32::from(75),
+            lossless: false,
+            tile_height: i32::from(0),
+            tile_width: i32::from(0),
+            subsample_mode: ForeignSubsample::Auto,
+        }
+    }
+}
+
+pub fn jp2ksave_with_opts(
+    inp: &VipsImage,
+    filename: &str,
+    jp2kegsave_options: &Jp2kSaveOptions,
+) -> Result<()> {
+    unsafe {
+        let inp_in: *mut bindings::VipsImage = inp.ctx;
+        let filename_in: CString = utils::new_c_string(filename)?;
+
+        let q_in: i32 = jp2kegsave_options.q;
+        let q_in_name = utils::new_c_string("Q")?;
+
+        let lossless_in: i32 = if jp2kegsave_options.lossless { 1 } else { 0 };
+        let lossless_in_name = utils::new_c_string("lossless")?;
+
+        let tile_height_in: i32 = jp2kegsave_options.tile_height;
+        let tile_height_in_name = utils::new_c_string("tile-height")?;
+
+        let tile_width_in: i32 = jp2kegsave_options.tile_width;
+        let tile_width_in_name = utils::new_c_string("tile-width")?;
+
+        let subsample_mode_in: i32 = jp2kegsave_options.subsample_mode as i32;
+        let subsample_mode_in_name = utils::new_c_string("subsample-mode")?;
+
+        let vips_op_response = bindings::vips_jp2ksave(
+            inp_in,
+            filename_in.as_ptr(),
+            q_in_name.as_ptr(),
+            q_in,
+            lossless_in_name.as_ptr(),
+            lossless_in,
+            tile_height_in_name.as_ptr(),
+            tile_height_in,
+            tile_width_in_name.as_ptr(),
+            tile_width_in,
+            subsample_mode_in_name.as_ptr(),
+            subsample_mode_in,
+            NULL,
+        );
+        utils::result(
+            vips_op_response,
+            (),
+            Error::JpegsaveBufferError,
+        )
+    }
+}
+
+pub fn jp2ksave_buffer_with_opts(
+    inp: &VipsImage,
+    jp2kegsave_buffer_options: &Jp2kSaveOptions,
+) -> Result<Vec<u8>> {
+    unsafe {
+        let inp_in: *mut bindings::VipsImage = inp.ctx;
+        let mut buffer_buf_size: u64 = 0;
+        let mut buffer_out: *mut c_void = null_mut();
+
+        let q_in: i32 = jp2kegsave_buffer_options.q;
+        let q_in_name = utils::new_c_string("Q")?;
+
+        let lossless_in: i32 = if jp2kegsave_buffer_options.lossless { 1 } else { 0 };
+        let lossless_in_name = utils::new_c_string("lossless")?;
+
+        let tile_height_in: i32 = jp2kegsave_buffer_options.tile_height;
+        let tile_height_in_name = utils::new_c_string("tile-height")?;
+
+        let tile_width_in: i32 = jp2kegsave_buffer_options.tile_width;
+        let tile_width_in_name = utils::new_c_string("tile-width")?;
+
+        let subsample_mode_in: i32 = jp2kegsave_buffer_options.subsample_mode as i32;
+        let subsample_mode_in_name = utils::new_c_string("subsample-mode")?;
+
+        let vips_op_response = bindings::vips_jp2ksave_buffer(
+            inp_in,
+            &mut buffer_out,
+            &mut buffer_buf_size,
+            q_in_name.as_ptr(),
+            q_in,
+            lossless_in_name.as_ptr(),
+            lossless_in,
+            tile_height_in_name.as_ptr(),
+            tile_height_in,
+            tile_width_in_name.as_ptr(),
+            tile_width_in,
+            subsample_mode_in_name.as_ptr(),
+            subsample_mode_in,
+            NULL,
+        );
+        utils::result(
+            vips_op_response,
+            utils::new_byte_array(
+                buffer_out,
+                buffer_buf_size,
+            ),
+            Error::JpegsaveBufferError,
+        )
+    }
+}
+
+pub struct DzSaveOptions {
+    pub basename: String,
+    pub keep: ForeignKeep,
+    pub layout: u32,
+    pub suffix: String,
+    pub overlap: i32,
+    pub tile_size: i32,
+    pub background: Vec<f64>,
+    pub depth: ForeignDzDepth,
+    pub centre: bool,
+    pub angle: Angle,
+    pub container: u32,
+    pub compression: i32,
+    pub region_shrink: RegionShrink,
+    pub skip_blanks: i32,
+    pub id: String,
+    pub q: i32,
+}
+
+impl std::default::Default for DzSaveOptions {
+    fn default() -> Self {
+        DzSaveOptions {
+            basename: String::new(),
+            keep: ForeignKeep::None,
+            layout: bindings::VipsForeignDzLayout_VIPS_FOREIGN_DZ_LAYOUT_DZ,
+            suffix: String::new(),
+            overlap: i32::from(0),
+            tile_size: i32::from(0),
+            background: Vec::new(),
+            depth: ForeignDzDepth::Onetile,
+            centre: false,
+            angle: Angle::D0,
+            container: bindings::VipsForeignDzContainer_VIPS_FOREIGN_DZ_CONTAINER_FS,
+            compression: i32::from(0),
+            region_shrink: RegionShrink::Mean,
+            skip_blanks: i32::from(0),
+            id: String::new(),
+            q: i32::from(75),
+        }
+    }
+}
+
+pub fn dzsave_with_opts(
+    inp: &VipsImage,
+    filename: &str,
+    dzgsave_options: &DzSaveOptions,
+) -> Result<()> {
+    unsafe {
+        let inp_in: *mut bindings::VipsImage = inp.ctx;
+        let filename_in: CString = utils::new_c_string(filename)?;
+
+        let basename = utils::new_c_string(&dzgsave_options.basename)?;
+        let basename_name = utils::new_c_string("basename")?;
+
+        let keep: i32 = dzgsave_options.keep as _;
+        let keep_name = utils::new_c_string("keep")?;
+
+        let layout: i32 = dzgsave_options.layout as _;
+        let layout_name = utils::new_c_string("layout")?;
+
+        let suffix = utils::new_c_string(&dzgsave_options.suffix)?;
+        let suffix_name = utils::new_c_string("suffix")?;
+
+        let overlap: i32 = dzgsave_options.overlap;
+        let overlap_name = utils::new_c_string("overlap")?;
+
+        let tile_size: i32 = dzgsave_options.tile_size;
+        let tile_size_name = utils::new_c_string("tile-size")?;
+
+        let background_wrapper =
+            utils::VipsArrayDoubleWrapper::from(&dzgsave_options.background[..]);
+        let background = background_wrapper.ctx;
+        let background_name = utils::new_c_string("background")?;
+
+        let depth: i32 = dzgsave_options.depth as _;
+        let depth_name = utils::new_c_string("depth")?;
+
+        let centre: i32 = if dzgsave_options.centre { 1 } else { 0 };
+        let centre_name = utils::new_c_string("centre")?;
+
+        let angle: i32 = dzgsave_options.angle as _;
+        let angle_name = utils::new_c_string("angle")?;
+
+        let container: i32 = dzgsave_options.container as _;
+        let container_name = utils::new_c_string("container")?;
+
+        let compression: i32 = dzgsave_options.compression;
+        let compression_name = utils::new_c_string("compression")?;
+
+        let region_shrink: i32 = dzgsave_options.region_shrink as _;
+        let region_shrink_name = utils::new_c_string("region-shrink")?;
+
+        let skip_blanks: i32 = dzgsave_options.skip_blanks;
+        let skip_blanks_name = utils::new_c_string("skip-blanks")?;
+
+        let id = utils::new_c_string(&dzgsave_options.id)?;
+        let id_name = utils::new_c_string("basename")?;
+
+        let q: i32 = dzgsave_options.q;
+        let q_name = utils::new_c_string("q")?;
+
+        let vips_op_response = bindings::vips_dzsave(
+            inp_in,
+            filename_in.as_ptr(),
+            basename_name.as_ptr(),
+            basename.as_ptr(),
+            keep_name.as_ptr(),
+            keep,
+            layout_name.as_ptr(),
+            layout,
+            suffix_name.as_ptr(),
+            suffix.as_ptr(),
+            overlap_name.as_ptr(),
+            overlap,
+            tile_size_name.as_ptr(),
+            tile_size,
+            background_name.as_ptr(),
+            background,
+            depth_name.as_ptr(),
+            depth,
+            centre_name.as_ptr(),
+            centre,
+            angle_name.as_ptr(),
+            angle,
+            container_name.as_ptr(),
+            container,
+            compression_name.as_ptr(),
+            compression,
+            region_shrink_name.as_ptr(),
+            region_shrink,
+            skip_blanks_name.as_ptr(),
+            skip_blanks,
+            id_name.as_ptr(),
+            id.as_ptr(),
+            q_name.as_ptr(),
+            q,
+            NULL,
+        );
+        utils::result(
+            vips_op_response,
+            (),
+            Error::JpegsaveBufferError,
+        )
+    }
+}
+
+pub fn dzsave_buffer_with_opts(
+    inp: &VipsImage,
+    dzgsave_buffer_options: &DzSaveOptions,
+) -> Result<Vec<u8>> {
+    unsafe {
+        let inp_in: *mut bindings::VipsImage = inp.ctx;
+        let mut buffer_buf_size: u64 = 0;
+        let mut buffer_out: *mut c_void = null_mut();
+
+        let basename = utils::new_c_string(&dzgsave_buffer_options.basename)?;
+        let basename_name = utils::new_c_string("basename")?;
+
+        let keep: i32 = dzgsave_buffer_options.keep as _;
+        let keep_name = utils::new_c_string("keep")?;
+
+        let layout: i32 = dzgsave_buffer_options.layout as _;
+        let layout_name = utils::new_c_string("layout")?;
+
+        let suffix = utils::new_c_string(&dzgsave_buffer_options.suffix)?;
+        let suffix_name = utils::new_c_string("suffix")?;
+
+        let overlap: i32 = dzgsave_buffer_options.overlap;
+        let overlap_name = utils::new_c_string("overlap")?;
+
+        let tile_size: i32 = dzgsave_buffer_options.tile_size;
+        let tile_size_name = utils::new_c_string("tile-size")?;
+
+        let background_wrapper =
+            utils::VipsArrayDoubleWrapper::from(&dzgsave_buffer_options.background[..]);
+        let background = background_wrapper.ctx;
+        let background_name = utils::new_c_string("background")?;
+
+        let depth: i32 = dzgsave_buffer_options.depth as _;
+        let depth_name = utils::new_c_string("depth")?;
+
+        let centre: i32 = if dzgsave_buffer_options.centre { 1 } else { 0 };
+        let centre_name = utils::new_c_string("centre")?;
+
+        let angle: i32 = dzgsave_buffer_options.angle as _;
+        let angle_name = utils::new_c_string("angle")?;
+
+        let container: i32 = dzgsave_buffer_options.container as _;
+        let container_name = utils::new_c_string("container")?;
+
+        let compression: i32 = dzgsave_buffer_options.compression;
+        let compression_name = utils::new_c_string("compression")?;
+
+        let region_shrink: i32 = dzgsave_buffer_options.region_shrink as _;
+        let region_shrink_name = utils::new_c_string("region-shrink")?;
+
+        let skip_blanks: i32 = dzgsave_buffer_options.skip_blanks;
+        let skip_blanks_name = utils::new_c_string("skip-blanks")?;
+
+        let id = utils::new_c_string(&dzgsave_buffer_options.id)?;
+        let id_name = utils::new_c_string("basename")?;
+
+        let q: i32 = dzgsave_buffer_options.q;
+        let q_name = utils::new_c_string("q")?;
+
+        let vips_op_response = bindings::vips_dzsave_buffer(
+            inp_in,
+            &mut buffer_out,
+            &mut buffer_buf_size,
+            basename_name.as_ptr(),
+            basename.as_ptr(),
+            keep_name.as_ptr(),
+            keep,
+            layout_name.as_ptr(),
+            layout,
+            suffix_name.as_ptr(),
+            suffix.as_ptr(),
+            overlap_name.as_ptr(),
+            overlap,
+            tile_size_name.as_ptr(),
+            tile_size,
+            background_name.as_ptr(),
+            background,
+            depth_name.as_ptr(),
+            depth,
+            centre_name.as_ptr(),
+            centre,
+            angle_name.as_ptr(),
+            angle,
+            container_name.as_ptr(),
+            container,
+            compression_name.as_ptr(),
+            compression,
+            region_shrink_name.as_ptr(),
+            region_shrink,
+            skip_blanks_name.as_ptr(),
+            skip_blanks,
+            id_name.as_ptr(),
+            id.as_ptr(),
+            q_name.as_ptr(),
+            q,
+            NULL,
+        );
+        utils::result(
+            vips_op_response,
+            utils::new_byte_array(
+                buffer_out,
+                buffer_buf_size,
+            ),
+            Error::JpegsaveBufferError,
+        )
+    }
+}
+
+pub struct JxlSaveOptions {
+    pub keep: ForeignKeep,
+    pub tier: i32,
+    pub distance: f64,
+    pub effort: i32,
+    pub lossless: bool,
+    pub q: i32,
+}
+
+impl std::default::Default for JxlSaveOptions {
+    fn default() -> Self {
+        JxlSaveOptions {
+            keep: ForeignKeep::None,
+            tier: i32::from(0),
+            distance: f64::from(1.0),
+            effort: i32::from(0),
+            lossless: false,
+            q: i32::from(75),
+        }
+    }
+}
+
+pub fn jxlsave_with_opts(
+    inp: &VipsImage,
+    filename: &str,
+    jxlsave_options: &JxlSaveOptions,
+) -> Result<()> {
+    unsafe {
+        let inp_in: *mut bindings::VipsImage = inp.ctx;
+        let filename_in: CString = utils::new_c_string(filename)?;
+
+        let keep: i32 = jxlsave_options.keep as _;
+        let keep_name = utils::new_c_string("keep")?;
+
+        let tier: i32 = jxlsave_options.tier;
+        let tier_name = utils::new_c_string("tier")?;
+
+        let distance: f64 = jxlsave_options.distance;
+        let distance_name = utils::new_c_string("distance")?;
+
+        let effort = jxlsave_options.effort;
+        let effort_name = utils::new_c_string("effort")?;
+
+        let lossless: i32 = if jxlsave_options.lossless { 1 } else { 0 };
+        let lossless_name = utils::new_c_string("lossless")?;
+
+        let q: i32 = jxlsave_options.q;
+        let q_name = utils::new_c_string("q")?;
+
+        let vips_op_response = bindings::vips_jxlsave(
+            inp_in,
+            filename_in.as_ptr(),
+            keep_name.as_ptr(),
+            keep,
+            tier_name.as_ptr(),
+            tier,
+            distance_name.as_ptr(),
+            distance,
+            effort_name.as_ptr(),
+            effort,
+            lossless_name.as_ptr(),
+            lossless,
+            q_name.as_ptr(),
+            q,
+            NULL,
+        );
+        utils::result(
+            vips_op_response,
+            (),
+            Error::JpegsaveBufferError,
+        )
+    }
+}
+
+pub fn jxlsave_buffer_with_opts(
+    inp: &VipsImage,
+    jxlsave_buffer_options: &JxlSaveOptions,
+) -> Result<Vec<u8>> {
+    unsafe {
+        let inp_in: *mut bindings::VipsImage = inp.ctx;
+        let mut buffer_buf_size: u64 = 0;
+        let mut buffer_out: *mut c_void = null_mut();
+
+        let keep: i32 = jxlsave_buffer_options.keep as _;
+        let keep_name = utils::new_c_string("keep")?;
+
+        let tier: i32 = jxlsave_buffer_options.tier;
+        let tier_name = utils::new_c_string("tier")?;
+
+        let distance: f64 = jxlsave_buffer_options.distance;
+        let distance_name = utils::new_c_string("distance")?;
+
+        let effort = jxlsave_buffer_options.effort;
+        let effort_name = utils::new_c_string("effort")?;
+
+        let lossless: i32 = if jxlsave_buffer_options.lossless { 1 } else { 0 };
+        let lossless_name = utils::new_c_string("lossless")?;
+
+        let q: i32 = jxlsave_buffer_options.q;
+        let q_name = utils::new_c_string("q")?;
+
+        let vips_op_response = bindings::vips_jxlsave_buffer(
+            inp_in,
+            &mut buffer_out,
+            &mut buffer_buf_size,
+            keep_name.as_ptr(),
+            keep,
+            tier_name.as_ptr(),
+            tier,
+            distance_name.as_ptr(),
+            distance,
+            effort_name.as_ptr(),
+            effort,
+            lossless_name.as_ptr(),
+            lossless,
+            q_name.as_ptr(),
+            q,
+            NULL,
+        );
+        utils::result(
+            vips_op_response,
+            utils::new_byte_array(
+                buffer_out,
+                buffer_buf_size,
+            ),
+            Error::JpegsaveBufferError,
         )
     }
 }

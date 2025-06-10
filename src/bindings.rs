@@ -1207,6 +1207,7 @@ pub const VIPS_META_ICC_NAME: &[u8; 17] = b"icc-profile-data\0";
 pub const VIPS_META_IMAGEDESCRIPTION: &[u8; 18] = b"image-description\0";
 pub const VIPS_META_RESOLUTION_UNIT: &[u8; 16] = b"resolution-unit\0";
 pub const VIPS_META_BITS_PER_SAMPLE: &[u8; 16] = b"bits-per-sample\0";
+pub const VIPS_META_PALETTE: &[u8; 8] = b"palette\0";
 pub const VIPS_META_LOADER: &[u8; 12] = b"vips-loader\0";
 pub const VIPS_META_SEQUENTIAL: &[u8; 16] = b"vips-sequential\0";
 pub const VIPS_META_ORIENTATION: &[u8; 12] = b"orientation\0";

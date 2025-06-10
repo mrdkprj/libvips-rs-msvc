@@ -19,6 +19,3 @@ tag-message = "Version {{version}} of libvips."
 [dependencies]
 num-traits = "0.2"
 num-derive = "0.4"
-
-[build-dependencies]
-vcpkg = "0.2.15"
