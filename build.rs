@@ -15,10 +15,11 @@ fn main() {
                 );
             }
         }
-        println!("cargo:rustc-link-lib=dylib=vips");
-        println!("cargo:rustc-link-lib=dylib=libvips-42");
+        println!("cargo:rustc-link-lib=dylib=libvips");
+        println!("cargo:rustc-link-lib=dylib=vipscache");
         println!("cargo:rustc-link-lib=dylib=gobject-2.0");
         println!("cargo:rustc-link-lib=dylib=glib-2.0");
+        println!("cargo:rustc-link-lib=dylib=voption");
     }
     #[cfg(not(target_os = "windows"))]
     {

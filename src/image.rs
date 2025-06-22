@@ -1,5 +1,5 @@
+// (c) Copyright 2019-2025 OLX
 #![allow(clippy::all)]
-// (c) Copyright 2019-2024 OLX
 use crate::bindings;
 use crate::error::Error;
 use crate::ops::*;
@@ -608,7 +608,13 @@ impl VipsImage {
         self.ctx
     }
 
-    pub fn get_typeof(&self, type_: &[u8]) -> u32 {
+    pub fn from_raw(raw: *mut bindings::VipsImage) -> VipsImage {
+        VipsImage {
+            ctx: raw,
+        }
+    }
+
+    pub fn get_typeof(&self, type_: &[u8]) -> u64 {
         unsafe {
             bindings::vips_image_get_typeof(
                 self.ctx as _,
@@ -1025,7 +1031,7 @@ impl VipsTarget {
 
     pub fn finish(self) {
         unsafe {
-            bindings::vips_target_end(self.ctx);
+            bindings::vips_target_finish(self.ctx);
         }
     }
 

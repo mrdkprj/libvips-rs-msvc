@@ -1,0 +1,1 @@
+cl /LD voption.c /I include /I include\glib-2.0 /I glib-2.0\include /link libvips.lib gobject-2.0.lib

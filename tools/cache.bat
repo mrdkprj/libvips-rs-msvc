@@ -1,0 +1,1 @@
+cl /LD vipscache.c /I include /I include\glib-2.0 /I lib\glib-2.0\include /link libvips.lib /DEF:vipscache.def
