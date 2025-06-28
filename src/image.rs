@@ -1,9 +1,10 @@
-// (c) Copyright 2019-2025 OLX
-#![allow(clippy::all)]
 use crate::bindings;
 use crate::error::Error;
 use crate::ops::*;
 use crate::utils;
+use crate::voption::call;
+use crate::voption::VOption;
+use crate::voption::VipsValue;
 use crate::Result;
 
 use num_traits::{FromPrimitive, ToPrimitive};
@@ -44,6 +45,13 @@ pub struct VipsTarget {
     pub(crate) ctx: *mut bindings::VipsTarget,
 }
 
+impl Default for VipsImage {
+    fn default() -> VipsImage {
+        VipsImage {
+            ctx: unsafe { bindings::vips_image_new() },
+        }
+    }
+}
 /// This is the main type of vips. It represents an image and most operations will take one as input and output a new one.
 /// In the moment this type is not thread safe. Be careful working within thread environments.
 impl VipsImage {
@@ -72,6 +80,39 @@ impl VipsImage {
             );
             vips_image_result(
                 res,
+                Error::InitializationError("Could not initialise VipsImage from file"),
+            )
+        }
+    }
+
+    pub fn new_from_file_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
+        unsafe {
+            let f = utils::new_c_string(filename)?;
+            let operation = bindings::vips_foreign_find_load(f.as_ptr());
+            if operation.is_null() {
+                return vips_image_result(
+                    NULL as _,
+                    Error::InitializationError("Could not find operation"),
+                );
+            }
+
+            let mut out_out: *mut bindings::VipsImage = null_mut();
+            call(
+                CStr::from_ptr(operation)
+                    .to_str()
+                    .unwrap(),
+                option
+                    .with(
+                        "filename",
+                        VipsValue::Str(filename),
+                    )
+                    .with(
+                        "out",
+                        VipsValue::MutImagePtr(&mut out_out),
+                    ),
+            );
+            vips_image_result(
+                out_out,
                 Error::InitializationError("Could not initialise VipsImage from file"),
             )
         }
@@ -142,7 +183,42 @@ impl VipsImage {
             );
             vips_image_result(
                 res,
-                Error::InitializationError("Could not initialise VipsImage from file"),
+                Error::InitializationError("Could not initialise VipsImage from buffer"),
+            )
+        }
+    }
+
+    pub fn new_from_buffer_with_opts(buffer: &[u8], option: VOption) -> Result<VipsImage> {
+        unsafe {
+            let operation = bindings::vips_foreign_find_load_buffer(
+                buffer.as_ptr() as *const c_void,
+                buffer.len() as u64,
+            );
+            if operation.is_null() {
+                return vips_image_result(
+                    NULL as _,
+                    Error::InitializationError("Could not initialise VipsImage from buffer"),
+                );
+            }
+
+            let mut out_out: *mut bindings::VipsImage = null_mut();
+            call(
+                CStr::from_ptr(operation)
+                    .to_str()
+                    .unwrap(),
+                option
+                    .with(
+                        "buffer",
+                        VipsValue::Buffer(buffer),
+                    )
+                    .with(
+                        "out",
+                        VipsValue::MutImagePtr(&mut out_out),
+                    ),
+            );
+            vips_image_result(
+                out_out,
+                Error::InitializationError("Could not initialise VipsImage from buffer"),
             )
         }
     }
@@ -323,7 +399,7 @@ impl VipsImage {
         unsafe {
             let res = bindings::vips_image_get_format(self.ctx);
             let format_enum = FromPrimitive::from_i32(res);
-            format_enum.ok_or_else(|| Error::IOError("Could get format from image"))
+            format_enum.ok_or(Error::IOError("Could get format from image"))
         }
     }
 
@@ -331,7 +407,7 @@ impl VipsImage {
         unsafe {
             let res = bindings::vips_image_get_format(self.ctx);
             let format_enum = FromPrimitive::from_i32(res);
-            format_enum.ok_or_else(|| Error::IOError("Could get format from image"))
+            format_enum.ok_or(Error::IOError("Could get format from image"))
         }
     }
 
@@ -339,7 +415,7 @@ impl VipsImage {
         unsafe {
             let res = bindings::vips_image_guess_format(self.ctx);
             let format_enum = FromPrimitive::from_i32(res);
-            format_enum.ok_or_else(|| Error::IOError("Could get format from image"))
+            format_enum.ok_or(Error::IOError("Could get format from image"))
         }
     }
 
@@ -351,7 +427,7 @@ impl VipsImage {
         unsafe {
             let res = bindings::vips_image_get_interpretation(self.ctx);
             let format_enum = FromPrimitive::from_i32(res);
-            format_enum.ok_or_else(|| Error::IOError("Could get format from image"))
+            format_enum.ok_or(Error::IOError("Could get format from image"))
         }
     }
 
@@ -359,7 +435,7 @@ impl VipsImage {
         unsafe {
             let res = bindings::vips_image_guess_interpretation(self.ctx);
             let format_enum = FromPrimitive::from_i32(res);
-            format_enum.ok_or_else(|| Error::IOError("Could get format from image"))
+            format_enum.ok_or(Error::IOError("Could get format from image"))
         }
     }
 
@@ -554,12 +630,12 @@ impl VipsImage {
                 &mut out_format,
             );
             let format_enum = FromPrimitive::from_i32(out_format);
-            if format_enum.is_some() {
+            if let Some(format_enum) = format_enum {
                 utils::result(
                     res,
                     (
                         out_bands,
-                        format_enum.unwrap(),
+                        format_enum,
                     ),
                     Error::IOError("Could not predict image format"),
                 )
@@ -604,14 +680,8 @@ impl VipsImage {
         }
     }
 
-    pub fn as_raw(&self) -> *mut bindings::VipsImage {
+    pub fn as_mut_ptr(&self) -> *mut bindings::VipsImage {
         self.ctx
-    }
-
-    pub fn from_raw(raw: *mut bindings::VipsImage) -> VipsImage {
-        VipsImage {
-            ctx: raw,
-        }
     }
 
     pub fn get_typeof(&self, type_: &[u8]) -> u64 {
@@ -695,7 +765,7 @@ impl VipsImage {
                     length as _,
                 )
                 .to_vec(),
-                Error::IOError("Cannot get string"),
+                Error::IOError("Cannot get blob"),
             )
         }
     }
@@ -721,21 +791,20 @@ impl VipsImage {
     pub fn get_array_double(&self, name: &[u8]) -> Result<Vec<f64>> {
         unsafe {
             let mut out: *mut f64 = std::ptr::null_mut();
-            let mut n = 0;
+            let mut size = 0;
             let res = bindings::vips_image_get_array_double(
                 self.ctx,
                 name.as_ptr() as _,
                 &mut out,
-                &mut n,
+                &mut size,
             );
 
             utils::result(
                 res,
-                std::slice::from_raw_parts(
+                utils::new_double_array(
                     out,
-                    n as usize,
-                )
-                .to_vec(),
+                    size as _,
+                ),
                 Error::IOError("Cannot get array double"),
             )
         }
@@ -744,21 +813,20 @@ impl VipsImage {
     pub fn get_array_int(&self, name: &[u8]) -> Result<Vec<i32>> {
         unsafe {
             let mut out: *mut i32 = std::ptr::null_mut();
-            let mut n = 0;
+            let mut size = 0;
             let res = bindings::vips_image_get_array_int(
                 self.ctx,
                 name.as_ptr() as _,
                 &mut out,
-                &mut n,
+                &mut size,
             );
 
             utils::result(
                 res,
-                std::slice::from_raw_parts(
+                utils::new_int_array(
                     out,
-                    n as usize,
-                )
-                .to_vec(),
+                    size as _,
+                ),
                 Error::IOError("Cannot get array int"),
             )
         }
@@ -1031,7 +1099,7 @@ impl VipsTarget {
 
     pub fn finish(self) {
         unsafe {
-            bindings::vips_target_finish(self.ctx);
+            bindings::vips_target_end(self.ctx);
         }
     }
 
@@ -1115,6 +1183,16 @@ unsafe fn vips_target_result(res: *mut bindings::VipsTarget, err: Error) -> Resu
                 ctx: res,
             },
         )
+    }
+}
+
+impl Default for VipsInterpolate {
+    fn default() -> VipsInterpolate {
+        unsafe {
+            VipsInterpolate {
+                ctx: bindings::vips_interpolate_nearest_static(),
+            }
+        }
     }
 }
 
@@ -1251,6 +1329,7 @@ impl Drop for VipsTarget {
     }
 }
 
+#[allow(clippy::from_over_into)]
 impl Into<Vec<u8>> for VipsBlob {
     fn into(self) -> Vec<u8> {
         unsafe {

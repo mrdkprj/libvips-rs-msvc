@@ -1,5 +1,3 @@
-#![allow(clippy::all)]
-// (c) Copyright 2019-2024 OLX
 use crate::bindings;
 use crate::bindings::{VipsArrayDouble, VipsArrayImage, VipsArrayInt};
 use crate::error::Error;
@@ -117,7 +115,7 @@ pub(crate) unsafe fn new_byte_array(buf: *mut c_void, size: u64) -> Vec<u8> {
 pub unsafe fn new_int_array(array: *mut i32, size: u64) -> Vec<i32> {
     Vec::from(
         std::slice::from_raw_parts(
-            array as *mut i32,
+            array,
             size as usize,
         ),
     )
@@ -127,7 +125,7 @@ pub unsafe fn new_int_array(array: *mut i32, size: u64) -> Vec<i32> {
 pub unsafe fn new_double_array(array: *mut f64, size: u64) -> Vec<f64> {
     Vec::from(
         std::slice::from_raw_parts(
-            array as *mut f64,
+            array,
             size as usize,
         ),
     )

@@ -65,9 +65,11 @@ __declspec(dllexport)
 void vo_set_blob(GValue *out_value, VipsBlob *value) {
     g_value_init(out_value, VIPS_TYPE_BLOB);
     g_value_set_boxed(out_value, value);
+    vips_area_unref(VIPS_AREA(value));
 }
 
 // input vips object (image, source, target, etc. etc.)
+__declspec(dllexport)
 void vo_set_object(GValue *out_value, VipsObject *object) {
 	GType type = G_OBJECT_TYPE(object);
     g_value_init(out_value, type);
@@ -86,6 +88,11 @@ void vo_set_target(GValue *out_value, VipsTarget *value) {
 
 __declspec(dllexport)
 void vo_set_source(GValue *out_value, VipsSource *value) {
+	vo_set_object(out_value, VIPS_OBJECT(value));
+}
+
+__declspec(dllexport)
+void vo_set_interpolate(GValue *out_value, VipsInterpolate *value) {
 	vo_set_object(out_value, VIPS_OBJECT(value));
 }
 

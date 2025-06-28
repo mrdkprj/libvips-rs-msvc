@@ -1,4 +1,3 @@
-// (c) Copyright 2019-2025 OLX
 #![allow(non_upper_case_globals)]
 #![allow(non_camel_case_types)]
 #![allow(non_snake_case)]
@@ -11,10 +10,10 @@ extern crate num_traits;
 pub mod bindings;
 pub mod error;
 mod image;
+mod image_ext;
 pub mod ops;
 mod utils;
-mod voption;
-mod image_ext;
+pub mod voption;
 
 use error::Error;
 use std::ffi::*;
