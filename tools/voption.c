@@ -102,6 +102,7 @@ void vo_get_bool(VipsOperation *operation, const gchar *name, gboolean *out) {
     g_value_init(&value, G_TYPE_BOOLEAN);
     g_object_get_property(G_OBJECT(operation), name, &value);
     *out = g_value_get_boolean(&value);
+    g_value_unset(&value);
 }
 
 __declspec(dllexport)
@@ -110,6 +111,7 @@ void vo_get_int(VipsOperation *operation, const gchar *name, int *out) {
     g_value_init(&value, G_TYPE_INT);
     g_object_get_property(G_OBJECT(operation), name, &value);
     *out = g_value_get_int(&value);
+    g_value_unset(&value);
 }
 
 __declspec(dllexport)
@@ -118,6 +120,7 @@ void vo_get_double(VipsOperation *operation, const gchar *name, double *out) {
     g_value_init(&value, G_TYPE_DOUBLE);
     g_object_get_property(G_OBJECT(operation), name, &value);
     *out = g_value_get_double(&value);
+    g_value_unset(&value);
 }
 
 __declspec(dllexport)
@@ -130,6 +133,7 @@ void vo_get_double_array(VipsOperation *operation, const gchar *name, double *ou
     for (int i = 0; i < size; i++) {
 		out[i] = array[i];
     }
+    g_value_unset(&value);
 }
 
 __declspec(dllexport)
@@ -138,6 +142,7 @@ void vo_get_blob(VipsOperation *operation, const gchar *name, VipsBlob **out) {
     g_value_init(&value, VIPS_TYPE_BLOB);
     g_object_get_property(G_OBJECT(operation), name, &value);
     *out = (VipsBlob *) g_value_dup_boxed(&value);
+    g_value_unset(&value);
 }
 
 __declspec(dllexport)
@@ -146,6 +151,7 @@ void vo_get_image(VipsOperation *operation, const gchar *name, VipsImage **out) 
     g_value_init(&value, VIPS_TYPE_IMAGE);
     g_object_get_property(G_OBJECT(operation), name, &value);
     *out = VIPS_IMAGE(g_value_get_object(&value));
+    g_value_unset(&value);
 }
 
 __declspec(dllexport)

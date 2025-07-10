@@ -1,10 +1,6 @@
 use crate::bindings::*;
 use crate::utils::new_c_string;
-use std::{
-    ffi::{c_int, c_void},
-    mem::MaybeUninit,
-    os::raw::c_char,
-};
+use std::{mem::MaybeUninit, os::raw::c_char};
 
 extern "C" {
     fn vo_set_bool(gvalue: *mut GValue, value: bool);
@@ -269,57 +265,80 @@ fn get_operation(vips_operation: *mut VipsOperation, option: VOption) {
     unsafe {
         for opt in option.options {
             if opt.input {
-                continue;
-            }
-
-            let name = new_c_string(&opt.name).unwrap();
-            match opt.value {
-                VipsValue::MutInt(out) => vo_get_int(
-                    vips_operation,
-                    name.as_ptr(),
-                    out,
-                ),
-                VipsValue::MutBool(out) => vo_get_bool(
-                    vips_operation,
-                    name.as_ptr(),
-                    out,
-                ),
-                VipsValue::MutDouble(out) => vo_get_double(
-                    vips_operation,
-                    name.as_ptr(),
-                    out,
-                ),
-                VipsValue::MutDoubleArray(out) => vo_get_double_array(
-                    vips_operation,
-                    name.as_ptr(),
-                    out.as_mut_ptr(),
-                    out.len() as _,
-                ),
-                VipsValue::MutBlob(out) => {
-                    vo_get_blob(
-                        vips_operation,
-                        name.as_ptr(),
-                        &mut out.ctx,
-                    );
-                }
-                VipsValue::MutBlobPtr(out) => {
-                    vo_get_blob(
+                match opt.value {
+                    // Unref input
+                    VipsValue::Image(inp) => g_object_unref(inp.ctx as _),
+                    VipsValue::Blob(inp) => g_object_unref(inp.ctx as _),
+                    VipsValue::Target(inp) => g_object_unref(inp.ctx as _),
+                    VipsValue::Source(inp) => g_object_unref(inp.ctx as _),
+                    VipsValue::Interpolate(inp) => g_object_unref(inp.ctx as _),
+                    VipsValue::ImagePtr(inp) => g_object_unref(inp as _),
+                    VipsValue::BlobPtr(inp) => g_object_unref(inp as _),
+                    VipsValue::TargetPtr(inp) => g_object_unref(inp as _),
+                    VipsValue::SourcePtr(inp) => g_object_unref(inp as _),
+                    VipsValue::InterpolatePtr(inp) => g_object_unref(inp as _),
+                    VipsValue::ImageArray(inps) => {
+                        for inp in inps {
+                            g_object_unref(inp.ctx as _)
+                        }
+                    }
+                    VipsValue::ImagePtrArray(inps) => {
+                        for inp in inps {
+                            g_object_unref(*inp as _)
+                        }
+                    }
+                    _ => {}
+                };
+            } else {
+                let name = new_c_string(&opt.name).unwrap();
+                match opt.value {
+                    VipsValue::MutInt(out) => vo_get_int(
                         vips_operation,
                         name.as_ptr(),
                         out,
-                    );
+                    ),
+                    VipsValue::MutBool(out) => vo_get_bool(
+                        vips_operation,
+                        name.as_ptr(),
+                        out,
+                    ),
+                    VipsValue::MutDouble(out) => vo_get_double(
+                        vips_operation,
+                        name.as_ptr(),
+                        out,
+                    ),
+                    VipsValue::MutDoubleArray(out) => vo_get_double_array(
+                        vips_operation,
+                        name.as_ptr(),
+                        out.as_mut_ptr(),
+                        out.len() as _,
+                    ),
+                    VipsValue::MutBlob(out) => {
+                        vo_get_blob(
+                            vips_operation,
+                            name.as_ptr(),
+                            &mut out.ctx,
+                        );
+                    }
+                    VipsValue::MutBlobPtr(out) => {
+                        vo_get_blob(
+                            vips_operation,
+                            name.as_ptr(),
+                            out,
+                        );
+                    }
+                    VipsValue::MutImage(out) => vo_get_image(
+                        vips_operation,
+                        name.as_ptr(),
+                        &mut out.ctx,
+                    ),
+                    VipsValue::MutImagePtr(out) => vo_get_image(
+                        vips_operation,
+                        name.as_ptr(),
+                        out,
+                    ),
+                    _ => {}
                 }
-                VipsValue::MutImage(out) => vo_get_image(
-                    vips_operation,
-                    name.as_ptr(),
-                    &mut out.ctx,
-                ),
-                VipsValue::MutImagePtr(out) => vo_get_image(
-                    vips_operation,
-                    name.as_ptr(),
-                    out,
-                ),
-                _ => {}
             }
         }
     }
@@ -409,7 +428,7 @@ fn set_opreration(operation: *mut VipsOperation, option: &VOption) {
                 }
                 VipsValue::Buffer(value) => {
                     let blob = vips_blob_new(
-                        Some(vips_area_free_cb_wrapper),
+                        None,
                         value.as_ptr() as _,
                         value.len() as _,
                     );
@@ -452,12 +471,6 @@ fn set_opreration(operation: *mut VipsOperation, option: &VOption) {
             );
         }
     }
-}
-
-unsafe extern "C" fn vips_area_free_cb_wrapper(mem: *mut c_void, area: *mut c_void) -> c_int {
-    // Reinterpret the second argument as *mut VipsArea
-    let area = area as *mut VipsArea;
-    vips_area_free_cb(mem, area)
 }
 
 pub fn call(operation: &str, option: VOption) -> std::os::raw::c_int {

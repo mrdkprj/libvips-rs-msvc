@@ -9,11 +9,198 @@ use crate::VipsBlob;
 use crate::VipsImage;
 use crate::VipsSource;
 use crate::VipsTarget;
+use std::ffi::c_char;
 use std::ffi::c_void;
+use std::ffi::CStr;
 use std::ffi::CString;
+use std::os::raw::c_int;
 use std::ptr::null_mut;
 
 const NULL: *const std::ffi::c_void = null_mut();
+
+impl VipsImage {
+    pub fn as_mut_ptr(&self) -> *mut bindings::VipsImage {
+        self.ctx
+    }
+
+    pub fn get_typeof(&self, type_: &[u8]) -> u64 {
+        unsafe {
+            bindings::vips_image_get_typeof(
+                self.ctx as _,
+                type_.as_ptr() as _,
+            )
+        }
+    }
+
+    pub fn get_int(&self, name: &[u8]) -> Result<i32> {
+        unsafe {
+            let mut out = 0;
+            let res = bindings::vips_image_get_int(
+                self.ctx as _,
+                name.as_ptr() as _,
+                &mut out,
+            );
+            utils::result(
+                res,
+                out,
+                Error::IOError("Cannot get int"),
+            )
+        }
+    }
+
+    pub fn set_int(&self, name: &[u8], value: i32) {
+        unsafe {
+            bindings::vips_image_set_int(
+                self.ctx,
+                name.as_ptr() as _,
+                value,
+            );
+        }
+    }
+
+    pub fn get_string(&self, name: &[u8]) -> Result<String> {
+        unsafe {
+            let mut out: *const c_char = std::ptr::null();
+            let res = bindings::vips_image_get_string(
+                self.ctx,
+                name.as_ptr() as _,
+                &mut out,
+            );
+
+            utils::result(
+                res,
+                CStr::from_ptr(out)
+                    .to_string_lossy()
+                    .into_owned(),
+                Error::IOError("Cannot get string"),
+            )
+        }
+    }
+
+    pub fn set_string(&self, name: &[u8], value: &str) {
+        unsafe {
+            bindings::vips_image_set_string(
+                self.ctx,
+                name.as_ptr() as _,
+                value.as_ptr() as _,
+            )
+        };
+    }
+
+    pub fn get_blob(&self, name: &[u8]) -> Result<Vec<u8>> {
+        unsafe {
+            let mut out: *const c_void = std::ptr::null();
+            let mut length = 0;
+            let res = bindings::vips_image_get_blob(
+                self.ctx,
+                name.as_ptr() as _,
+                &mut out,
+                &mut length,
+            );
+            utils::result(
+                res,
+                std::slice::from_raw_parts(
+                    out as *const u8,
+                    length as _,
+                )
+                .to_vec(),
+                Error::IOError("Cannot get blob"),
+            )
+        }
+    }
+
+    pub fn set_blob(&self, name: &[u8], blob: &[u8]) {
+        unsafe {
+            bindings::vips_image_set_blob(
+                self.ctx,
+                name.as_ptr() as _,
+                Some(Self::vips_area_free_cb_wrapper),
+                blob.as_ptr() as _,
+                blob.len() as _,
+            )
+        };
+    }
+
+    unsafe extern "C" fn vips_area_free_cb_wrapper(mem: *mut c_void, area: *mut c_void) -> c_int {
+        // Reinterpret the second argument as *mut VipsArea
+        let area = area as *mut bindings::VipsArea;
+        bindings::vips_area_free_cb(mem, area)
+    }
+
+    pub fn get_array_int(&self, name: &[u8]) -> Result<Vec<i32>> {
+        unsafe {
+            let mut out: *mut i32 = std::ptr::null_mut();
+            let mut size = 0;
+            let res = bindings::vips_image_get_array_int(
+                self.ctx,
+                name.as_ptr() as _,
+                &mut out,
+                &mut size,
+            );
+            utils::result(
+                res,
+                utils::new_int_array(
+                    out,
+                    size as _,
+                ),
+                Error::IOError("Cannot get array int"),
+            )
+        }
+    }
+
+    pub fn set_array_int(&self, name: &[u8], value: &[i32]) {
+        unsafe {
+            bindings::vips_image_set_array_int(
+                self.ctx,
+                name.as_ptr() as _,
+                value.as_ptr(),
+                value.len() as _,
+            )
+        };
+    }
+
+    pub fn get_array_double(&self, name: &[u8]) -> Result<Vec<f64>> {
+        unsafe {
+            let mut out: *mut f64 = std::ptr::null_mut();
+            let mut size = 0;
+            let res = bindings::vips_image_get_array_double(
+                self.ctx,
+                name.as_ptr() as _,
+                &mut out,
+                &mut size,
+            );
+
+            utils::result(
+                res,
+                utils::new_double_array(
+                    out,
+                    size as _,
+                ),
+                Error::IOError("Cannot get array double"),
+            )
+        }
+    }
+
+    pub fn set_array_double(&self, name: &[u8], value: &[f64]) {
+        unsafe {
+            bindings::vips_image_set_array_double(
+                self.ctx,
+                name.as_ptr() as _,
+                value.as_ptr(),
+                value.len() as _,
+            )
+        };
+    }
+
+    pub fn remove(&self, name: &[u8]) -> bool {
+        unsafe {
+            bindings::vips_image_remove(
+                self.ctx,
+                name.as_ptr() as _,
+            ) == 1
+        }
+    }
+}
 
 impl VipsImage {
     /// VipsCMC2LCh (CMC2LCh), transform LCh to CMC
@@ -6198,7 +6385,6 @@ impl VipsImage {
                     VipsValue::MutBlobPtr(&mut buffer_out),
                 ),
         );
-
         utils::result(
             vips_op_response,
             VipsBlob {
