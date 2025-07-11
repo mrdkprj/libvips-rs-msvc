@@ -1,29 +1,39 @@
 use crate::bindings::*;
 use crate::utils::new_c_string;
-use std::{mem::MaybeUninit, os::raw::c_char};
+use std::{mem::MaybeUninit, os::raw::c_void};
 
-extern "C" {
-    fn vo_set_bool(gvalue: *mut GValue, value: bool);
-    fn vo_set_int(gvalue: *mut GValue, value: i32);
-    fn vo_set_guint64(gvalue: *mut GValue, value: u64);
-    fn vo_set_double(gvalue: *mut GValue, value: f64);
-    fn vo_set_string(gvalue: *mut GValue, value: *const c_char);
-    fn vo_set_image(gvalue: *mut GValue, value: *mut VipsImage);
-    fn vo_set_target(gvalue: *mut GValue, value: *mut VipsTarget);
-    fn vo_set_source(gvalue: *mut GValue, value: *mut VipsSource);
-    fn vo_set_interpolate(gvalue: *mut GValue, value: *mut VipsInterpolate);
-    fn vo_set_int_array(gvalue: *mut GValue, value: *const i32, size: i32);
-    fn vo_set_double_array(gvalue: *mut GValue, value: *const f64, size: i32);
-    fn vo_set_images(gvalue: *mut GValue, value: *const *mut VipsImage, size: i32);
-    fn vo_set_blob(gvalue: *mut GValue, value: *mut VipsBlob);
-    fn vo_set_object(gvalue: *mut GValue, value: *mut VipsObject);
-    fn vo_get_bool(op: *mut VipsOperation, name: *const c_char, out: &mut bool);
-    fn vo_get_int(op: *mut VipsOperation, name: *const c_char, out: &mut i32);
-    fn vo_get_double(op: *mut VipsOperation, name: *const c_char, out: &mut f64);
-    fn vo_get_double_array(op: *mut VipsOperation, name: *const c_char, out: *mut f64, size: i32);
-    fn vo_get_blob(op: *mut VipsOperation, name: *const c_char, out: *mut *mut VipsBlob);
-    fn vo_get_image(op: *mut VipsOperation, name: *const c_char, out: *mut *mut VipsImage);
-    fn vo_set_property(object: *mut GObject, property_name: *const gchar, value: *const GValue);
+const G_TYPE_BOOLEAN: &str = "gboolean";
+const G_TYPE_INT: &str = "gint";
+const G_TYPE_UINT64: &str = "guint64";
+const G_TYPE_DOUBLE: &str = "gdouble";
+const G_TYPE_STRING: &str = "gchararray";
+
+pub fn call(operation: &str, option: VOption) -> std::os::raw::c_int {
+    unsafe {
+        let operation_name = new_c_string(operation).unwrap();
+        let mut vips_operation = vips_operation_new(operation_name.as_ptr());
+
+        set_opreration(
+            vips_operation,
+            &option,
+        );
+
+        let result = vips_cache_operation_buildp(&mut vips_operation);
+        if result == 1 {
+            vips_object_unref_outputs(vips_operation as _);
+            g_object_unref(vips_operation as _);
+            return result;
+        }
+
+        get_operation(
+            vips_operation,
+            option,
+        );
+
+        g_object_unref(vips_operation as _);
+
+        result
+    }
 }
 
 #[macro_export]
@@ -141,7 +151,7 @@ impl<'a> V_Value<'a> for &'a mut crate::VipsImage {
     }
 }
 
-impl<'a> V_Value<'a> for &'a mut [f64] {
+impl<'a> V_Value<'a> for &'a mut Vec<f64> {
     fn value(self) -> VipsValue<'a> {
         VipsValue::MutDoubleArray(self)
     }
@@ -163,25 +173,17 @@ pub enum VipsValue<'a> {
     MutDouble(&'a mut f64),
     Str(&'a str),
     Image(&'a crate::VipsImage),
-    ImagePtr(*mut VipsImage),
     MutImage(&'a mut crate::VipsImage),
-    MutImagePtr(&'a mut *mut VipsImage),
     IntArray(&'a [i32]),
     DoubleArray(&'a [f64]),
-    MutDoubleArray(&'a mut [f64]),
+    MutDoubleArray(&'a mut Vec<f64>),
     ImageArray(&'a [crate::VipsImage]),
-    ImagePtrArray(&'a [*mut VipsImage]),
     Blob(&'a crate::VipsBlob),
-    BlobPtr(*mut VipsBlob),
     Buffer(&'a [u8]),
     MutBlob(&'a mut crate::VipsBlob),
-    MutBlobPtr(&'a mut *mut VipsBlob),
     Target(&'a crate::VipsTarget),
-    TargetPtr(*mut VipsTarget),
     Source(&'a crate::VipsSource),
-    SourcePtr(*mut VipsSource),
     Interpolate(&'a crate::VipsInterpolate),
-    InterpolatePtr(*mut VipsInterpolate),
 }
 
 struct Pair<'a> {
@@ -208,10 +210,8 @@ impl<'a> VOption<'a> {
             | VipsValue::MutInt(_)
             | VipsValue::MutDouble(_)
             | VipsValue::MutImage(_)
-            | VipsValue::MutImagePtr(_)
             | VipsValue::MutDoubleArray(_)
-            | VipsValue::MutBlob(_)
-            | VipsValue::MutBlobPtr(_) => {
+            | VipsValue::MutBlob(_) => {
                 self.options
                     .push(Pair {
                         input: false,
@@ -236,10 +236,8 @@ impl<'a> VOption<'a> {
             | VipsValue::MutInt(_)
             | VipsValue::MutDouble(_)
             | VipsValue::MutImage(_)
-            | VipsValue::MutImagePtr(_)
             | VipsValue::MutDoubleArray(_)
-            | VipsValue::MutBlob(_)
-            | VipsValue::MutBlobPtr(_) => {
+            | VipsValue::MutBlob(_) => {
                 self.options
                     .push(Pair {
                         input: false,
@@ -265,166 +263,228 @@ fn get_operation(vips_operation: *mut VipsOperation, option: VOption) {
     unsafe {
         for opt in option.options {
             if opt.input {
-                match opt.value {
-                    // Unref input
-                    VipsValue::Image(inp) => g_object_unref(inp.ctx as _),
-                    VipsValue::Blob(inp) => g_object_unref(inp.ctx as _),
-                    VipsValue::Target(inp) => g_object_unref(inp.ctx as _),
-                    VipsValue::Source(inp) => g_object_unref(inp.ctx as _),
-                    VipsValue::Interpolate(inp) => g_object_unref(inp.ctx as _),
-                    VipsValue::ImagePtr(inp) => g_object_unref(inp as _),
-                    VipsValue::BlobPtr(inp) => g_object_unref(inp as _),
-                    VipsValue::TargetPtr(inp) => g_object_unref(inp as _),
-                    VipsValue::SourcePtr(inp) => g_object_unref(inp as _),
-                    VipsValue::InterpolatePtr(inp) => g_object_unref(inp as _),
-                    VipsValue::ImageArray(inps) => {
-                        for inp in inps {
-                            g_object_unref(inp.ctx as _)
-                        }
-                    }
-                    VipsValue::ImagePtrArray(inps) => {
-                        for inp in inps {
-                            g_object_unref(*inp as _)
-                        }
-                    }
-                    _ => {}
-                };
-            } else {
-                let name = new_c_string(&opt.name).unwrap();
-                match opt.value {
-                    VipsValue::MutInt(out) => vo_get_int(
-                        vips_operation,
-                        name.as_ptr(),
-                        out,
-                    ),
-                    VipsValue::MutBool(out) => vo_get_bool(
-                        vips_operation,
-                        name.as_ptr(),
-                        out,
-                    ),
-                    VipsValue::MutDouble(out) => vo_get_double(
-                        vips_operation,
-                        name.as_ptr(),
-                        out,
-                    ),
-                    VipsValue::MutDoubleArray(out) => vo_get_double_array(
-                        vips_operation,
-                        name.as_ptr(),
-                        out.as_mut_ptr(),
-                        out.len() as _,
-                    ),
-                    VipsValue::MutBlob(out) => {
-                        vo_get_blob(
-                            vips_operation,
-                            name.as_ptr(),
-                            &mut out.ctx,
-                        );
-                    }
-                    VipsValue::MutBlobPtr(out) => {
-                        vo_get_blob(
-                            vips_operation,
-                            name.as_ptr(),
-                            out,
-                        );
-                    }
-                    VipsValue::MutImage(out) => vo_get_image(
-                        vips_operation,
-                        name.as_ptr(),
-                        &mut out.ctx,
-                    ),
-                    VipsValue::MutImagePtr(out) => vo_get_image(
-                        vips_operation,
-                        name.as_ptr(),
-                        out,
-                    ),
-                    _ => {}
-                }
+                continue;
             }
+
+            let mut gvalue = MaybeUninit::<GValue>::zeroed();
+            let value = gvalue.as_mut_ptr();
+            let name = new_c_string(&opt.name).unwrap();
+            match opt.value {
+                VipsValue::MutBool(out) => {
+                    g_value_init(
+                        value,
+                        get_g_type(G_TYPE_BOOLEAN),
+                    );
+                    g_object_get_property(
+                        vips_operation.cast(),
+                        name.as_ptr(),
+                        value,
+                    );
+                    *out = g_value_get_boolean(value) != 0;
+                }
+                VipsValue::MutInt(out) => {
+                    g_value_init(
+                        value,
+                        get_g_type(G_TYPE_INT),
+                    );
+                    g_object_get_property(
+                        vips_operation.cast(),
+                        name.as_ptr(),
+                        value,
+                    );
+                    *out = g_value_get_int(value);
+                }
+                VipsValue::MutDouble(out) => {
+                    g_value_init(
+                        value,
+                        get_g_type(G_TYPE_DOUBLE),
+                    );
+                    g_object_get_property(
+                        vips_operation.cast(),
+                        name.as_ptr(),
+                        value,
+                    );
+                    *out = g_value_get_double(value);
+                }
+                VipsValue::MutDoubleArray(out) => {
+                    g_value_init(
+                        value,
+                        vips_array_double_get_type(),
+                    );
+                    g_object_get_property(
+                        vips_operation.cast(),
+                        name.as_ptr(),
+                        value,
+                    );
+                    let mut len: i32 = 0;
+                    let array = vips_value_get_array_double(
+                        value,
+                        &mut len,
+                    );
+                    let result = std::slice::from_raw_parts(
+                        array,
+                        len as usize,
+                    );
+                    out.extend(result);
+                }
+                VipsValue::MutBlob(out) => {
+                    g_value_init(
+                        value,
+                        vips_blob_get_type(),
+                    );
+                    g_object_get_property(
+                        vips_operation.cast(),
+                        name.as_ptr(),
+                        value,
+                    );
+                    let out_blob: *mut VipsBlob = g_value_dup_boxed(value).cast();
+                    out.ctx = out_blob;
+                }
+                VipsValue::MutImage(out) => {
+                    g_value_init(
+                        value,
+                        vips_image_get_type(),
+                    );
+                    g_object_get_property(
+                        vips_operation.cast(),
+                        name.as_ptr(),
+                        value,
+                    );
+                    let out_image: *mut VipsImage = g_value_get_object(value).cast();
+                    out.ctx = out_image;
+                }
+                _ => {}
+            }
+            g_value_unset(value);
         }
     }
 }
 
 fn set_opreration(operation: *mut VipsOperation, option: &VOption) {
     unsafe {
-        let object: *mut GObject = operation.cast();
         for pair in &option.options {
             if !pair.input {
                 continue;
             }
+
             let mut gvalue = MaybeUninit::<GValue>::zeroed();
             let gvalue_ptr = gvalue.as_mut_ptr();
-
             match pair.value {
-                VipsValue::Bool(value) => vo_set_bool(
-                    gvalue_ptr,
-                    value,
-                ),
-                VipsValue::Double(value) => vo_set_double(
-                    gvalue_ptr,
-                    value,
-                ),
-                VipsValue::Int(value) => vo_set_int(
-                    gvalue_ptr,
-                    value,
-                ),
-                VipsValue::DoubleArray(value) => vo_set_double_array(
-                    gvalue_ptr,
-                    value.as_ptr(),
-                    value.len() as _,
-                ),
-                VipsValue::Image(value) => vo_set_image(
-                    gvalue_ptr,
-                    value.ctx,
-                ),
-                VipsValue::ImagePtr(value) => vo_set_image(
-                    gvalue_ptr,
-                    value,
-                ),
-                VipsValue::ImageArray(value) => {
-                    let images: Vec<*mut _VipsImage> = value
-                        .iter()
-                        .map(|i| i.ctx)
-                        .collect();
-                    vo_set_images(
+                VipsValue::Bool(value) => {
+                    g_value_init(
                         gvalue_ptr,
-                        images.as_ptr(),
-                        value.len() as _,
+                        get_g_type(G_TYPE_BOOLEAN),
+                    );
+                    g_value_set_boolean(
+                        gvalue_ptr,
+                        value.into(),
                     );
                 }
-                VipsValue::ImagePtrArray(value) => {
-                    vo_set_images(
+                VipsValue::Int(value) => {
+                    g_value_init(
+                        gvalue_ptr,
+                        get_g_type(G_TYPE_INT),
+                    );
+                    g_value_set_int(
+                        gvalue_ptr,
+                        value,
+                    );
+                }
+                VipsValue::Uint(value) => {
+                    g_value_init(
+                        gvalue_ptr,
+                        get_g_type(G_TYPE_UINT64),
+                    );
+                    g_value_set_uint64(
+                        gvalue_ptr,
+                        value,
+                    );
+                }
+                VipsValue::Double(value) => {
+                    g_value_init(
+                        gvalue_ptr,
+                        get_g_type(G_TYPE_DOUBLE),
+                    );
+                    g_value_set_double(
+                        gvalue_ptr,
+                        value,
+                    );
+                }
+                VipsValue::Str(value) => {
+                    let str = new_c_string(value).unwrap();
+                    g_value_init(
+                        gvalue_ptr,
+                        get_g_type(G_TYPE_STRING),
+                    );
+                    g_value_set_string(
+                        gvalue_ptr,
+                        str.as_ptr(),
+                    );
+                }
+                VipsValue::IntArray(value) => {
+                    g_value_init(
+                        gvalue_ptr,
+                        vips_array_int_get_type(),
+                    );
+                    vips_value_set_array_int(
                         gvalue_ptr,
                         value.as_ptr(),
                         value.len() as _,
                     );
                 }
-                VipsValue::IntArray(value) => vo_set_int_array(
-                    gvalue_ptr,
-                    value.as_ptr(),
-                    value.len() as _,
-                ),
-                VipsValue::Str(value) => {
-                    let str = new_c_string(value).unwrap();
-                    vo_set_string(
+                VipsValue::DoubleArray(value) => {
+                    g_value_init(
                         gvalue_ptr,
-                        str.as_ptr(),
+                        vips_array_double_get_type(),
+                    );
+                    vips_value_set_array_double(
+                        gvalue_ptr,
+                        value.as_ptr(),
+                        value.len() as _,
                     );
                 }
-                VipsValue::Uint(value) => vo_set_guint64(
-                    gvalue_ptr,
-                    value,
-                ),
+                VipsValue::Image(value) => {
+                    g_value_init(
+                        gvalue_ptr,
+                        vips_image_get_type(),
+                    );
+                    g_value_set_object(
+                        gvalue_ptr,
+                        value.ctx as *mut c_void,
+                    );
+                }
+                VipsValue::ImageArray(value) => {
+                    g_value_init(
+                        gvalue_ptr,
+                        vips_array_image_get_type(),
+                    );
+                    vips_value_set_array_image(
+                        gvalue_ptr,
+                        value.len() as _,
+                    );
+                    let array = vips_value_get_array_image(
+                        gvalue_ptr,
+                        &mut 0,
+                    );
+                    let array = std::slice::from_raw_parts_mut(
+                        array,
+                        value.len() as _,
+                    );
+                    for i in 0..value.len() {
+                        array[i] = value[i].ctx;
+                        g_object_ref(value[i].ctx as _);
+                    }
+                }
                 VipsValue::Blob(value) => {
-                    vo_set_blob(
+                    g_value_init(
                         gvalue_ptr,
-                        value.ctx,
+                        vips_blob_get_type(),
                     );
-                }
-                VipsValue::BlobPtr(value) => {
-                    vo_set_blob(
+                    g_value_set_boxed(
                         gvalue_ptr,
-                        value,
+                        value.ctx as *const c_void,
                     );
+                    // vips_area_unref(value.ctx as _);
                 }
                 VipsValue::Buffer(value) => {
                     let blob = vips_blob_new(
@@ -432,71 +492,136 @@ fn set_opreration(operation: *mut VipsOperation, option: &VOption) {
                         value.as_ptr() as _,
                         value.len() as _,
                     );
-                    vo_set_blob(
+                    g_value_init(
                         gvalue_ptr,
-                        blob,
+                        vips_blob_get_type(),
+                    );
+                    g_value_set_boxed(
+                        gvalue_ptr,
+                        blob as *const c_void,
                     );
                 }
-                VipsValue::Source(value) => vo_set_source(
-                    gvalue_ptr,
-                    value.ctx,
-                ),
-                VipsValue::SourcePtr(value) => vo_set_source(
-                    gvalue_ptr,
-                    value,
-                ),
-                VipsValue::Target(value) => vo_set_target(
-                    gvalue_ptr,
-                    value.ctx,
-                ),
-                VipsValue::TargetPtr(value) => vo_set_target(
-                    gvalue_ptr,
-                    value,
-                ),
-                VipsValue::Interpolate(value) => vo_set_interpolate(
-                    gvalue_ptr,
-                    value.ctx,
-                ),
-                VipsValue::InterpolatePtr(value) => vo_set_interpolate(
-                    gvalue_ptr,
-                    value,
-                ),
+                VipsValue::Source(value) => {
+                    g_value_init(
+                        gvalue_ptr,
+                        vips_source_get_type(),
+                    );
+                    g_value_set_object(
+                        gvalue_ptr,
+                        value.ctx as *mut c_void,
+                    );
+                }
+                VipsValue::Target(value) => {
+                    g_value_init(
+                        gvalue_ptr,
+                        vips_target_get_type(),
+                    );
+                    g_value_set_object(
+                        gvalue_ptr,
+                        value.ctx as *mut c_void,
+                    );
+                }
+                VipsValue::Interpolate(value) => {
+                    g_value_init(
+                        gvalue_ptr,
+                        vips_interpolate_get_type(),
+                    );
+                    g_value_set_object(
+                        gvalue_ptr,
+                        value.ctx as *mut c_void,
+                    );
+                }
                 _ => {}
             }
-            let name = new_c_string(&pair.name).unwrap();
-            vo_set_property(
-                object,
-                name.as_ptr(),
+
+            set_property(
+                operation,
+                &pair.name,
                 gvalue_ptr,
             );
         }
     }
 }
 
-pub fn call(operation: &str, option: VOption) -> std::os::raw::c_int {
+fn set_property(operation: *mut VipsOperation, name: &str, value: *mut GValue) {
     unsafe {
-        let operation_name = new_c_string(operation).unwrap();
-        let mut vips_operation = vips_operation_new(operation_name.as_ptr());
+        let object: *mut VipsObject = operation.cast();
+        let name = new_c_string(name).unwrap();
 
-        set_opreration(
-            vips_operation,
-            &option,
-        );
-
-        let result = vips_cache_operation_buildp(&mut vips_operation);
-        if result == 1 {
-            vips_object_unref_outputs(vips_operation as _);
-            g_object_unref(vips_operation as _);
-            return result;
+        let mut pspec: *mut GParamSpec = std::ptr::null_mut();
+        let mut argument_class: *mut VipsArgumentClass = std::ptr::null_mut();
+        let mut argument_instance: *mut VipsArgumentInstance = std::ptr::null_mut();
+        if vips_object_get_argument(
+            object,
+            name.as_ptr(),
+            &mut pspec,
+            &mut argument_class,
+            &mut argument_instance,
+        ) < 0
+        {
+            g_warning();
+            vips_error_clear();
+            return;
         }
 
-        get_operation(
-            vips_operation,
-            option,
-        );
+        let is_param_spec_enum = g_type_check_instance_is_a(
+            pspec as *mut GTypeInstance,
+            get_g_type("GParamEnum"),
+        ) != 0;
 
-        g_object_unref(vips_operation as _);
+        if is_param_spec_enum && (*value).g_type == get_g_type(G_TYPE_STRING) {
+            let pspec_type = (*pspec).value_type;
+            let enum_value = vips_enum_from_nick(
+                (*object).nickname,
+                pspec_type,
+                g_value_get_string(value),
+            );
+            if enum_value < 0 {
+                g_warning();
+                vips_error_clear();
+                return;
+            }
 
-        result
+            let mut gvalue = MaybeUninit::<GValue>::zeroed();
+            let value2 = gvalue.as_mut_ptr();
+            g_value_init(
+                value2,
+                pspec_type,
+            );
+            g_value_set_enum(
+                value2,
+                enum_value,
+            );
+            g_object_set_property(
+                object.cast(),
+                name.as_ptr(),
+                value2,
+            );
+            g_value_unset(value2);
+        } else {
+            g_object_set_property(
+                object.cast(),
+                name.as_ptr(),
+                value,
+            );
+        }
     }
+}
+
+fn get_g_type(name: &str) -> u64 {
+    let type_name = new_c_string(name).unwrap();
+    unsafe { g_type_from_name(type_name.as_ptr()) }
+}
+
+fn g_warning() {
+    let domain = new_c_string("GLib-GObject").unwrap();
+    let format = new_c_string("%s").unwrap();
+    unsafe {
+        g_log(
+            domain.as_ptr(),
+            GLogLevelFlags_G_LOG_LEVEL_WARNING,
+            format.as_ptr(),
+            vips_error_buffer(),
+        )
+    };
 }

@@ -405,25 +405,23 @@ impl VipsImage {
     /// lab_2xyz_options: `&Lab2XyzOptions` -> optional arguments
     /// returns `VipsImage` - Output image
     pub fn Lab2XYZ_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "Lab2XYZ",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("LabQ2SRgb failed"),
         )
     }
@@ -580,25 +578,23 @@ impl VipsImage {
     /// xyz2_lab_options: `&Xyz2LabOptions` -> optional arguments
     /// returns `VipsImage` - Output image
     pub fn XYZ2Lab_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "XYZ2Yxy",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Xyz2Yxy failed"),
         )
     }
@@ -672,26 +668,24 @@ impl VipsImage {
     /// VipsAbs (abs), absolute value of an image
     /// returns `VipsImage` - Output image
     pub fn abs(&self) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "abs",
             VOption::new()
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Ab failed"),
         )
     }
@@ -700,30 +694,28 @@ impl VipsImage {
     /// right: `&VipsImage` -> Right-hand image argument
     /// returns `VipsImage` - Output image
     pub fn add(&self, right: &VipsImage) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "add",
             VOption::new()
                 .with(
                     "left",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "right",
-                    VipsValue::ImagePtr(right.ctx),
+                    VipsValue::Image(right),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Add failed"),
         )
     }
@@ -754,18 +746,18 @@ impl VipsImage {
     /// matrix: `[f64]` -> Transformation Matrix coefficient
     /// returns `VipsImage` - Output image
     pub fn affine(&self, matrix: &[f64]) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "affine",
             VOption::new()
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "matrix",
@@ -774,9 +766,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Affine failed"),
         )
     }
@@ -792,18 +782,18 @@ impl VipsImage {
     /// background: VipsArrayDouble colour for new pixels
     /// premultiplied: gboolean, images are already premultiplied
     pub fn affine_with_opts(&self, matrix: &[f64], option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "affine",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "matrix",
@@ -812,9 +802,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Affine failed"),
         )
     }
@@ -843,14 +831,14 @@ impl VipsImage {
     }
 
     pub fn analyzeload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "analyzeload",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "filename",
@@ -860,9 +848,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Analyzeload failed"),
         )
     }
@@ -902,30 +888,24 @@ impl VipsImage {
     }
 
     pub fn arrayjoin_with_opts(inps: &[VipsImage], option: VOption) -> Result<VipsImage> {
-        let mut inp = Vec::new();
-        for inp_in in inps {
-            inp.push(inp_in.ctx);
-        }
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "arrayjoin",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "in",
-                    VipsValue::ImagePtrArray(&inp),
+                    VipsValue::ImageArray(inps),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Arrayjoin failed"),
         )
     }
@@ -953,25 +933,23 @@ impl VipsImage {
     }
 
     pub fn autorot_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "autorot",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Autorot failed"),
         )
     }
@@ -1052,26 +1030,24 @@ impl VipsImage {
     }
 
     pub fn bandfold_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "bandfold",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Bandfold failed"),
         )
     }
@@ -1159,25 +1135,23 @@ impl VipsImage {
     }
 
     pub fn bandmean_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "bandmean",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Bandmean failed"),
         )
     }
@@ -1217,30 +1191,24 @@ impl VipsImage {
     }
 
     pub fn bandrank_with_opts(inps: &[VipsImage], option: VOption) -> Result<VipsImage> {
-        let mut inp = Vec::new();
-        for inp_in in inps {
-            inp.push(inp_in.ctx);
-        }
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "bandrank",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "in",
-                    VipsValue::ImagePtrArray(&inp),
+                    VipsValue::ImageArray(inps),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Bandrank failed"),
         )
     }
@@ -1268,25 +1236,23 @@ impl VipsImage {
     }
 
     pub fn bandunfold_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "bandunfold",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Bandunfold failed"),
         )
     }
@@ -1320,14 +1286,14 @@ impl VipsImage {
     }
 
     pub fn black_with_opts(width: i32, height: i32, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "black",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "width",
@@ -1340,9 +1306,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Black failed"),
         )
     }
@@ -1488,57 +1452,49 @@ impl VipsImage {
     }
 
     pub fn canny_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "canny",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Canny failed"),
         )
     }
 
     pub fn case_image(&self, cases: &[VipsImage], option: VOption) -> Result<VipsImage> {
-        let mut inp = Vec::new();
-        for case in cases {
-            inp.push(case.ctx);
-        }
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "case",
             option
                 .with(
                     "index",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "cases",
-                    VipsValue::ImagePtrArray(&inp),
+                    VipsValue::ImageArray(cases),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Case failed"),
         )
     }
@@ -1580,18 +1536,18 @@ impl VipsImage {
     }
 
     pub fn cast_with_opts(&self, format: BandFormat, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "cast",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "format",
@@ -1600,9 +1556,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Cast failed"),
         )
     }
@@ -1630,25 +1584,23 @@ impl VipsImage {
     }
 
     pub fn clamp_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "clamp",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Clamp failed"),
         )
     }
@@ -1703,18 +1655,18 @@ impl VipsImage {
         space: Interpretation,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "colourspace",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "space",
@@ -1723,9 +1675,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Colourspace failed"),
         )
     }
@@ -1756,29 +1706,27 @@ impl VipsImage {
     }
 
     pub fn compass_with_opts(&self, mask: &VipsImage, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "compass",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "mask",
-                    VipsValue::ImagePtr(mask.ctx),
+                    VipsValue::Image(mask),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Compass failed"),
         )
     }
@@ -1945,22 +1893,18 @@ impl VipsImage {
         mode: &[i32],
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut inp = Vec::new();
-        for inp_in in inps {
-            inp.push(inp_in.ctx);
-        }
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "composite",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "in",
-                    VipsValue::ImagePtrArray(&inp),
+                    VipsValue::ImageArray(inps),
                 )
                 .with(
                     "mode",
@@ -1970,9 +1914,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Composite failed"),
         )
     }
@@ -2040,22 +1982,22 @@ impl VipsImage {
         mode: BlendMode,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "composite2",
             option
                 .with(
                     "base",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "overlay",
-                    VipsValue::ImagePtr(overlay.ctx),
+                    VipsValue::Image(overlay),
                 )
                 .with(
                     "mode",
@@ -2064,9 +2006,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Composite2 failed"),
         )
     }
@@ -2097,29 +2037,27 @@ impl VipsImage {
     }
 
     pub fn conv_with_opts(&self, mask: &VipsImage, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "conv",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "mask",
-                    VipsValue::ImagePtr(mask.ctx),
+                    VipsValue::Image(mask),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Conv failed"),
         )
     }
@@ -2149,29 +2087,27 @@ impl VipsImage {
         }
     }
     pub fn conva_with_opts(&self, mask: &VipsImage, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "conva",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "mask",
-                    VipsValue::ImagePtr(mask.ctx),
+                    VipsValue::Image(mask),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Conva failed"),
         )
     }
@@ -2202,29 +2138,27 @@ impl VipsImage {
     }
 
     pub fn convasep_with_opts(&self, mask: &VipsImage, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "convasep",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "mask",
-                    VipsValue::ImagePtr(mask.ctx),
+                    VipsValue::Image(mask),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Convasep failed"),
         )
     }
@@ -2303,29 +2237,27 @@ impl VipsImage {
         }
     }
     pub fn convsep_with_opts(&self, mask: &VipsImage, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "convsep",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "mask",
-                    VipsValue::ImagePtr(mask.ctx),
+                    VipsValue::Image(mask),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Convsep failed"),
         )
     }
@@ -2353,25 +2285,23 @@ impl VipsImage {
     }
 
     pub fn copy_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "copy",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Copy failed"),
         )
     }
@@ -2412,18 +2342,18 @@ impl VipsImage {
         height: i32,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "crop",
             option
                 .with(
                     "input",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "left",
@@ -2444,9 +2374,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Crop failed"),
         )
     }
@@ -2475,14 +2403,14 @@ impl VipsImage {
     }
 
     pub fn csvload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "csvload",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "filename",
@@ -2491,9 +2419,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Csvload failed"),
         )
     }
@@ -2522,25 +2448,23 @@ impl VipsImage {
     }
 
     pub fn csvload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "csvload_source",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "source",
-                    VipsValue::SourcePtr(source.ctx),
+                    VipsValue::Source(source),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("CsvloadSource failed"),
         )
     }
@@ -2572,7 +2496,7 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "filename",
@@ -2613,11 +2537,11 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "target",
-                    VipsValue::TargetPtr(target.ctx),
+                    VipsValue::Target(target),
                 ),
         );
         utils::result(
@@ -2799,7 +2723,7 @@ impl VipsImage {
             option
                 .with(
                     "image",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "ink",
@@ -2861,7 +2785,7 @@ impl VipsImage {
             option
                 .with(
                     "image",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "ink",
@@ -2924,11 +2848,11 @@ impl VipsImage {
             option
                 .with(
                     "image",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "sub",
-                    VipsValue::ImagePtr(sub.ctx),
+                    VipsValue::Image(sub),
                 )
                 .with(
                     "x",
@@ -3075,7 +2999,7 @@ impl VipsImage {
             option
                 .with(
                     "image",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "ink",
@@ -3144,7 +3068,7 @@ impl VipsImage {
             VOption::new()
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "filename",
@@ -3164,7 +3088,7 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "filename",
@@ -3179,51 +3103,45 @@ impl VipsImage {
     }
 
     pub fn dzsave_buffer(&self) -> Result<Vec<u8>> {
-        let mut buffer_out: *mut bindings::VipsBlob = null_mut();
+        let mut blob = VipsBlob::from(null_mut());
 
         let vips_op_response = call(
             "dzsave_buffer",
             VOption::new()
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "buffer",
-                    VipsValue::MutBlobPtr(&mut buffer_out),
+                    VipsValue::MutBlob(&mut blob),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out,
-            }
-            .into(),
+            blob.into(),
             Error::OperationError("dzsave_buffer failed"),
         )
     }
 
     pub fn dzsave_buffer_with_opts(&self, option: VOption) -> Result<Vec<u8>> {
-        let mut buffer_out: *mut bindings::VipsBlob = null_mut();
+        let mut blob = VipsBlob::from(null_mut());
 
         let vips_op_response = call(
             "dzsave_buffer",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "buffer",
-                    VipsValue::MutBlobPtr(&mut buffer_out),
+                    VipsValue::MutBlob(&mut blob),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out,
-            }
-            .into(),
+            blob.into(),
             Error::OperationError("dzsave_buffer_with_opts failed"),
         )
     }
@@ -3234,11 +3152,11 @@ impl VipsImage {
             VOption::new()
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "target",
-                    VipsValue::TargetPtr(target.ctx),
+                    VipsValue::Target(target),
                 ),
         );
         utils::result(
@@ -3254,11 +3172,11 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "target",
-                    VipsValue::TargetPtr(target.ctx),
+                    VipsValue::Target(target),
                 ),
         );
         utils::result(
@@ -3314,18 +3232,18 @@ impl VipsImage {
         height: i32,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "embed",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "x",
@@ -3346,10 +3264,8 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
-            Error::OperationError("Embed failed"),
+            out_out,
+            Error::OperationError("embed_with_opts failed"),
         )
     }
 
@@ -3419,18 +3335,18 @@ impl VipsImage {
     }
 
     pub fn extract_band_with_opts(&self, band: i32, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "extract_band",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "band",
@@ -3439,9 +3355,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("ExtractBand failed"),
         )
     }
@@ -3475,14 +3389,14 @@ impl VipsImage {
     }
 
     pub fn eye_with_opts(width: i32, height: i32, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "eye",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "width",
@@ -3495,9 +3409,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Eye failed"),
         )
     }
@@ -3572,25 +3484,23 @@ impl VipsImage {
     }
 
     pub fn fill_nearest_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "fill_nearest",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("FillNearest failed"),
         )
     }
@@ -3658,7 +3568,7 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "left",
@@ -3691,14 +3601,14 @@ impl VipsImage {
     }
 
     pub fn fitsload(filename: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "fitsload",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "filename",
@@ -3707,33 +3617,29 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("fitsloade failed"),
         )
     }
 
     pub fn fitsload_source(source: &VipsSource, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "fitsload_source",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "source",
-                    VipsValue::SourcePtr(source.ctx),
+                    VipsValue::Source(source),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("fitsload_source failed"),
         )
     }
@@ -3744,7 +3650,7 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "filename",
@@ -3781,25 +3687,23 @@ impl VipsImage {
     }
 
     pub fn flatten_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "flatten",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Flatten failed"),
         )
     }
@@ -3958,25 +3862,23 @@ impl VipsImage {
     }
 
     pub fn gamma_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "gamma",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Gamma failed"),
         )
     }
@@ -4008,18 +3910,18 @@ impl VipsImage {
     }
 
     pub fn gaussblur_with_opts(&self, sigma: f64, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "gaussblur",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "sigma",
@@ -4028,9 +3930,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Gaussblur failed"),
         )
     }
@@ -4064,14 +3964,14 @@ impl VipsImage {
     }
 
     pub fn gaussmat_with_opts(sigma: f64, min_ampl: f64, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "gaussmat",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "sigma",
@@ -4084,9 +3984,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Gaussmat failed"),
         )
     }
@@ -4120,14 +4018,14 @@ impl VipsImage {
     }
 
     pub fn gaussnoise_with_opts(width: i32, height: i32, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "gaussnoise",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "width",
@@ -4140,13 +4038,37 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Gaussnoise failed"),
         )
     }
 
+    // pub fn getpoint(&self, x: i32, y: i32) -> Result<Vec<f64>> {
+    //     unsafe {
+    //         let inp_in: *mut bindings::VipsImage = self.ctx;
+    //         let mut out_array_size: i32 = 0;
+    //         let mut out_array: *mut f64 = null_mut();
+
+    //         let vips_op_response = bindings::vips_getpoint(
+    //             inp_in,
+    //             &mut out_array,
+    //             &mut out_array_size,
+    //             x,
+    //             y,
+    //             NULL,
+    //         );
+    //         utils::result(
+    //             vips_op_response,
+    //             utils::new_double_array(
+    //                 out_array,
+    //                 out_array_size
+    //                     .try_into()
+    //                     .unwrap(),
+    //             ),
+    //             Error::OperationError("Gaussnoise failed"),
+    //         )
+    //     }
+    // }
     pub fn getpoint(&self, x: i32, y: i32) -> Result<Vec<f64>> {
         let mut out: Vec<f64> = Vec::new();
         let vips_op_response = call(
@@ -4154,7 +4076,7 @@ impl VipsImage {
             VOption::new()
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out_array",
@@ -4200,14 +4122,14 @@ impl VipsImage {
     }
 
     pub fn gifload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "gifload",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "filename",
@@ -4216,9 +4138,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Gifload failed"),
         )
     }
@@ -4248,14 +4168,14 @@ impl VipsImage {
     }
 
     pub fn gifload_buffer_with_opts(buffer: &[u8], option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "gifload_buffer",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "buffer",
@@ -4264,9 +4184,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("GifloadBuffer failed"),
         )
     }
@@ -4295,25 +4213,23 @@ impl VipsImage {
     }
 
     pub fn gifload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "gifload_source",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "source",
-                    VipsValue::SourcePtr(source.ctx),
+                    VipsValue::Source(source),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("GifloadSource failed"),
         )
     }
@@ -4345,7 +4261,7 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "filename",
@@ -4386,26 +4302,23 @@ impl VipsImage {
     }
 
     pub fn gifsave_buffer_with_opts(&self, option: VOption) -> Result<Vec<u8>> {
-        let mut buffer_out: *mut bindings::VipsBlob = null_mut();
+        let mut blob = VipsBlob::from(null_mut());
 
         let vips_op_response = call(
             "gifsave_buffer",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "buffer",
-                    VipsValue::MutBlobPtr(&mut buffer_out),
+                    VipsValue::MutBlob(&mut blob),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out,
-            }
-            .into(),
+            blob.into(),
             Error::OperationError("GifsaveBuffer failed"),
         )
     }
@@ -4437,11 +4350,11 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "target",
-                    VipsValue::TargetPtr(target.ctx),
+                    VipsValue::Target(target),
                 ),
         );
         utils::result(
@@ -4474,25 +4387,23 @@ impl VipsImage {
     }
 
     pub fn globalbalance_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "globalbalance",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Globalbalance failed"),
         )
     }
@@ -4554,18 +4465,18 @@ impl VipsImage {
         height: i32,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "gravity",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "direction",
@@ -4582,9 +4493,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Gravity failed"),
         )
     }
@@ -4618,14 +4527,14 @@ impl VipsImage {
     }
 
     pub fn grey_with_opts(width: i32, height: i32, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "grey",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "width",
@@ -4638,9 +4547,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Grey failed"),
         )
     }
@@ -4702,14 +4609,14 @@ impl VipsImage {
         }
     }
     pub fn heifload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "heifload",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "filename",
@@ -4718,9 +4625,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Heifload failed"),
         )
     }
@@ -4750,14 +4655,14 @@ impl VipsImage {
     }
 
     pub fn heifload_buffer_with_opts(buffer: &[u8], option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "heifload_buffer",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "buffer",
@@ -4767,9 +4672,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("HeifloadBuffer failed"),
         )
     }
@@ -4798,26 +4701,24 @@ impl VipsImage {
     }
 
     pub fn heifload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "heifload_source",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "source",
-                    VipsValue::SourcePtr(source.ctx),
+                    VipsValue::Source(source),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("HeifloadSource failed"),
         )
     }
@@ -4849,7 +4750,7 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "filename",
@@ -4890,27 +4791,24 @@ impl VipsImage {
     }
 
     pub fn heifsave_buffer_with_opts(&self, option: VOption) -> Result<Vec<u8>> {
-        let mut buffer_out: *mut bindings::VipsBlob = null_mut();
+        let mut blob = VipsBlob::from(null_mut());
 
         let vips_op_response = call(
             "heifsave_buffer",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "buffer",
-                    VipsValue::MutBlobPtr(&mut buffer_out),
+                    VipsValue::MutBlob(&mut blob),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out,
-            }
-            .into(),
+            blob.into(),
             Error::OperationError("HeifsaveBuffer failed"),
         )
     }
@@ -4942,11 +4840,11 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "target",
-                    VipsValue::TargetPtr(target.ctx),
+                    VipsValue::Target(target),
                 ),
         );
         utils::result(
@@ -5022,26 +4920,24 @@ impl VipsImage {
     }
 
     pub fn hist_equal_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "hist_equal",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("HistEqual failed"),
         )
     }
@@ -5069,26 +4965,24 @@ impl VipsImage {
     }
 
     pub fn hist_find_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "hist_find",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("HistFind failed"),
         )
     }
@@ -5123,30 +5017,28 @@ impl VipsImage {
         index: &VipsImage,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "hist_find_indexed",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "index",
-                    VipsValue::ImagePtr(index.ctx),
+                    VipsValue::Image(index),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("HistFindIndexed failed"),
         )
     }
@@ -5174,26 +5066,24 @@ impl VipsImage {
     }
 
     pub fn hist_find_ndim_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "hist_find_ndim",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("HistFindNdim failed"),
         )
     }
@@ -5255,18 +5145,18 @@ impl VipsImage {
         height: i32,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "hist_local",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "width",
@@ -5280,9 +5170,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("HistLocal failed"),
         )
     }
@@ -5380,26 +5268,24 @@ impl VipsImage {
     }
 
     pub fn hough_circle_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "hough_circle",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("HoughCircle failed"),
         )
     }
@@ -5427,26 +5313,24 @@ impl VipsImage {
     }
 
     pub fn hough_line_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "hough_line",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("HoughLine failed"),
         )
     }
@@ -5474,26 +5358,24 @@ impl VipsImage {
     }
 
     pub fn icc_export_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "icc_export",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("IccExport failed"),
         )
     }
@@ -5521,26 +5403,24 @@ impl VipsImage {
     }
 
     pub fn icc_import_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "icc_import",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("IccImport failed"),
         )
     }
@@ -5575,18 +5455,18 @@ impl VipsImage {
         output_profile: &str,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "icc_transform",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "output_profile",
@@ -5596,9 +5476,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("IccTransform failed"),
         )
     }
@@ -5624,21 +5502,19 @@ impl VipsImage {
     }
 
     pub fn identity_with_opts(option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "identity",
             option.with(
                 "out",
-                VipsValue::MutImagePtr(&mut out_out),
+                VipsValue::MutImage(&mut out_out),
             ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Identity failed"),
         )
     }
@@ -5678,34 +5554,32 @@ impl VipsImage {
         in2: &VipsImage,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "ifthenelse",
             option
                 .with(
                     "cond",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "in1",
-                    VipsValue::ImagePtr(in1.ctx),
+                    VipsValue::Image(in1),
                 )
                 .with(
                     "in2",
-                    VipsValue::ImagePtr(in2.ctx),
+                    VipsValue::Image(in2),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Ifthenelse failed"),
         )
     }
@@ -5751,22 +5625,22 @@ impl VipsImage {
         y: i32,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "insert",
             option
                 .with(
                     "main",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "sub",
-                    VipsValue::ImagePtr(sub.ctx),
+                    VipsValue::Image(sub),
                 )
                 .with(
                     "x",
@@ -5780,9 +5654,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Insert failed"),
         )
     }
@@ -5833,26 +5705,24 @@ impl VipsImage {
     }
 
     pub fn invertlut_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "invertlut",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Invertlut failed"),
         )
     }
@@ -5880,26 +5750,24 @@ impl VipsImage {
     }
 
     pub fn invfft_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "invfft",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Invfft failed"),
         )
     }
@@ -5944,22 +5812,22 @@ impl VipsImage {
         direction: Direction,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "join",
             option
                 .with(
                     "in1",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "in2",
-                    VipsValue::ImagePtr(in2.ctx),
+                    VipsValue::Image(in2),
                 )
                 .with(
                     "direction",
@@ -5969,22 +5837,20 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Join failed"),
         )
     }
 
     pub fn jp2kload(&self, filename: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "jp2kload",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "filename",
@@ -5994,22 +5860,20 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("jp2kload failed"),
         )
     }
 
     pub fn jp2kload_buffer(buffer: &[u8], option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "jp2kload_buffer",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "buffer",
@@ -6019,34 +5883,30 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("jp2kload_buffer failed"),
         )
     }
 
     pub fn jp2kload_source(source: &VipsSource, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "jp2kload_source",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "source",
-                    VipsValue::SourcePtr(source.ctx),
+                    VipsValue::Source(source),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("jp2kload_source failed"),
         )
     }
@@ -6057,7 +5917,7 @@ impl VipsImage {
             VOption::new()
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "filename",
@@ -6077,7 +5937,7 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "filename",
@@ -6092,51 +5952,45 @@ impl VipsImage {
     }
 
     pub fn jp2ksave_buffer(&self) -> Result<Vec<u8>> {
-        let mut buffer_out: *mut bindings::VipsBlob = null_mut();
+        let mut blob = VipsBlob::from(null_mut());
 
         let vips_op_response = call(
             "jp2ksave_buffer",
             VOption::new()
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "buffer",
-                    VipsValue::MutBlobPtr(&mut buffer_out),
+                    VipsValue::MutBlob(&mut blob),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out,
-            }
-            .into(),
+            blob.into(),
             Error::OperationError("jp2ksave_buffer failed"),
         )
     }
 
     pub fn jp2ksave_buffer_with_opts(&self, option: VOption) -> Result<Vec<u8>> {
-        let mut buffer_out: *mut bindings::VipsBlob = null_mut();
+        let mut blob = VipsBlob::from(null_mut());
 
         let vips_op_response = call(
             "jp2ksave_buffer",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "buffer",
-                    VipsValue::MutBlobPtr(&mut buffer_out),
+                    VipsValue::MutBlob(&mut blob),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out,
-            }
-            .into(),
+            blob.into(),
             Error::OperationError("jp2ksave_buffer_with_opts failed"),
         )
     }
@@ -6147,11 +6001,11 @@ impl VipsImage {
             VOption::new()
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "target",
-                    VipsValue::TargetPtr(target.ctx),
+                    VipsValue::Target(target),
                 ),
         );
         utils::result(
@@ -6167,11 +6021,11 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "target",
-                    VipsValue::TargetPtr(target.ctx),
+                    VipsValue::Target(target),
                 ),
         );
         utils::result(
@@ -6205,14 +6059,14 @@ impl VipsImage {
     }
 
     pub fn jpegload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "jpegload",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "filename",
@@ -6222,9 +6076,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Jpegload failed"),
         )
     }
@@ -6254,14 +6106,14 @@ impl VipsImage {
     }
 
     pub fn jpegload_buffer_with_opts(buffer: &[u8], option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "jpegload_buffer",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "buffer",
@@ -6271,34 +6123,30 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("JpegloadBuffer failed"),
         )
     }
 
     pub fn jpegload_source(source: &VipsSource, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "jpegload_source",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "source",
-                    VipsValue::SourcePtr(source.ctx),
+                    VipsValue::Source(source),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("jpegload_source failed"),
         )
     }
@@ -6330,7 +6178,7 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "filename",
@@ -6371,26 +6219,23 @@ impl VipsImage {
     }
 
     pub fn jpegsave_buffer_with_opts(&self, option: VOption) -> Result<Vec<u8>> {
-        let mut buffer_out: *mut bindings::VipsBlob = null_mut();
+        let mut blob = VipsBlob::from(null_mut());
 
         let vips_op_response = call(
             "jpegsave_buffer",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "buffer",
-                    VipsValue::MutBlobPtr(&mut buffer_out),
+                    VipsValue::MutBlob(&mut blob),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out,
-            }
-            .into(),
+            blob.into(),
             Error::OperationError("JpegsaveBuffer failed"),
         )
     }
@@ -6418,7 +6263,7 @@ impl VipsImage {
             "jpegsave_mime",
             option.with(
                 "in",
-                VipsValue::ImagePtr(self.ctx),
+                VipsValue::Image(&VipsImage::from(self.ctx)),
             ),
         );
         utils::result(
@@ -6455,11 +6300,11 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "target",
-                    VipsValue::TargetPtr(target.ctx),
+                    VipsValue::Target(target),
                 ),
         );
         utils::result(
@@ -6470,14 +6315,14 @@ impl VipsImage {
     }
 
     pub fn jxlload(filename: &str) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "jxlload",
             VOption::new()
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "filename",
@@ -6486,22 +6331,20 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("jxlload failed"),
         )
     }
 
     pub fn jxlload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "jxlload",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "filename",
@@ -6510,22 +6353,20 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("jxlload_with_opts failed"),
         )
     }
 
     pub fn jxlload_buffer(buffer: &[u8]) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "jxlload_buffer",
             VOption::new()
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "buffer",
@@ -6534,22 +6375,20 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("jxlload_buffer failed"),
         )
     }
 
     pub fn jxlload_buffer_with_opts(buffer: &[u8], option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "jxlload_buffer",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "buffer",
@@ -6558,57 +6397,51 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("jxlload_buffer_with_opts failed"),
         )
     }
 
     pub fn jxlload_source(source: &VipsSource) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "jxlload_source",
             VOption::new()
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "source",
-                    VipsValue::SourcePtr(source.ctx),
+                    VipsValue::Source(source),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("jxlload_source failed"),
         )
     }
 
     pub fn jxlload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "jxlload_source",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "source",
-                    VipsValue::SourcePtr(source.ctx),
+                    VipsValue::Source(source),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("jxlload_source_with_opts failed"),
         )
     }
@@ -6619,7 +6452,7 @@ impl VipsImage {
             VOption::new()
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "filename",
@@ -6639,7 +6472,7 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "filename",
@@ -6654,51 +6487,45 @@ impl VipsImage {
     }
 
     pub fn jxlsave_buffer(&self) -> Result<Vec<u8>> {
-        let mut buffer_out: *mut bindings::VipsBlob = null_mut();
+        let mut blob = VipsBlob::from(null_mut());
 
         let vips_op_response = call(
             "jxlsave_buffer",
             VOption::new()
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "buffer",
-                    VipsValue::MutBlobPtr(&mut buffer_out),
+                    VipsValue::MutBlob(&mut blob),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out,
-            }
-            .into(),
+            blob.into(),
             Error::OperationError("jxlsave_buffer failed"),
         )
     }
 
     pub fn jxlsave_buffer_with_opts(&self, option: VOption) -> Result<Vec<u8>> {
-        let mut buffer_out: *mut bindings::VipsBlob = null_mut();
+        let mut blob = VipsBlob::from(null_mut());
 
         let vips_op_response = call(
             "jxlsave_buffer",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "buffer",
-                    VipsValue::MutBlobPtr(&mut buffer_out),
+                    VipsValue::MutBlob(&mut blob),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out,
-            }
-            .into(),
+            blob.into(),
             Error::OperationError("jxlsave_buffer_with_opts failed"),
         )
     }
@@ -6709,11 +6536,11 @@ impl VipsImage {
             VOption::new()
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "target",
-                    VipsValue::TargetPtr(target.ctx),
+                    VipsValue::Target(target),
                 ),
         );
         utils::result(
@@ -6729,11 +6556,11 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "target",
-                    VipsValue::TargetPtr(target.ctx),
+                    VipsValue::Target(target),
                 ),
         );
         utils::result(
@@ -6766,43 +6593,41 @@ impl VipsImage {
     }
 
     pub fn labelregions_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "labelregions",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "mask",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("labelregions_with_opts failed"),
         )
     }
 
     pub fn linear(&self, a: &[f64], b: &[f64]) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "linear",
             VOption::new()
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "a",
@@ -6815,26 +6640,24 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Linear failed"),
         )
     }
 
     pub fn linear_with_opts(&self, a: &[f64], b: &[f64], option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "linear",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "a",
@@ -6847,9 +6670,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Linear failed"),
         )
     }
@@ -6877,26 +6698,24 @@ impl VipsImage {
     }
 
     pub fn linecache_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "linecache",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Linecache failed"),
         )
     }
@@ -6930,14 +6749,14 @@ impl VipsImage {
     }
 
     pub fn logmat_with_opts(sigma: f64, min_ampl: f64, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "logmat",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "sigma",
@@ -6951,22 +6770,20 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Logmat failed"),
         )
     }
 
     pub fn magickload(filename: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "magickload",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "filename",
@@ -6976,22 +6793,20 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("magickload failed"),
         )
     }
 
     pub fn magickload_buffer(buffer: &[u8], option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "magickload_buffer",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "buffer",
@@ -7001,9 +6816,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("magickload_buffer failed"),
         )
     }
@@ -7014,7 +6827,7 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "filename",
@@ -7030,27 +6843,24 @@ impl VipsImage {
     }
 
     pub fn magicksave_buffer(&self, option: VOption) -> Result<Vec<u8>> {
-        let mut buffer_out: *mut bindings::VipsBlob = null_mut();
+        let mut blob = VipsBlob::from(null_mut());
 
         let vips_op_response = call(
             "magicksave_buffer",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "buffer",
-                    VipsValue::MutBlobPtr(&mut buffer_out),
+                    VipsValue::MutBlob(&mut blob),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out,
-            }
-            .into(),
+            blob.into(),
             Error::OperationError("magicksave_buffer failed"),
         )
     }
@@ -7081,30 +6891,28 @@ impl VipsImage {
     }
 
     pub fn mapim_with_opts(&self, index: &VipsImage, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "mapim",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "index",
-                    VipsValue::ImagePtr(index.ctx),
+                    VipsValue::Image(index),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Mapim failed"),
         )
     }
@@ -7135,30 +6943,28 @@ impl VipsImage {
     }
 
     pub fn maplut_with_opts(&self, lut: &VipsImage, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "maplut",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "lut",
-                    VipsValue::ImagePtr(lut.ctx),
+                    VipsValue::Image(lut),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Maplut failed"),
         )
     }
@@ -7217,14 +7023,14 @@ impl VipsImage {
         amplitude_cutoff: f64,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "mask_butterworth",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "width",
@@ -7250,9 +7056,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("MaskButterworth failed"),
         )
     }
@@ -7323,14 +7127,14 @@ impl VipsImage {
         amplitude_cutoff: f64,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "mask_butterworth_band",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "width",
@@ -7364,9 +7168,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("MaskButterworthBand failed"),
         )
     }
@@ -7431,14 +7233,14 @@ impl VipsImage {
         ringwidth: f64,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "mask_butterworth_ring",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "width",
@@ -7468,9 +7270,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("MaskButterworthRing failed"),
         )
     }
@@ -7513,14 +7313,14 @@ impl VipsImage {
         fractal_dimension: f64,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "mask_fractal",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "width",
@@ -7538,9 +7338,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("MaskFractal failed"),
         )
     }
@@ -7593,14 +7391,14 @@ impl VipsImage {
         amplitude_cutoff: f64,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "mask_gaussian",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "width",
@@ -7622,9 +7420,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("MaskGaussian failed"),
         )
     }
@@ -7689,14 +7485,14 @@ impl VipsImage {
         amplitude_cutoff: f64,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "mask_gaussian_band",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "width",
@@ -7726,9 +7522,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("MaskGaussianBand failed"),
         )
     }
@@ -7787,14 +7581,14 @@ impl VipsImage {
         ringwidth: f64,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "mask_gaussian_ring",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "width",
@@ -7820,9 +7614,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("MaskGaussianRing failed"),
         )
     }
@@ -7865,14 +7657,14 @@ impl VipsImage {
         frequency_cutoff: f64,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "mask_ideal",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "width",
@@ -7890,9 +7682,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("MaskIdeal failed"),
         )
     }
@@ -7951,14 +7741,14 @@ impl VipsImage {
         radius: f64,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "mask_ideal_band",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "width",
@@ -7984,9 +7774,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("MaskIdealBand failed"),
         )
     }
@@ -8039,14 +7827,14 @@ impl VipsImage {
         ringwidth: f64,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "mask_ideal_ring",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "width",
@@ -8068,9 +7856,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("MaskIdealRing failed"),
         )
     }
@@ -8088,22 +7874,22 @@ impl VipsImage {
         ys2: i32,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "match",
             option
                 .with(
                     "ref",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "sec",
-                    VipsValue::ImagePtr(sec.ctx),
+                    VipsValue::Image(sec),
                 )
                 .with(
                     "xr1",
@@ -8141,9 +7927,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Match failed"),
         )
     }
@@ -8263,14 +8047,14 @@ impl VipsImage {
     }
 
     pub fn matload(filename: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "matload",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "filename",
@@ -8280,9 +8064,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Matrixload failed"),
         )
     }
@@ -8334,14 +8116,14 @@ impl VipsImage {
     }
 
     pub fn matrixload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "matrixload",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "filename",
@@ -8351,9 +8133,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Matrixload failed"),
         )
     }
@@ -8382,55 +8162,51 @@ impl VipsImage {
     }
 
     pub fn matrixload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "matrixload_source",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "source",
-                    VipsValue::SourcePtr(source.ctx),
+                    VipsValue::Source(source),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("MatrixloadSource failed"),
         )
     }
 
     pub fn matrixmultiply(&self, right: &VipsImage, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "matrixmultiply",
             option
                 .with(
                     "left",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "right",
-                    VipsValue::ImagePtr(right.ctx),
+                    VipsValue::Image(right),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("matrixmultiply failed"),
         )
     }
@@ -8458,7 +8234,7 @@ impl VipsImage {
             "matrixprint",
             option.with(
                 "in",
-                VipsValue::ImagePtr(self.ctx),
+                VipsValue::Image(&VipsImage::from(self.ctx)),
             ),
         );
 
@@ -8496,7 +8272,7 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "filename",
@@ -8538,11 +8314,11 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "target",
-                    VipsValue::TargetPtr(target.ctx),
+                    VipsValue::Target(target),
                 ),
         );
         utils::result(
@@ -8580,7 +8356,7 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
@@ -8652,18 +8428,18 @@ impl VipsImage {
         }
     }
     pub fn measure_with_opts(&self, h: i32, v: i32, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "measure",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "h",
@@ -8677,9 +8453,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Measure failed"),
         )
     }
@@ -8760,22 +8534,22 @@ impl VipsImage {
         dy: i32,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "merge",
             option
                 .with(
                     "ref",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "sec",
-                    VipsValue::ImagePtr(sec.ctx),
+                    VipsValue::Image(sec),
                 )
                 .with(
                     "direction",
@@ -8793,9 +8567,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Merge failed"),
         )
     }
@@ -8828,7 +8600,7 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
@@ -8970,22 +8742,22 @@ impl VipsImage {
         ysec: i32,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "mosaic",
             option
                 .with(
                     "ref",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "sec",
-                    VipsValue::ImagePtr(sec.ctx),
+                    VipsValue::Image(sec),
                 )
                 .with(
                     "direction",
@@ -9011,9 +8783,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Mosaic failed"),
         )
     }
@@ -9110,22 +8880,22 @@ impl VipsImage {
         ys2: i32,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "mosaic1",
             option
                 .with(
                     "ref",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "sec",
-                    VipsValue::ImagePtr(sec.ctx),
+                    VipsValue::Image(sec),
                 )
                 .with(
                     "direction",
@@ -9167,9 +8937,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Mosaic1 failed"),
         )
     }
@@ -9197,26 +8965,24 @@ impl VipsImage {
     }
 
     pub fn msb_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "msb",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Msb failed"),
         )
     }
@@ -9248,14 +9014,14 @@ impl VipsImage {
     }
 
     pub fn niftiload(filename: &str) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "niftiload",
             VOption::new()
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "filename",
@@ -9264,22 +9030,20 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("niftiload failed"),
         )
     }
 
     pub fn niftiload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "niftiload",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "filename",
@@ -9288,57 +9052,51 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("niftiload_with_opts failed"),
         )
     }
 
     pub fn niftiload_source(source: &VipsSource) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "niftiload_source",
             VOption::new()
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "source",
-                    VipsValue::SourcePtr(source.ctx),
+                    VipsValue::Source(source),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("niftiload_source failed"),
         )
     }
 
     pub fn niftiload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "niftiload_source",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "source",
-                    VipsValue::SourcePtr(source.ctx),
+                    VipsValue::Source(source),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("niftiload_source_with_opts failed"),
         )
     }
@@ -9349,7 +9107,7 @@ impl VipsImage {
             VOption::new()
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "filename",
@@ -9369,7 +9127,7 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "filename",
@@ -9384,14 +9142,14 @@ impl VipsImage {
     }
 
     pub fn openexrload(filename: &str) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "openexrload",
             VOption::new()
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "filename",
@@ -9400,22 +9158,20 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("openexrload failed"),
         )
     }
 
     pub fn openexrload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "openexrload",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "filename",
@@ -9424,22 +9180,20 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("openexrload_with_opts failed"),
         )
     }
 
     pub fn openslideload(filename: &str) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "openslideload",
             VOption::new()
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "filename",
@@ -9448,22 +9202,20 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("openslideload failed"),
         )
     }
 
     pub fn openslideload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "openslideload",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "filename",
@@ -9472,33 +9224,29 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("openslideload_with_opts failed"),
         )
     }
 
     pub fn openslideload_source(source: &VipsSource) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "openslideload_source",
             VOption::new()
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "source",
-                    VipsValue::SourcePtr(source.ctx),
+                    VipsValue::Source(source),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("openslideload_source failed"),
         )
     }
@@ -9507,38 +9255,36 @@ impl VipsImage {
         source: &VipsSource,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "openslideload_source",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "source",
-                    VipsValue::SourcePtr(source.ctx),
+                    VipsValue::Source(source),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("openslideload_source_with_opts failed"),
         )
     }
 
     pub fn pdfload(filename: &str) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "pdfload",
             VOption::new()
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "filename",
@@ -9547,22 +9293,20 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Pdfload failed"),
         )
     }
 
     pub fn pdfload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "pdfload",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "filename",
@@ -9571,22 +9315,20 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Pdfload failed"),
         )
     }
 
     pub fn pdfload_buffer(buffer: &[u8]) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "pdfload_buffer",
             VOption::new()
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "buffer",
@@ -9596,22 +9338,20 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("PdfloadBuffer failed"),
         )
     }
 
     pub fn pdfload_buffer_with_opts(buffer: &[u8], option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "pdfload_buffer",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "buffer",
@@ -9620,58 +9360,52 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("PdfloadBuffer failed"),
         )
     }
 
     pub fn pdfload_source(source: &VipsSource) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "pdfload_source",
             VOption::new()
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "source",
-                    VipsValue::SourcePtr(source.ctx),
+                    VipsValue::Source(source),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("pdfload_source failed"),
         )
     }
 
     pub fn pdfload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "pdfload_source",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "source",
-                    VipsValue::SourcePtr(source.ctx),
+                    VipsValue::Source(source),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("pdfload_source_with_opts failed"),
         )
     }
@@ -9729,14 +9463,14 @@ impl VipsImage {
     }
 
     pub fn perlin_with_opts(width: i32, height: i32, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "perlin",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "width",
@@ -9750,9 +9484,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Perlin failed"),
         )
     }
@@ -9806,14 +9538,14 @@ impl VipsImage {
     }
 
     pub fn pngload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "pngload",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "filename",
@@ -9823,9 +9555,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Pngload failed"),
         )
     }
@@ -9855,14 +9585,14 @@ impl VipsImage {
     }
 
     pub fn pngload_buffer_with_opts(buffer: &[u8], option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "pngload_buffer",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "buffer",
@@ -9872,9 +9602,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("PngloadBuffer failed"),
         )
     }
@@ -9903,26 +9631,24 @@ impl VipsImage {
     }
 
     pub fn pngload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "pngload_source",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "source",
-                    VipsValue::SourcePtr(source.ctx),
+                    VipsValue::Source(source),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("PngloadSource failed"),
         )
     }
@@ -9954,7 +9680,7 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "filename",
@@ -9995,27 +9721,24 @@ impl VipsImage {
     }
 
     pub fn pngsave_buffer_with_opts(&self, option: VOption) -> Result<Vec<u8>> {
-        let mut buffer_out: *mut bindings::VipsBlob = null_mut();
+        let mut blob = VipsBlob::from(null_mut());
 
         let vips_op_response = call(
             "pngsave_buffer",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "buffer",
-                    VipsValue::MutBlobPtr(&mut buffer_out),
+                    VipsValue::MutBlob(&mut blob),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out,
-            }
-            .into(),
+            blob.into(),
             Error::OperationError("PngsaveBuffer failed"),
         )
     }
@@ -10047,11 +9770,11 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "target",
-                    VipsValue::TargetPtr(target.ctx),
+                    VipsValue::Target(target),
                 ),
         );
         utils::result(
@@ -10085,14 +9808,14 @@ impl VipsImage {
     }
 
     pub fn ppmload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "ppmload",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "filename",
@@ -10102,22 +9825,20 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Ppmload failed"),
         )
     }
 
     pub fn ppmload_buffer(buffer: &[u8], option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "ppmload_buffer",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "buffer",
@@ -10127,9 +9848,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("ppmload_buffer failed"),
         )
     }
@@ -10158,26 +9877,24 @@ impl VipsImage {
     }
 
     pub fn ppmload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "ppmload_source",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "source",
-                    VipsValue::SourcePtr(source.ctx),
+                    VipsValue::Source(source),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("PpmloadSource failed"),
         )
     }
@@ -10209,7 +9926,7 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "filename",
@@ -10250,11 +9967,11 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "target",
-                    VipsValue::TargetPtr(target.ctx),
+                    VipsValue::Target(target),
                 ),
         );
         utils::result(
@@ -10287,26 +10004,24 @@ impl VipsImage {
     }
 
     pub fn premultiply_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "premultiply",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Premultiply failed"),
         )
     }
@@ -10457,30 +10172,28 @@ impl VipsImage {
     }
 
     pub fn quadratic_with_opts(&self, coeff: &VipsImage, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "quadratic",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "coeff",
-                    VipsValue::ImagePtr(coeff.ctx),
+                    VipsValue::Image(coeff),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Quadratic failed"),
         )
     }
@@ -10531,14 +10244,14 @@ impl VipsImage {
     }
 
     pub fn radload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "radload",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "filename",
@@ -10548,9 +10261,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Radload failed"),
         )
     }
@@ -10580,14 +10291,14 @@ impl VipsImage {
     }
 
     pub fn radload_buffer_with_opts(buffer: &[u8], option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "radload_buffer",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "buffer",
@@ -10597,9 +10308,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("RadloadBuffer failed"),
         )
     }
@@ -10628,26 +10337,24 @@ impl VipsImage {
     }
 
     pub fn radload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "radload_source",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "source",
-                    VipsValue::SourcePtr(source.ctx),
+                    VipsValue::Source(source),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("RadloadSource failed"),
         )
     }
@@ -10679,7 +10386,7 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "filename",
@@ -10720,27 +10427,24 @@ impl VipsImage {
     }
 
     pub fn radsave_buffer_with_opts(&self, option: VOption) -> Result<Vec<u8>> {
-        let mut buffer_out: *mut bindings::VipsBlob = null_mut();
+        let mut blob = VipsBlob::from(null_mut());
 
         let vips_op_response = call(
             "radsave_buffer",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "buffer",
-                    VipsValue::MutBlobPtr(&mut buffer_out),
+                    VipsValue::MutBlob(&mut blob),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out,
-            }
-            .into(),
+            blob.into(),
             Error::OperationError("RadsaveBuffer failed"),
         )
     }
@@ -10772,11 +10476,11 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "target",
-                    VipsValue::TargetPtr(target.ctx),
+                    VipsValue::Target(target),
                 ),
         );
         utils::result(
@@ -10861,14 +10565,14 @@ impl VipsImage {
         bands: i32,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "rawload",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "filename",
@@ -10890,9 +10594,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Rawload failed"),
         )
     }
@@ -10923,7 +10625,7 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "filename",
@@ -10964,27 +10666,24 @@ impl VipsImage {
     }
 
     pub fn rawsave_buffer_with_opts(&self, option: VOption) -> Result<Vec<u8>> {
-        let mut buffer_out: *mut bindings::VipsBlob = null_mut();
+        let mut blob = VipsBlob::from(null_mut());
 
         let vips_op_response = call(
             "rawsave_buffer",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "buffer",
-                    VipsValue::MutBlobPtr(&mut buffer_out),
+                    VipsValue::MutBlob(&mut blob),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out,
-            }
-            .into(),
+            blob.into(),
             Error::OperationError("RawsaveBuffer failed"),
         )
     }
@@ -11016,11 +10715,11 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "target",
-                    VipsValue::TargetPtr(target.ctx),
+                    VipsValue::Target(target),
                 ),
         );
         utils::result(
@@ -11091,18 +10790,18 @@ impl VipsImage {
         vshrink: f64,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "reduce",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "hshrink",
@@ -11116,9 +10815,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Reduce failed"),
         )
     }
@@ -11150,18 +10847,18 @@ impl VipsImage {
     }
 
     pub fn reduceh_with_opts(&self, hshrink: f64, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "reduceh",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "hshrink",
@@ -11171,9 +10868,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Reduceh failed"),
         )
     }
@@ -11205,18 +10900,18 @@ impl VipsImage {
     }
 
     pub fn reducev_with_opts(&self, vshrink: f64, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "reducev",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "vshrink",
@@ -11226,9 +10921,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Reducev failed"),
         )
     }
@@ -11370,18 +11063,18 @@ impl VipsImage {
     }
 
     pub fn remosaic(&self, old_str: &str, new_str: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "remosaic",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "old_str",
@@ -11395,9 +11088,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("remosaic failed"),
         )
     }
@@ -11459,18 +11150,18 @@ impl VipsImage {
     }
 
     pub fn resize_with_opts(&self, scale: f64, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "resize",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "scale",
@@ -11480,9 +11171,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Resize failed"),
         )
     }
@@ -11542,26 +11231,24 @@ impl VipsImage {
     }
 
     pub fn rot45_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "rot45",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Rot45 failed"),
         )
     }
@@ -11593,18 +11280,18 @@ impl VipsImage {
     }
 
     pub fn rotate_with_opts(&self, angle: f64, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "rotate",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "angle",
@@ -11614,9 +11301,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Rotate failed"),
         )
     }
@@ -11717,26 +11402,24 @@ impl VipsImage {
     }
 
     pub fn scRGB2BW_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "scRGB2BW",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("ScRgb2Bw failed"),
         )
     }
@@ -11786,26 +11469,24 @@ impl VipsImage {
     }
 
     pub fn scRGB2sRGB_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "scRGB2sRGB",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("ScRgb2SRgb failed"),
         )
     }
@@ -11833,26 +11514,24 @@ impl VipsImage {
     }
 
     pub fn scale_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "scale",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Scale failed"),
         )
     }
@@ -11923,14 +11602,14 @@ impl VipsImage {
         shape: SdfShape,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "sdf",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "width",
@@ -11948,9 +11627,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Sdf failed"),
         )
     }
@@ -11977,26 +11654,24 @@ impl VipsImage {
         }
     }
     pub fn sequential_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "sequential",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Sequential failed"),
         )
     }
@@ -12024,26 +11699,24 @@ impl VipsImage {
     }
 
     pub fn sharpen_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "sharpen",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Sharpen failed"),
         )
     }
@@ -12084,18 +11757,18 @@ impl VipsImage {
         vshrink: f64,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "shrink",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "hshrink",
@@ -12109,9 +11782,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Shrink failed"),
         )
     }
@@ -12143,18 +11814,18 @@ impl VipsImage {
     }
 
     pub fn shrinkh_with_opts(&self, hshrink: i32, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "shrinkh",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "hshrink",
@@ -12164,9 +11835,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Shrinkh failed"),
         )
     }
@@ -12198,18 +11867,18 @@ impl VipsImage {
     }
 
     pub fn shrinkv_with_opts(&self, vshrink: i32, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "shrinkv",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "vshrink",
@@ -12219,9 +11888,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Shrinkv failed"),
         )
     }
@@ -12271,26 +11938,24 @@ impl VipsImage {
     }
 
     pub fn similarity_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "similarity",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Similarity failed"),
         )
     }
@@ -12324,14 +11989,14 @@ impl VipsImage {
     }
 
     pub fn sines_with_opts(width: i32, height: i32, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "sines",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "width",
@@ -12345,9 +12010,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("sines_with_opts failed"),
         )
     }
@@ -12389,18 +12052,18 @@ impl VipsImage {
         height: i32,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "smartcrop",
             option
                 .with(
                     "input",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "width",
@@ -12414,9 +12077,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Smartcrop failed"),
         )
     }
@@ -12543,18 +12204,18 @@ impl VipsImage {
     }
 
     pub fn stdif_with_opts(&self, width: i32, height: i32, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "stdif",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "width",
@@ -12568,9 +12229,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Stdif failed"),
         )
     }
@@ -12607,18 +12266,18 @@ impl VipsImage {
     }
 
     pub fn subsample_with_opts(&self, xfac: i32, yfac: i32, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "subsample",
             option
                 .with(
                     "input",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "xfac",
@@ -12632,9 +12291,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Subsample failed"),
         )
     }
@@ -12723,14 +12380,14 @@ impl VipsImage {
     }
 
     pub fn svgload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "svgload",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "filename",
@@ -12740,9 +12397,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Svgload failed"),
         )
     }
@@ -12772,14 +12427,14 @@ impl VipsImage {
     }
 
     pub fn svgload_buffer_with_opts(buffer: &[u8], option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "svgload_buffer",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "buffer",
@@ -12789,63 +12444,53 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("SvgloadBuffer failed"),
         )
     }
 
     pub fn svgload_source(source: &VipsSource, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "svgload_source",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "source",
-                    VipsValue::SourcePtr(source.ctx),
+                    VipsValue::Source(source),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("svgload_source failed"),
         )
     }
 
     pub fn switch_image(tests: &[VipsImage], option: VOption) -> Result<VipsImage> {
-        let mut inp = Vec::new();
-        for inp_in in tests {
-            inp.push(inp_in.ctx);
-        }
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "switch",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "tests",
-                    VipsValue::ImagePtrArray(&inp),
+                    VipsValue::ImageArray(tests),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Switch failed"),
         )
     }
@@ -12907,14 +12552,14 @@ impl VipsImage {
     }
 
     pub fn text_with_opts(text: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "text",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "text",
@@ -12924,9 +12569,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Text failed"),
         )
     }
@@ -12959,14 +12602,14 @@ impl VipsImage {
     }
 
     pub fn thumbnail_with_opts(filename: &str, width: i32, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "thumbnail",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "filename",
@@ -12980,9 +12623,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Thumbnail failed"),
         )
     }
@@ -13020,14 +12661,14 @@ impl VipsImage {
         width: i32,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "thumbnail_buffer",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "buffer",
@@ -13041,9 +12682,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("ThumbnailBuffer failed"),
         )
     }
@@ -13075,18 +12714,18 @@ impl VipsImage {
     }
 
     pub fn thumbnail_image_with_opts(&self, width: i32, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "thumbnail_image",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "width",
@@ -13096,9 +12735,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("ThumbnailImage failed"),
         )
     }
@@ -13135,18 +12772,18 @@ impl VipsImage {
         width: i32,
         option: VOption,
     ) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "thumbnail_source",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "source",
-                    VipsValue::SourcePtr(source.ctx),
+                    VipsValue::Source(source),
                 )
                 .with(
                     "width",
@@ -13156,9 +12793,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("ThumbnailSource failed"),
         )
     }
@@ -13187,14 +12822,14 @@ impl VipsImage {
     }
 
     pub fn tiffload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "tiffload",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "filename",
@@ -13204,9 +12839,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Tiffload failed"),
         )
     }
@@ -13236,14 +12869,14 @@ impl VipsImage {
     }
 
     pub fn tiffload_buffer_with_opts(buffer: &[u8], option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "tiffload_buffer",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "buffer",
@@ -13253,9 +12886,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("TiffloadBuffer failed"),
         )
     }
@@ -13284,26 +12915,24 @@ impl VipsImage {
     }
 
     pub fn tiffload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "tiffload_source",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "source",
-                    VipsValue::SourcePtr(source.ctx),
+                    VipsValue::Source(source),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("TiffloadSource failed"),
         )
     }
@@ -13335,7 +12964,7 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "filename",
@@ -13376,27 +13005,24 @@ impl VipsImage {
     }
 
     pub fn tiffsave_buffer_with_opts(&self, option: VOption) -> Result<Vec<u8>> {
-        let mut buffer_out: *mut bindings::VipsBlob = null_mut();
+        let mut blob = VipsBlob::from(null_mut());
 
         let vips_op_response = call(
             "tiffsave_buffer",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "buffer",
-                    VipsValue::MutBlobPtr(&mut buffer_out),
+                    VipsValue::MutBlob(&mut blob),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out,
-            }
-            .into(),
+            blob.into(),
             Error::OperationError("TiffsaveBuffer failed"),
         )
     }
@@ -13427,11 +13053,11 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "target",
-                    VipsValue::TargetPtr(target.ctx),
+                    VipsValue::Target(target),
                 ),
         );
         utils::result(
@@ -13464,26 +13090,24 @@ impl VipsImage {
     }
 
     pub fn tilecache_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "tilecache",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Tilecache failed"),
         )
     }
@@ -13509,21 +13133,19 @@ impl VipsImage {
     }
 
     pub fn tonelut_with_opts(option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "tonelut",
             option.with(
                 "out",
-                VipsValue::MutImagePtr(&mut out_out),
+                VipsValue::MutImage(&mut out_out),
             ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Tonelut failed"),
         )
     }
@@ -13551,26 +13173,24 @@ impl VipsImage {
     }
 
     pub fn transpose3d_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "transpose3d",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Transpose3D failed"),
         )
     }
@@ -13598,26 +13218,24 @@ impl VipsImage {
     }
 
     pub fn unpremultiply_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "unpremultiply",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Unpremultiply failed"),
         )
     }
@@ -13646,14 +13264,14 @@ impl VipsImage {
     }
 
     pub fn vipsload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "vipsload",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "filename",
@@ -13663,9 +13281,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Vipsload failed"),
         )
     }
@@ -13694,26 +13310,24 @@ impl VipsImage {
     }
 
     pub fn vipsload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "vipsload_source",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "source",
-                    VipsValue::SourcePtr(source.ctx),
+                    VipsValue::Source(source),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("VipsloadSource failed"),
         )
     }
@@ -13745,7 +13359,7 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "filename",
@@ -13786,11 +13400,11 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "target",
-                    VipsValue::TargetPtr(target.ctx),
+                    VipsValue::Target(target),
                 ),
         );
         utils::result(
@@ -13823,14 +13437,14 @@ impl VipsImage {
         }
     }
     pub fn webpload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "webpload",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "filename",
@@ -13840,9 +13454,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Webpload failed"),
         )
     }
@@ -13872,14 +13484,14 @@ impl VipsImage {
     }
 
     pub fn webpload_buffer_with_opts(buffer: &[u8], option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "webpload_buffer",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "buffer",
@@ -13889,9 +13501,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("WebploadBuffer failed"),
         )
     }
@@ -13920,26 +13530,24 @@ impl VipsImage {
     }
 
     pub fn webpload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "webpload_source",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "source",
-                    VipsValue::SourcePtr(source.ctx),
+                    VipsValue::Source(source),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("WebploadSource failed"),
         )
     }
@@ -13971,7 +13579,7 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "filename",
@@ -14012,27 +13620,24 @@ impl VipsImage {
     }
 
     pub fn webpsave_buffer_with_opts(&self, option: VOption) -> Result<Vec<u8>> {
-        let mut buffer_out: *mut bindings::VipsBlob = null_mut();
+        let mut blob = VipsBlob::from(null_mut());
 
         let vips_op_response = call(
             "webpsave_buffer",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "buffer",
-                    VipsValue::MutBlobPtr(&mut buffer_out),
+                    VipsValue::MutBlob(&mut blob),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out,
-            }
-            .into(),
+            blob.into(),
             Error::OperationError("WebpsaveBuffer failed"),
         )
     }
@@ -14060,7 +13665,7 @@ impl VipsImage {
             "webpsave_mime",
             option.with(
                 "in",
-                VipsValue::ImagePtr(self.ctx),
+                VipsValue::Image(&VipsImage::from(self.ctx)),
             ),
         );
 
@@ -14098,11 +13703,11 @@ impl VipsImage {
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "target",
-                    VipsValue::TargetPtr(target.ctx),
+                    VipsValue::Target(target),
                 ),
         );
         utils::result(
@@ -14141,14 +13746,14 @@ impl VipsImage {
     }
 
     pub fn worley_with_opts(width: i32, height: i32, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "worley",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "width",
@@ -14162,9 +13767,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Worley failed"),
         )
     }
@@ -14192,26 +13795,24 @@ impl VipsImage {
     }
 
     pub fn wrap_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "wrap",
             option
                 .with(
                     "in",
-                    VipsValue::ImagePtr(self.ctx),
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 ),
         );
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Wrap failed"),
         )
     }
@@ -14245,14 +13846,14 @@ impl VipsImage {
     }
 
     pub fn xyz_with_opts(width: i32, height: i32, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "xyz",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "width",
@@ -14266,9 +13867,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Xyz failed"),
         )
     }
@@ -14302,14 +13901,14 @@ impl VipsImage {
     }
 
     pub fn zone_with_opts(width: i32, height: i32, option: VOption) -> Result<VipsImage> {
-        let mut out_out: *mut bindings::VipsImage = null_mut();
+        let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "zone",
             option
                 .with(
                     "out",
-                    VipsValue::MutImagePtr(&mut out_out),
+                    VipsValue::MutImage(&mut out_out),
                 )
                 .with(
                     "width",
@@ -14323,9 +13922,7 @@ impl VipsImage {
 
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out,
-            },
+            out_out,
             Error::OperationError("Zone failed"),
         )
     }

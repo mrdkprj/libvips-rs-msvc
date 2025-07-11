@@ -2,9 +2,7 @@ use crate::bindings;
 use crate::error::Error;
 use crate::ops::*;
 use crate::utils;
-use crate::voption::call;
-use crate::voption::VOption;
-use crate::voption::VipsValue;
+use crate::voption::{call, VOption, VipsValue};
 use crate::Result;
 use num_traits::{FromPrimitive, ToPrimitive};
 use std::borrow::Cow;
@@ -95,7 +93,7 @@ impl VipsImage {
                 );
             }
 
-            let mut out_out: *mut bindings::VipsImage = null_mut();
+            let mut out_out = VipsImage::from(null_mut());
             call(
                 CStr::from_ptr(operation)
                     .to_str()
@@ -107,10 +105,10 @@ impl VipsImage {
                     )
                     .with(
                         "out",
-                        VipsValue::MutImagePtr(&mut out_out),
+                        VipsValue::MutImage(&mut out_out),
                     ),
             );
-            vips_image_result(
+            vips_image_result_ext(
                 out_out,
                 Error::InitializationError("Could not initialise VipsImage from file"),
             )
@@ -200,7 +198,7 @@ impl VipsImage {
                 );
             }
 
-            let mut out_out: *mut bindings::VipsImage = null_mut();
+            let mut out_out = VipsImage::from(null_mut());
             call(
                 CStr::from_ptr(operation)
                     .to_str()
@@ -212,10 +210,10 @@ impl VipsImage {
                     )
                     .with(
                         "out",
-                        VipsValue::MutImagePtr(&mut out_out),
+                        VipsValue::MutImage(&mut out_out),
                     ),
             );
-            vips_image_result(
+            vips_image_result_ext(
                 out_out,
                 Error::InitializationError("Could not initialise VipsImage from buffer"),
             )
@@ -986,10 +984,7 @@ impl VipsTarget {
     }
 }
 
-pub(crate) unsafe fn vips_image_result(
-    res: *mut bindings::VipsImage,
-    err: Error,
-) -> Result<VipsImage> {
+unsafe fn vips_image_result(res: *mut bindings::VipsImage, err: Error) -> Result<VipsImage> {
     if res.is_null() {
         Err(err)
     } else {
@@ -998,6 +993,17 @@ pub(crate) unsafe fn vips_image_result(
                 ctx: res,
             },
         )
+    }
+}
+
+fn vips_image_result_ext(res: VipsImage, err: Error) -> Result<VipsImage> {
+    if res
+        .ctx
+        .is_null()
+    {
+        Err(err)
+    } else {
+        Ok(res)
     }
 }
 
@@ -1164,6 +1170,46 @@ impl Drop for VipsTarget {
             {
                 bindings::g_object_unref(self.ctx as *mut c_void);
             }
+        }
+    }
+}
+
+impl From<*mut bindings::VipsImage> for VipsImage {
+    fn from(value: *mut bindings::VipsImage) -> Self {
+        Self {
+            ctx: value,
+        }
+    }
+}
+
+impl From<*mut bindings::VipsBlob> for VipsBlob {
+    fn from(value: *mut bindings::VipsBlob) -> Self {
+        Self {
+            ctx: value,
+        }
+    }
+}
+
+impl From<*mut bindings::VipsSource> for VipsSource {
+    fn from(value: *mut bindings::VipsSource) -> Self {
+        Self {
+            ctx: value,
+        }
+    }
+}
+
+impl From<*mut bindings::VipsTarget> for VipsTarget {
+    fn from(value: *mut bindings::VipsTarget) -> Self {
+        Self {
+            ctx: value,
+        }
+    }
+}
+
+impl From<*mut bindings::VipsInterpolate> for VipsInterpolate {
+    fn from(value: *mut bindings::VipsInterpolate) -> Self {
+        Self {
+            ctx: value,
         }
     }
 }

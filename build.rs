@@ -16,7 +16,6 @@ fn main() {
             }
         }
         println!("cargo:rustc-link-lib=dylib=libvips");
-        println!("cargo:rustc-link-lib=dylib=voption");
     }
     #[cfg(not(target_os = "windows"))]
     {
