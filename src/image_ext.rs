@@ -4043,59 +4043,37 @@ impl VipsImage {
         )
     }
 
-    // pub fn getpoint(&self, x: i32, y: i32) -> Result<Vec<f64>> {
-    //     unsafe {
-    //         let inp_in: *mut bindings::VipsImage = self.ctx;
-    //         let mut out_array_size: i32 = 0;
-    //         let mut out_array: *mut f64 = null_mut();
-
-    //         let vips_op_response = bindings::vips_getpoint(
-    //             inp_in,
-    //             &mut out_array,
-    //             &mut out_array_size,
-    //             x,
-    //             y,
-    //             NULL,
-    //         );
-    //         utils::result(
-    //             vips_op_response,
-    //             utils::new_double_array(
-    //                 out_array,
-    //                 out_array_size
-    //                     .try_into()
-    //                     .unwrap(),
-    //             ),
-    //             Error::OperationError("Gaussnoise failed"),
-    //         )
-    //     }
-    // }
+    /// VipsGetpoint (getpoint), read a point from an image
+    /// x: `i32` -> Point to read
+    /// min: 0, max: 10000000, default: 0
+    /// y: `i32` -> Point to read
+    /// min: 0, max: 10000000, default: 0
+    /// returns `Vec<f64>` - Array of output values
     pub fn getpoint(&self, x: i32, y: i32) -> Result<Vec<f64>> {
-        let mut out: Vec<f64> = Vec::new();
-        let vips_op_response = call(
-            "getpoint",
-            VOption::new()
-                .with(
-                    "in",
-                    VipsValue::Image(&VipsImage::from(self.ctx)),
-                )
-                .with(
-                    "out_array",
-                    VipsValue::MutDoubleArray(&mut out),
-                )
-                .with(
-                    "x",
-                    VipsValue::Int(x),
-                )
-                .with(
-                    "y",
-                    VipsValue::Int(y),
+        unsafe {
+            let inp_in: *mut bindings::VipsImage = self.ctx;
+            let mut out_array_size: i32 = 0;
+            let mut out_array: *mut f64 = null_mut();
+
+            let vips_op_response = bindings::vips_getpoint(
+                inp_in,
+                &mut out_array,
+                &mut out_array_size,
+                x,
+                y,
+                NULL,
+            );
+            utils::result(
+                vips_op_response,
+                utils::new_double_array(
+                    out_array,
+                    out_array_size
+                        .try_into()
+                        .unwrap(),
                 ),
-        );
-        utils::result(
-            vips_op_response,
-            out,
-            Error::OperationError("Getpoint failed"),
-        )
+                Error::OperationError("Gaussnoise failed"),
+            )
+        }
     }
 
     /// VipsForeignLoadNsgifFile (gifload), load GIF with libnsgif (.gif), priority=50, is_a, get_flags, get_flags_filename, header, load
