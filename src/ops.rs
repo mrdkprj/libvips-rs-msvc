@@ -1,8 +1,3 @@
-use std::ffi::*;
-use std::ptr::null_mut;
-
-const NULL: *const c_void = null_mut();
-
 #[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
 pub enum Access {
     ///  `Random` -> VIPS_ACCESS_RANDOM = 0

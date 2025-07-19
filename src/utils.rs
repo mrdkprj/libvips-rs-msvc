@@ -1,4 +1,4 @@
-use crate::bindings;
+use crate::bindings::{self, g_type_from_name};
 use crate::bindings::{VipsArrayDouble, VipsArrayImage, VipsArrayInt};
 use crate::error::Error;
 use crate::Result;
@@ -103,6 +103,23 @@ pub(crate) fn new_c_string(string: &str) -> Result<CString> {
 }
 
 #[inline]
+pub(crate) fn ensure_null_terminated(input: impl AsRef<[u8]>) -> Vec<u8> {
+    let bytes = input.as_ref();
+
+    // Check if already null-terminated
+    if bytes.last() == Some(&0) {
+        bytes.to_vec()
+    } else {
+        // Not null-terminated, append 0 and create CString
+        let cstr = CString::new(bytes)
+            .map_err(|_| Error::InitializationError("Error initializing C string."))
+            .unwrap();
+        cstr.as_bytes()
+            .to_vec()
+    }
+}
+
+#[inline]
 pub(crate) unsafe fn new_byte_array(buf: *mut c_void, size: u64) -> Vec<u8> {
     Vec::from_raw_parts(
         buf as *mut u8,
@@ -112,7 +129,7 @@ pub(crate) unsafe fn new_byte_array(buf: *mut c_void, size: u64) -> Vec<u8> {
 }
 
 #[inline]
-pub unsafe fn new_int_array(array: *mut i32, size: u64) -> Vec<i32> {
+pub(crate) unsafe fn new_int_array(array: *mut i32, size: u64) -> Vec<i32> {
     Vec::from(
         std::slice::from_raw_parts(
             array,
@@ -122,11 +139,48 @@ pub unsafe fn new_int_array(array: *mut i32, size: u64) -> Vec<i32> {
 }
 
 #[inline]
-pub unsafe fn new_double_array(array: *mut f64, size: u64) -> Vec<f64> {
+pub(crate) unsafe fn new_double_array(array: *mut f64, size: u64) -> Vec<f64> {
     Vec::from(
         std::slice::from_raw_parts(
             array,
             size as usize,
         ),
     )
+}
+
+fn vips_image_sizeof_element(image: &bindings::VipsImage) -> usize {
+    unsafe { bindings::vips_format_sizeof_unsafe(image.BandFmt) as usize }
+}
+
+fn vips_image_sizeof_pel(image: &bindings::VipsImage) -> usize {
+    vips_image_sizeof_element(image) * image.Bands as usize
+}
+
+fn vips_image_sizeof_line(image: &bindings::VipsImage) -> usize {
+    vips_image_sizeof_pel(image) * image.Xsize as usize
+}
+
+unsafe fn vips_image_addr(image: &bindings::VipsImage, x: i32, y: i32) -> *mut u8 {
+    let offset =
+        y as usize * vips_image_sizeof_line(image) + x as usize * vips_image_sizeof_pel(image);
+    image
+        .data
+        .add(offset)
+}
+
+pub(crate) unsafe fn vips_matrix(image: &bindings::VipsImage, x: i32, y: i32) -> *mut f64 {
+    vips_image_addr(
+        image, x, y,
+    ) as *mut f64
+}
+
+pub const G_TYPE_BOOLEAN: &str = "gboolean";
+pub const G_TYPE_INT: &str = "gint";
+pub const G_TYPE_UINT64: &str = "guint64";
+pub const G_TYPE_DOUBLE: &str = "gdouble";
+pub const G_TYPE_STRING: &str = "gchararray";
+
+pub fn get_g_type(name: &str) -> u64 {
+    let type_name = new_c_string(name).unwrap();
+    unsafe { g_type_from_name(type_name.as_ptr()) }
 }

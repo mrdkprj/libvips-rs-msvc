@@ -3,6 +3,7 @@ use crate::bindings;
 use crate::error::*;
 use crate::ops::*;
 use crate::utils;
+use crate::utils::ensure_null_terminated;
 use crate::voption::{call, VOption, VipsValue};
 use crate::Result;
 use crate::VipsBlob;
@@ -13,7 +14,6 @@ use std::ffi::c_char;
 use std::ffi::c_void;
 use std::ffi::CStr;
 use std::ffi::CString;
-use std::os::raw::c_int;
 use std::ptr::null_mut;
 
 const NULL: *const std::ffi::c_void = null_mut();
@@ -23,21 +23,21 @@ impl VipsImage {
         self.ctx
     }
 
-    pub fn get_typeof(&self, type_: &[u8]) -> u64 {
+    pub fn get_typeof(&self, type_: impl AsRef<[u8]>) -> u64 {
         unsafe {
             bindings::vips_image_get_typeof(
                 self.ctx as _,
-                type_.as_ptr() as _,
+                ensure_null_terminated(type_).as_ptr() as _,
             )
         }
     }
 
-    pub fn get_int(&self, name: &[u8]) -> Result<i32> {
+    pub fn get_int(&self, name: impl AsRef<[u8]>) -> Result<i32> {
         unsafe {
             let mut out = 0;
             let res = bindings::vips_image_get_int(
                 self.ctx as _,
-                name.as_ptr() as _,
+                ensure_null_terminated(name).as_ptr() as _,
                 &mut out,
             );
             utils::result(
@@ -48,22 +48,48 @@ impl VipsImage {
         }
     }
 
-    pub fn set_int(&self, name: &[u8], value: i32) {
+    pub fn set_int(&self, name: impl AsRef<[u8]>, value: i32) {
         unsafe {
             bindings::vips_image_set_int(
                 self.ctx,
-                name.as_ptr() as _,
+                ensure_null_terminated(name).as_ptr() as _,
                 value,
             );
         }
     }
 
-    pub fn get_string(&self, name: &[u8]) -> Result<String> {
+    pub fn get_double(&self, name: impl AsRef<[u8]>) -> Result<f64> {
+        unsafe {
+            let mut out = 0.0;
+            let res = bindings::vips_image_get_double(
+                self.ctx as _,
+                ensure_null_terminated(name).as_ptr() as _,
+                &mut out,
+            );
+            utils::result(
+                res,
+                out,
+                Error::IOError("Cannot get int"),
+            )
+        }
+    }
+
+    pub fn set_double(&self, name: impl AsRef<[u8]>, value: f64) {
+        unsafe {
+            bindings::vips_image_set_double(
+                self.ctx,
+                ensure_null_terminated(name).as_ptr() as _,
+                value,
+            );
+        }
+    }
+
+    pub fn get_string(&self, name: impl AsRef<[u8]>) -> Result<String> {
         unsafe {
             let mut out: *const c_char = std::ptr::null();
             let res = bindings::vips_image_get_string(
                 self.ctx,
-                name.as_ptr() as _,
+                ensure_null_terminated(name).as_ptr() as _,
                 &mut out,
             );
 
@@ -77,23 +103,23 @@ impl VipsImage {
         }
     }
 
-    pub fn set_string(&self, name: &[u8], value: &str) {
+    pub fn set_string(&self, name: impl AsRef<[u8]>, value: &str) {
         unsafe {
             bindings::vips_image_set_string(
                 self.ctx,
-                name.as_ptr() as _,
+                ensure_null_terminated(name).as_ptr() as _,
                 value.as_ptr() as _,
             )
         };
     }
 
-    pub fn get_blob(&self, name: &[u8]) -> Result<Vec<u8>> {
+    pub fn get_blob(&self, name: impl AsRef<[u8]>) -> Result<Vec<u8>> {
         unsafe {
             let mut out: *const c_void = std::ptr::null();
             let mut length = 0;
             let res = bindings::vips_image_get_blob(
                 self.ctx,
-                name.as_ptr() as _,
+                ensure_null_terminated(name).as_ptr() as _,
                 &mut out,
                 &mut length,
             );
@@ -109,31 +135,25 @@ impl VipsImage {
         }
     }
 
-    pub fn set_blob(&self, name: &[u8], blob: &[u8]) {
+    pub fn set_blob(&self, name: impl AsRef<[u8]>, blob: &[u8]) {
         unsafe {
             bindings::vips_image_set_blob(
                 self.ctx,
-                name.as_ptr() as _,
-                Some(Self::vips_area_free_cb_wrapper),
+                ensure_null_terminated(name).as_ptr() as _,
+                None,
                 blob.as_ptr() as _,
                 blob.len() as _,
             )
         };
     }
 
-    unsafe extern "C" fn vips_area_free_cb_wrapper(mem: *mut c_void, area: *mut c_void) -> c_int {
-        // Reinterpret the second argument as *mut VipsArea
-        let area = area as *mut bindings::VipsArea;
-        bindings::vips_area_free_cb(mem, area)
-    }
-
-    pub fn get_array_int(&self, name: &[u8]) -> Result<Vec<i32>> {
+    pub fn get_array_int(&self, name: impl AsRef<[u8]>) -> Result<Vec<i32>> {
         unsafe {
             let mut out: *mut i32 = std::ptr::null_mut();
             let mut size = 0;
             let res = bindings::vips_image_get_array_int(
                 self.ctx,
-                name.as_ptr() as _,
+                ensure_null_terminated(name).as_ptr() as _,
                 &mut out,
                 &mut size,
             );
@@ -148,24 +168,24 @@ impl VipsImage {
         }
     }
 
-    pub fn set_array_int(&self, name: &[u8], value: &[i32]) {
+    pub fn set_array_int(&self, name: impl AsRef<[u8]>, value: &[i32]) {
         unsafe {
             bindings::vips_image_set_array_int(
                 self.ctx,
-                name.as_ptr() as _,
+                ensure_null_terminated(name).as_ptr() as _,
                 value.as_ptr(),
                 value.len() as _,
             )
         };
     }
 
-    pub fn get_array_double(&self, name: &[u8]) -> Result<Vec<f64>> {
+    pub fn get_array_double(&self, name: impl AsRef<[u8]>) -> Result<Vec<f64>> {
         unsafe {
             let mut out: *mut f64 = std::ptr::null_mut();
             let mut size = 0;
             let res = bindings::vips_image_get_array_double(
                 self.ctx,
-                name.as_ptr() as _,
+                ensure_null_terminated(name).as_ptr() as _,
                 &mut out,
                 &mut size,
             );
@@ -181,24 +201,78 @@ impl VipsImage {
         }
     }
 
-    pub fn set_array_double(&self, name: &[u8], value: &[f64]) {
+    pub fn set_array_double(&self, name: impl AsRef<[u8]>, value: &[f64]) {
         unsafe {
             bindings::vips_image_set_array_double(
                 self.ctx,
-                name.as_ptr() as _,
+                ensure_null_terminated(name).as_ptr() as _,
                 value.as_ptr(),
                 value.len() as _,
             )
         };
     }
 
-    pub fn remove(&self, name: &[u8]) -> bool {
+    pub fn remove(&self, name: impl AsRef<[u8]>) -> bool {
         unsafe {
             bindings::vips_image_remove(
                 self.ctx,
-                name.as_ptr() as _,
+                ensure_null_terminated(name).as_ptr() as _,
             ) == 1
         }
+    }
+
+    pub fn minpos(&self) -> Result<(f64, f64)> {
+        let mut x: f64 = 0.0;
+        let mut y: f64 = 0.0;
+
+        let vips_op_response = call(
+            "min",
+            VOption::new()
+                .with(
+                    "in",
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
+                )
+                .with(
+                    "x",
+                    VipsValue::MutDouble(&mut x),
+                )
+                .with(
+                    "y",
+                    VipsValue::MutDouble(&mut y),
+                ),
+        );
+        utils::result(
+            vips_op_response,
+            (x, y),
+            Error::OperationError("minpos failed"),
+        )
+    }
+
+    pub fn maxpos(&self) -> Result<(f64, f64)> {
+        let mut x: f64 = 0.0;
+        let mut y: f64 = 0.0;
+
+        let vips_op_response = call(
+            "max",
+            VOption::new()
+                .with(
+                    "in",
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
+                )
+                .with(
+                    "x",
+                    VipsValue::MutDouble(&mut x),
+                )
+                .with(
+                    "y",
+                    VipsValue::MutDouble(&mut y),
+                ),
+        );
+        utils::result(
+            vips_op_response,
+            (x, y),
+            Error::OperationError("maxpos failed"),
+        )
     }
 }
 
@@ -712,12 +786,16 @@ impl VipsImage {
                     VipsValue::Image(right),
                 ),
         );
-
         utils::result(
             vips_op_response,
             out_out,
             Error::OperationError("Add failed"),
         )
+    }
+
+    // Alias for operator overload
+    pub(crate) fn add_image(&self, right: &VipsImage) -> Result<VipsImage> {
+        self.add(right)
     }
 
     /// VipsAddAlpha (addalpha), append an alpha channel
@@ -1074,6 +1152,31 @@ impl VipsImage {
                 inp_in.as_mut_ptr(),
                 &mut out_out,
                 inp_len,
+                NULL,
+            );
+            utils::result(
+                vips_op_response,
+                VipsImage {
+                    ctx: out_out,
+                },
+                Error::OperationError("Bandjoin failed"),
+            )
+        }
+    }
+
+    pub fn bandjoin_with(&self, inp: &[VipsImage]) -> Result<VipsImage> {
+        unsafe {
+            let mut inp_in = Vec::new();
+            inp_in.push(self.ctx);
+            for img in inp {
+                inp_in.push(img.ctx)
+            }
+            let mut out_out: *mut bindings::VipsImage = null_mut();
+
+            let vips_op_response = bindings::vips_bandjoin(
+                inp_in.as_mut_ptr(),
+                &mut out_out,
+                inp_in.len() as i32,
                 NULL,
             );
             utils::result(

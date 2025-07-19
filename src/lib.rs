@@ -11,8 +11,9 @@ pub mod bindings;
 pub mod error;
 mod image;
 mod image_ext;
+pub mod operator;
 pub mod ops;
-mod utils;
+pub mod utils;
 pub mod voption;
 
 use error::Error;

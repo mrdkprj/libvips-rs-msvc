@@ -257,7 +257,32 @@ impl VipsImage {
             );
             vips_image_result(
                 res,
-                Error::InitializationError("Could not initialise VipsImage from file"),
+                Error::InitializationError("Could not initialise VipsImage from matrix"),
+            )
+        }
+    }
+
+    pub fn image_new_matrixv(width: i32, height: i32, array: &[f64]) -> Result<VipsImage> {
+        unsafe {
+            let matrix = bindings::vips_image_new_matrix(
+                width,
+                height,
+            );
+
+            let mut i = 0;
+            for y in 0..height {
+                for x in 0..width {
+                    *utils::vips_matrix(
+                        &*matrix,
+                        x,
+                        y,
+                    ) = array[i];
+                    i += 1;
+                }
+            }
+            vips_image_result(
+                matrix,
+                Error::InitializationError("Could not initialise VipsImage from matrix"),
             )
         }
     }
@@ -276,7 +301,7 @@ impl VipsImage {
             );
             vips_image_result(
                 res,
-                Error::InitializationError("Could not initialise VipsImage from file"),
+                Error::InitializationError("Could not initialise VipsImage from matrix"),
             )
         }
     }

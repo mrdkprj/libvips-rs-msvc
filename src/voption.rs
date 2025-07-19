@@ -1,12 +1,11 @@
-use crate::bindings::*;
-use crate::utils::new_c_string;
+use crate::{
+    bindings::*,
+    utils::{
+        get_g_type, new_c_string, G_TYPE_BOOLEAN, G_TYPE_DOUBLE, G_TYPE_INT, G_TYPE_STRING,
+        G_TYPE_UINT64,
+    },
+};
 use std::{mem::MaybeUninit, os::raw::c_void};
-
-const G_TYPE_BOOLEAN: &str = "gboolean";
-const G_TYPE_INT: &str = "gint";
-const G_TYPE_UINT64: &str = "guint64";
-const G_TYPE_DOUBLE: &str = "gdouble";
-const G_TYPE_STRING: &str = "gchararray";
 
 pub fn call(operation: &str, option: VOption) -> std::os::raw::c_int {
     unsafe {
@@ -606,11 +605,6 @@ fn set_property(operation: *mut VipsOperation, name: &str, value: *mut GValue) {
             );
         }
     }
-}
-
-fn get_g_type(name: &str) -> u64 {
-    let type_name = new_c_string(name).unwrap();
-    unsafe { g_type_from_name(type_name.as_ptr()) }
 }
 
 fn g_warning() {
