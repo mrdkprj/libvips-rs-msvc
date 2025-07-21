@@ -171,13 +171,13 @@ impl Vips {
         unsafe { bindings::vips_cache_get_max_files() }
     }
 
-    pub fn vips_cache_set_dump(flag: bool) {
+    pub fn cache_set_dump(flag: bool) {
         unsafe {
             bindings::vips_cache_set_dump(if flag { 1 } else { 0 });
         }
     }
 
-    pub fn vips_cache_set_trace(flag: bool) {
+    pub fn cache_set_trace(flag: bool) {
         unsafe {
             bindings::vips_cache_set_trace(if flag { 1 } else { 0 });
         }
@@ -205,6 +205,10 @@ impl Vips {
 
     pub fn tracked_get_allocs() -> i32 {
         unsafe { bindings::vips_tracked_get_allocs() }
+    }
+
+    pub fn tracked_get_files() -> i32 {
+        unsafe { bindings::vips_tracked_get_files() }
     }
 
     pub fn pipe_read_limit_set(limit: i64) {
