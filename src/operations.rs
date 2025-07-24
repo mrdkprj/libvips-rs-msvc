@@ -1,284 +1,786 @@
 #![allow(clippy::too_many_arguments)]
+#![allow(clippy::upper_case_acronyms)]
 use crate::bindings;
 use crate::error::*;
-use crate::ops::*;
 use crate::utils;
-use crate::utils::ensure_null_terminated;
 use crate::voption::{call, VOption, VipsValue};
 use crate::Result;
 use crate::VipsBlob;
 use crate::VipsImage;
 use crate::VipsSource;
 use crate::VipsTarget;
-use std::ffi::c_char;
 use std::ffi::c_void;
-use std::ffi::CStr;
 use std::ffi::CString;
 use std::ptr::null_mut;
 
 const NULL: *const std::ffi::c_void = null_mut();
 
-impl VipsImage {
-    pub fn as_mut_ptr(&self) -> *mut bindings::VipsImage {
-        self.ctx
-    }
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum Access {
+    ///  `Random` -> VIPS_ACCESS_RANDOM = 0
+    Random = 0,
+    ///  `Sequential` -> VIPS_ACCESS_SEQUENTIAL = 1
+    Sequential = 1,
+    ///  `SequentialUnbuffered` -> VIPS_ACCESS_SEQUENTIAL_UNBUFFERED = 2
+    SequentialUnbuffered = 2,
+    ///  `Last` -> VIPS_ACCESS_LAST = 3
+    Last = 3,
+}
 
-    pub fn get_typeof(&self, type_: impl AsRef<[u8]>) -> u64 {
-        unsafe {
-            bindings::vips_image_get_typeof(
-                self.ctx as _,
-                ensure_null_terminated(type_).as_ptr() as _,
-            )
-        }
-    }
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum Align {
+    ///  `Low` -> VIPS_ALIGN_LOW = 0
+    Low = 0,
+    ///  `Centre` -> VIPS_ALIGN_CENTRE = 1
+    Centre = 1,
+    ///  `High` -> VIPS_ALIGN_HIGH = 2
+    High = 2,
+    ///  `Last` -> VIPS_ALIGN_LAST = 3
+    Last = 3,
+}
 
-    pub fn get_int(&self, name: impl AsRef<[u8]>) -> Result<i32> {
-        unsafe {
-            let mut out = 0;
-            let res = bindings::vips_image_get_int(
-                self.ctx as _,
-                ensure_null_terminated(name).as_ptr() as _,
-                &mut out,
-            );
-            utils::result(
-                res,
-                out,
-                Error::IOError("Cannot get int"),
-            )
-        }
-    }
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, Eq, PartialEq)]
+pub enum Angle {
+    ///  `D0` -> VIPS_ANGLE_D0 = 0
+    D0 = 0,
+    ///  `D90` -> VIPS_ANGLE_D90 = 1
+    D90 = 1,
+    ///  `D180` -> VIPS_ANGLE_D180 = 2
+    D180 = 2,
+    ///  `D270` -> VIPS_ANGLE_D270 = 3
+    D270 = 3,
+    ///  `Last` -> VIPS_ANGLE_LAST = 4
+    Last = 4,
+}
 
-    pub fn set_int(&self, name: impl AsRef<[u8]>, value: i32) {
-        unsafe {
-            bindings::vips_image_set_int(
-                self.ctx,
-                ensure_null_terminated(name).as_ptr() as _,
-                value,
-            );
-        }
-    }
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum Angle45 {
+    ///  `D0` -> VIPS_ANGLE45_D0 = 0
+    D0 = 0,
+    ///  `D45` -> VIPS_ANGLE45_D45 = 1
+    D45 = 1,
+    ///  `D90` -> VIPS_ANGLE45_D90 = 2
+    D90 = 2,
+    ///  `D135` -> VIPS_ANGLE45_D135 = 3
+    D135 = 3,
+    ///  `D180` -> VIPS_ANGLE45_D180 = 4
+    D180 = 4,
+    ///  `D225` -> VIPS_ANGLE45_D225 = 5
+    D225 = 5,
+    ///  `D270` -> VIPS_ANGLE45_D270 = 6
+    D270 = 6,
+    ///  `D315` -> VIPS_ANGLE45_D315 = 7
+    D315 = 7,
+    ///  `Last` -> VIPS_ANGLE45_LAST = 8
+    Last = 8,
+}
 
-    pub fn get_double(&self, name: impl AsRef<[u8]>) -> Result<f64> {
-        unsafe {
-            let mut out = 0.0;
-            let res = bindings::vips_image_get_double(
-                self.ctx as _,
-                ensure_null_terminated(name).as_ptr() as _,
-                &mut out,
-            );
-            utils::result(
-                res,
-                out,
-                Error::IOError("Cannot get int"),
-            )
-        }
-    }
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq)]
+pub enum BandFormat {
+    ///  `Notset` -> VIPS_FORMAT_NOTSET = -1
+    Notset = -1,
+    ///  `Uchar` -> VIPS_FORMAT_UCHAR = 0
+    Uchar = 0,
+    ///  `Char` -> VIPS_FORMAT_CHAR = 1
+    Char = 1,
+    ///  `Ushort` -> VIPS_FORMAT_USHORT = 2
+    Ushort = 2,
+    ///  `Short` -> VIPS_FORMAT_SHORT = 3
+    Short = 3,
+    ///  `Uint` -> VIPS_FORMAT_UINT = 4
+    Uint = 4,
+    ///  `Int` -> VIPS_FORMAT_INT = 5
+    Int = 5,
+    ///  `Float` -> VIPS_FORMAT_FLOAT = 6
+    Float = 6,
+    ///  `Complex` -> VIPS_FORMAT_COMPLEX = 7
+    Complex = 7,
+    ///  `Double` -> VIPS_FORMAT_DOUBLE = 8
+    Double = 8,
+    ///  `Dpcomplex` -> VIPS_FORMAT_DPCOMPLEX = 9
+    Dpcomplex = 9,
+    ///  `Last` -> VIPS_FORMAT_LAST = 10
+    Last = 10,
+}
 
-    pub fn set_double(&self, name: impl AsRef<[u8]>, value: f64) {
-        unsafe {
-            bindings::vips_image_set_double(
-                self.ctx,
-                ensure_null_terminated(name).as_ptr() as _,
-                value,
-            );
-        }
-    }
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum BlendMode {
+    ///  `Clear` -> VIPS_BLEND_MODE_CLEAR = 0
+    Clear = 0,
+    ///  `Source` -> VIPS_BLEND_MODE_SOURCE = 1
+    Source = 1,
+    ///  `Over` -> VIPS_BLEND_MODE_OVER = 2
+    Over = 2,
+    ///  `In` -> VIPS_BLEND_MODE_IN = 3
+    In = 3,
+    ///  `Out` -> VIPS_BLEND_MODE_OUT = 4
+    Out = 4,
+    ///  `Atop` -> VIPS_BLEND_MODE_ATOP = 5
+    Atop = 5,
+    ///  `Dest` -> VIPS_BLEND_MODE_DEST = 6
+    Dest = 6,
+    ///  `DestOver` -> VIPS_BLEND_MODE_DEST_OVER = 7
+    DestOver = 7,
+    ///  `DestIn` -> VIPS_BLEND_MODE_DEST_IN = 8
+    DestIn = 8,
+    ///  `DestOut` -> VIPS_BLEND_MODE_DEST_OUT = 9
+    DestOut = 9,
+    ///  `DestAtop` -> VIPS_BLEND_MODE_DEST_ATOP = 10
+    DestAtop = 10,
+    ///  `Xor` -> VIPS_BLEND_MODE_XOR = 11
+    Xor = 11,
+    ///  `Add` -> VIPS_BLEND_MODE_ADD = 12
+    Add = 12,
+    ///  `Saturate` -> VIPS_BLEND_MODE_SATURATE = 13
+    Saturate = 13,
+    ///  `Multiply` -> VIPS_BLEND_MODE_MULTIPLY = 14
+    Multiply = 14,
+    ///  `Screen` -> VIPS_BLEND_MODE_SCREEN = 15
+    Screen = 15,
+    ///  `Overlay` -> VIPS_BLEND_MODE_OVERLAY = 16
+    Overlay = 16,
+    ///  `Darken` -> VIPS_BLEND_MODE_DARKEN = 17
+    Darken = 17,
+    ///  `Lighten` -> VIPS_BLEND_MODE_LIGHTEN = 18
+    Lighten = 18,
+    ///  `ColourDodge` -> VIPS_BLEND_MODE_COLOUR_DODGE = 19
+    ColourDodge = 19,
+    ///  `ColourBurn` -> VIPS_BLEND_MODE_COLOUR_BURN = 20
+    ColourBurn = 20,
+    ///  `HardLight` -> VIPS_BLEND_MODE_HARD_LIGHT = 21
+    HardLight = 21,
+    ///  `SoftLight` -> VIPS_BLEND_MODE_SOFT_LIGHT = 22
+    SoftLight = 22,
+    ///  `Difference` -> VIPS_BLEND_MODE_DIFFERENCE = 23
+    Difference = 23,
+    ///  `Exclusion` -> VIPS_BLEND_MODE_EXCLUSION = 24
+    Exclusion = 24,
+    ///  `Last` -> VIPS_BLEND_MODE_LAST = 25
+    Last = 25,
+}
 
-    pub fn get_string(&self, name: impl AsRef<[u8]>) -> Result<String> {
-        unsafe {
-            let mut out: *const c_char = std::ptr::null();
-            let res = bindings::vips_image_get_string(
-                self.ctx,
-                ensure_null_terminated(name).as_ptr() as _,
-                &mut out,
-            );
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum Coding {
+    ///  `Error` -> VIPS_CODING_ERROR = -1
+    Error = -1,
+    ///  `None` -> VIPS_CODING_NONE = 0
+    None = 0,
+    ///  `Labq` -> VIPS_CODING_LABQ = 2
+    Labq = 2,
+    ///  `Rad` -> VIPS_CODING_RAD = 6
+    Rad = 6,
+    ///  `Last` -> VIPS_CODING_LAST = 7
+    Last = 7,
+}
 
-            utils::result(
-                res,
-                CStr::from_ptr(out)
-                    .to_string_lossy()
-                    .into_owned(),
-                Error::IOError("Cannot get string"),
-            )
-        }
-    }
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum Combine {
+    ///  `Max` -> VIPS_COMBINE_MAX = 0
+    Max = 0,
+    ///  `Sum` -> VIPS_COMBINE_SUM = 1
+    Sum = 1,
+    ///  `Min` -> VIPS_COMBINE_MIN = 2
+    Min = 2,
+    ///  `Last` -> VIPS_COMBINE_LAST = 3
+    Last = 3,
+}
 
-    pub fn set_string(&self, name: impl AsRef<[u8]>, value: &str) {
-        unsafe {
-            bindings::vips_image_set_string(
-                self.ctx,
-                ensure_null_terminated(name).as_ptr() as _,
-                value.as_ptr() as _,
-            )
-        };
-    }
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum CombineMode {
+    ///  `Set` -> VIPS_COMBINE_MODE_SET = 0
+    Set = 0,
+    ///  `Add` -> VIPS_COMBINE_MODE_ADD = 1
+    Add = 1,
+    ///  `Last` -> VIPS_COMBINE_MODE_LAST = 2
+    Last = 2,
+}
 
-    pub fn get_blob(&self, name: impl AsRef<[u8]>) -> Result<Vec<u8>> {
-        unsafe {
-            let mut out: *const c_void = std::ptr::null();
-            let mut length = 0;
-            let res = bindings::vips_image_get_blob(
-                self.ctx,
-                ensure_null_terminated(name).as_ptr() as _,
-                &mut out,
-                &mut length,
-            );
-            utils::result(
-                res,
-                std::slice::from_raw_parts(
-                    out as *const u8,
-                    length as _,
-                )
-                .to_vec(),
-                Error::IOError("Cannot get blob"),
-            )
-        }
-    }
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum CompassDirection {
+    ///  `Centre` -> VIPS_COMPASS_DIRECTION_CENTRE = 0
+    Centre = 0,
+    ///  `North` -> VIPS_COMPASS_DIRECTION_NORTH = 1
+    North = 1,
+    ///  `East` -> VIPS_COMPASS_DIRECTION_EAST = 2
+    East = 2,
+    ///  `South` -> VIPS_COMPASS_DIRECTION_SOUTH = 3
+    South = 3,
+    ///  `West` -> VIPS_COMPASS_DIRECTION_WEST = 4
+    West = 4,
+    ///  `NorthEast` -> VIPS_COMPASS_DIRECTION_NORTH_EAST = 5
+    NorthEast = 5,
+    ///  `SouthEast` -> VIPS_COMPASS_DIRECTION_SOUTH_EAST = 6
+    SouthEast = 6,
+    ///  `SouthWest` -> VIPS_COMPASS_DIRECTION_SOUTH_WEST = 7
+    SouthWest = 7,
+    ///  `NorthWest` -> VIPS_COMPASS_DIRECTION_NORTH_WEST = 8
+    NorthWest = 8,
+    ///  `Last` -> VIPS_COMPASS_DIRECTION_LAST = 9
+    Last = 9,
+}
 
-    pub fn set_blob(&self, name: impl AsRef<[u8]>, blob: &[u8]) {
-        unsafe {
-            bindings::vips_image_set_blob(
-                self.ctx,
-                ensure_null_terminated(name).as_ptr() as _,
-                None,
-                blob.as_ptr() as _,
-                blob.len() as _,
-            )
-        };
-    }
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum Direction {
+    ///  `Horizontal` -> VIPS_DIRECTION_HORIZONTAL = 0
+    Horizontal = 0,
+    ///  `Vertical` -> VIPS_DIRECTION_VERTICAL = 1
+    Vertical = 1,
+    ///  `Last` -> VIPS_DIRECTION_LAST = 2
+    Last = 2,
+}
 
-    pub fn get_array_int(&self, name: impl AsRef<[u8]>) -> Result<Vec<i32>> {
-        unsafe {
-            let mut out: *mut i32 = std::ptr::null_mut();
-            let mut size = 0;
-            let res = bindings::vips_image_get_array_int(
-                self.ctx,
-                ensure_null_terminated(name).as_ptr() as _,
-                &mut out,
-                &mut size,
-            );
-            utils::result(
-                res,
-                utils::new_int_array(
-                    out,
-                    size as _,
-                ),
-                Error::IOError("Cannot get array int"),
-            )
-        }
-    }
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, Eq)]
+pub enum Extend {
+    ///  `Black` -> VIPS_EXTEND_BLACK = 0
+    Black = 0,
+    ///  `Copy` -> VIPS_EXTEND_COPY = 1
+    Copy = 1,
+    ///  `Repeat` -> VIPS_EXTEND_REPEAT = 2
+    Repeat = 2,
+    ///  `Mirror` -> VIPS_EXTEND_MIRROR = 3
+    Mirror = 3,
+    ///  `White` -> VIPS_EXTEND_WHITE = 4
+    White = 4,
+    ///  `Background` -> VIPS_EXTEND_BACKGROUND = 5
+    Background = 5,
+    ///  `Last` -> VIPS_EXTEND_LAST = 6
+    Last = 6,
+}
 
-    pub fn set_array_int(&self, name: impl AsRef<[u8]>, value: &[i32]) {
-        unsafe {
-            bindings::vips_image_set_array_int(
-                self.ctx,
-                ensure_null_terminated(name).as_ptr() as _,
-                value.as_ptr(),
-                value.len() as _,
-            )
-        };
-    }
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum FailOn {
+    ///  `None` -> VIPS_FAIL_ON_NONE = 0
+    None = 0,
+    ///  `Truncated` -> VIPS_FAIL_ON_TRUNCATED = 1
+    Truncated = 1,
+    ///  `Error` -> VIPS_FAIL_ON_ERROR = 2
+    Error = 2,
+    ///  `Warning` -> VIPS_FAIL_ON_WARNING = 3
+    Warning = 3,
+    ///  `Last` -> VIPS_FAIL_ON_LAST = 4
+    Last = 4,
+}
 
-    pub fn get_array_double(&self, name: impl AsRef<[u8]>) -> Result<Vec<f64>> {
-        unsafe {
-            let mut out: *mut f64 = std::ptr::null_mut();
-            let mut size = 0;
-            let res = bindings::vips_image_get_array_double(
-                self.ctx,
-                ensure_null_terminated(name).as_ptr() as _,
-                &mut out,
-                &mut size,
-            );
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialOrd, PartialEq)]
+pub enum ForeignDzDepth {
+    ///  `Onepixel` -> VIPS_FOREIGN_DZ_DEPTH_ONEPIXEL = 0
+    Onepixel = 0,
+    ///  `Onetile` -> VIPS_FOREIGN_DZ_DEPTH_ONETILE = 1
+    Onetile = 1,
+    ///  `One` -> VIPS_FOREIGN_DZ_DEPTH_ONE = 2
+    One = 2,
+    ///  `Last` -> VIPS_FOREIGN_DZ_DEPTH_LAST = 3
+    Last = 3,
+}
 
-            utils::result(
-                res,
-                utils::new_double_array(
-                    out,
-                    size as _,
-                ),
-                Error::IOError("Cannot get array double"),
-            )
-        }
-    }
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum ForeignFlags {
+    ///  `None` -> VIPS_FOREIGN_NONE = 0
+    None = 0,
+    ///  `Partial` -> VIPS_FOREIGN_PARTIAL = 1
+    Partial = 1,
+    ///  `Bigendian` -> VIPS_FOREIGN_BIGENDIAN = 2
+    Bigendian = 2,
+    ///  `Sequential` -> VIPS_FOREIGN_SEQUENTIAL = 4
+    Sequential = 4,
+    ///  `All` -> VIPS_FOREIGN_ALL = 7
+    All = 7,
+}
 
-    pub fn set_array_double(&self, name: impl AsRef<[u8]>, value: &[f64]) {
-        unsafe {
-            bindings::vips_image_set_array_double(
-                self.ctx,
-                ensure_null_terminated(name).as_ptr() as _,
-                value.as_ptr(),
-                value.len() as _,
-            )
-        };
-    }
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum ForeignHeifCompression {
+    ///  `Hevc` -> VIPS_FOREIGN_HEIF_COMPRESSION_HEVC = 1
+    Hevc = 1,
+    ///  `Avc` -> VIPS_FOREIGN_HEIF_COMPRESSION_AVC = 2
+    Avc = 2,
+    ///  `Jpeg` -> VIPS_FOREIGN_HEIF_COMPRESSION_JPEG = 3
+    Jpeg = 3,
+    ///  `Av1` -> VIPS_FOREIGN_HEIF_COMPRESSION_AV1 = 4
+    Av1 = 4,
+    ///  `Last` -> VIPS_FOREIGN_HEIF_COMPRESSION_LAST = 5
+    Last = 5,
+}
 
-    pub fn remove(&self, name: impl AsRef<[u8]>) -> bool {
-        unsafe {
-            bindings::vips_image_remove(
-                self.ctx,
-                ensure_null_terminated(name).as_ptr() as _,
-            ) == 1
-        }
-    }
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum ForeignHeifEncoder {
+    ///  `Auto` -> VIPS_FOREIGN_HEIF_ENCODER_AUTO = 0
+    Auto = 0,
+    ///  `Aom` -> VIPS_FOREIGN_HEIF_ENCODER_AOM = 1
+    Aom = 1,
+    ///  `Rav1E` -> VIPS_FOREIGN_HEIF_ENCODER_RAV1E = 2
+    Rav1E = 2,
+    ///  `Svt` -> VIPS_FOREIGN_HEIF_ENCODER_SVT = 3
+    Svt = 3,
+    ///  `X265` -> VIPS_FOREIGN_HEIF_ENCODER_X265 = 4
+    X265 = 4,
+    ///  `Last` -> VIPS_FOREIGN_HEIF_ENCODER_LAST = 5
+    Last = 5,
+}
 
-    pub fn minpos(&self) -> Result<(f64, f64)> {
-        let mut x: f64 = 0.0;
-        let mut y: f64 = 0.0;
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum ForeignKeep {
+    ///  `None` -> VIPS_FOREIGN_KEEP_NONE = 0
+    None = 0,
+    ///  `Exif` -> VIPS_FOREIGN_KEEP_EXIF = 1
+    Exif = 1,
+    ///  `Xmp` -> VIPS_FOREIGN_KEEP_XMP = 2
+    Xmp = 2,
+    ///  `Iptc` -> VIPS_FOREIGN_KEEP_IPTC = 4
+    Iptc = 4,
+    ///  `Icc` -> VIPS_FOREIGN_KEEP_ICC = 8
+    Icc = 8,
+    ///  `Other` -> VIPS_FOREIGN_KEEP_OTHER = 16
+    Other = 16,
+    ///  `All` -> VIPS_FOREIGN_KEEP_ALL = 31
+    All = 31,
+}
 
-        let vips_op_response = call(
-            "min",
-            VOption::new()
-                .with(
-                    "in",
-                    VipsValue::Image(&VipsImage::from(self.ctx)),
-                )
-                .with(
-                    "x",
-                    VipsValue::MutDouble(&mut x),
-                )
-                .with(
-                    "y",
-                    VipsValue::MutDouble(&mut y),
-                ),
-        );
-        utils::result(
-            vips_op_response,
-            (x, y),
-            Error::OperationError("minpos failed"),
-        )
-    }
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq)]
+pub enum ForeignDzLayout {
+    Dz = 0,
+    Zoomify = 1,
+    Google = 2,
+    Iiif = 3,
+    Iiif3 = 4,
+    Last = 5,
+}
 
-    pub fn maxpos(&self) -> Result<(f64, f64)> {
-        let mut x: f64 = 0.0;
-        let mut y: f64 = 0.0;
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum ForeignDzContainer {
+    Fs = 0,
+    Zip = 1,
+    Szi = 2,
+    Last = 3,
+}
 
-        let vips_op_response = call(
-            "max",
-            VOption::new()
-                .with(
-                    "in",
-                    VipsValue::Image(&VipsImage::from(self.ctx)),
-                )
-                .with(
-                    "x",
-                    VipsValue::MutDouble(&mut x),
-                )
-                .with(
-                    "y",
-                    VipsValue::MutDouble(&mut y),
-                ),
-        );
-        utils::result(
-            vips_op_response,
-            (x, y),
-            Error::OperationError("maxpos failed"),
-        )
-    }
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum ForeignPngFilter {
+    ///  `None` -> VIPS_FOREIGN_PNG_FILTER_NONE = 8
+    None = 8,
+    ///  `Sub` -> VIPS_FOREIGN_PNG_FILTER_SUB = 16
+    Sub = 16,
+    ///  `Up` -> VIPS_FOREIGN_PNG_FILTER_UP = 32
+    Up = 32,
+    ///  `Avg` -> VIPS_FOREIGN_PNG_FILTER_AVG = 64
+    Avg = 64,
+    ///  `Paeth` -> VIPS_FOREIGN_PNG_FILTER_PAETH = 128
+    Paeth = 128,
+    ///  `All` -> VIPS_FOREIGN_PNG_FILTER_ALL = 248
+    All = 248,
+}
+
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum ForeignPpmFormat {
+    ///  `Pbm` -> VIPS_FOREIGN_PPM_FORMAT_PBM = 0
+    Pbm = 0,
+    ///  `Pgm` -> VIPS_FOREIGN_PPM_FORMAT_PGM = 1
+    Pgm = 1,
+    ///  `Ppm` -> VIPS_FOREIGN_PPM_FORMAT_PPM = 2
+    Ppm = 2,
+    ///  `Pfm` -> VIPS_FOREIGN_PPM_FORMAT_PFM = 3
+    Pfm = 3,
+    ///  `Pnm` -> VIPS_FOREIGN_PPM_FORMAT_PNM = 4
+    Pnm = 4,
+    ///  `Last` -> VIPS_FOREIGN_PPM_FORMAT_LAST = 5
+    Last = 5,
+}
+
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum ForeignSubsample {
+    ///  `Auto` -> VIPS_FOREIGN_SUBSAMPLE_AUTO = 0
+    Auto = 0,
+    ///  `On` -> VIPS_FOREIGN_SUBSAMPLE_ON = 1
+    On = 1,
+    ///  `Off` -> VIPS_FOREIGN_SUBSAMPLE_OFF = 2
+    Off = 2,
+    ///  `Last` -> VIPS_FOREIGN_SUBSAMPLE_LAST = 3
+    Last = 3,
+}
+
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
+pub enum ForeignTiffCompression {
+    ///  `None` -> VIPS_FOREIGN_TIFF_COMPRESSION_NONE = 0
+    None = 0,
+    ///  `Jpeg` -> VIPS_FOREIGN_TIFF_COMPRESSION_JPEG = 1
+    Jpeg = 1,
+    ///  `Deflate` -> VIPS_FOREIGN_TIFF_COMPRESSION_DEFLATE = 2
+    Deflate = 2,
+    ///  `Packbit` -> VIPS_FOREIGN_TIFF_COMPRESSION_PACKBITS = 3
+    Packbit = 3,
+    ///  `Ccittfax4` -> VIPS_FOREIGN_TIFF_COMPRESSION_CCITTFAX4 = 4
+    Ccittfax4 = 4,
+    ///  `Lzw` -> VIPS_FOREIGN_TIFF_COMPRESSION_LZW = 5
+    Lzw = 5,
+    ///  `Webp` -> VIPS_FOREIGN_TIFF_COMPRESSION_WEBP = 6
+    Webp = 6,
+    ///  `Zstd` -> VIPS_FOREIGN_TIFF_COMPRESSION_ZSTD = 7
+    Zstd = 7,
+    ///  `Jp2K` -> VIPS_FOREIGN_TIFF_COMPRESSION_JP2K = 8
+    Jp2K = 8,
+    ///  `Last` -> VIPS_FOREIGN_TIFF_COMPRESSION_LAST = 9
+    Last = 9,
+}
+
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
+pub enum ForeignTiffPredictor {
+    ///  `None` -> VIPS_FOREIGN_TIFF_PREDICTOR_NONE = 1
+    None = 1,
+    ///  `Horizontal` -> VIPS_FOREIGN_TIFF_PREDICTOR_HORIZONTAL = 2
+    Horizontal = 2,
+    ///  `Float` -> VIPS_FOREIGN_TIFF_PREDICTOR_FLOAT = 3
+    Float = 3,
+    ///  `Last` -> VIPS_FOREIGN_TIFF_PREDICTOR_LAST = 4
+    Last = 4,
+}
+
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum ForeignTiffResunit {
+    ///  `Cm` -> VIPS_FOREIGN_TIFF_RESUNIT_CM = 0
+    Cm = 0,
+    ///  `Inch` -> VIPS_FOREIGN_TIFF_RESUNIT_INCH = 1
+    Inch = 1,
+    ///  `Last` -> VIPS_FOREIGN_TIFF_RESUNIT_LAST = 2
+    Last = 2,
+}
+
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum ForeignWebpPreset {
+    ///  `Default` -> VIPS_FOREIGN_WEBP_PRESET_DEFAULT = 0
+    Default = 0,
+    ///  `Picture` -> VIPS_FOREIGN_WEBP_PRESET_PICTURE = 1
+    Picture = 1,
+    ///  `Photo` -> VIPS_FOREIGN_WEBP_PRESET_PHOTO = 2
+    Photo = 2,
+    ///  `Drawing` -> VIPS_FOREIGN_WEBP_PRESET_DRAWING = 3
+    Drawing = 3,
+    ///  `Icon` -> VIPS_FOREIGN_WEBP_PRESET_ICON = 4
+    Icon = 4,
+    ///  `Text` -> VIPS_FOREIGN_WEBP_PRESET_TEXT = 5
+    Text = 5,
+    ///  `Last` -> VIPS_FOREIGN_WEBP_PRESET_LAST = 6
+    Last = 6,
+}
+
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum Intent {
+    ///  `Perceptual` -> VIPS_INTENT_PERCEPTUAL = 0
+    Perceptual = 0,
+    ///  `Relative` -> VIPS_INTENT_RELATIVE = 1
+    Relative = 1,
+    ///  `Saturation` -> VIPS_INTENT_SATURATION = 2
+    Saturation = 2,
+    ///  `Absolute` -> VIPS_INTENT_ABSOLUTE = 3
+    Absolute = 3,
+    ///  `Last` -> VIPS_INTENT_LAST = 4
+    Last = 4,
+}
+
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum Interesting {
+    ///  `None` -> VIPS_INTERESTING_NONE = 0
+    None = 0,
+    ///  `Centre` -> VIPS_INTERESTING_CENTRE = 1
+    Centre = 1,
+    ///  `Entropy` -> VIPS_INTERESTING_ENTROPY = 2
+    Entropy = 2,
+    ///  `Attention` -> VIPS_INTERESTING_ATTENTION = 3
+    Attention = 3,
+    ///  `Low` -> VIPS_INTERESTING_LOW = 4
+    Low = 4,
+    ///  `High` -> VIPS_INTERESTING_HIGH = 5
+    High = 5,
+    ///  `All` -> VIPS_INTERESTING_ALL = 6
+    All = 6,
+    ///  `Last` -> VIPS_INTERESTING_LAST = 7
+    Last = 7,
+}
+
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, Eq)]
+pub enum Interpretation {
+    ///  `Error` -> VIPS_INTERPRETATION_ERROR = -1
+    Error = -1,
+    ///  `Multiband` -> VIPS_INTERPRETATION_MULTIBAND = 0
+    Multiband = 0,
+    ///  `BW` -> VIPS_INTERPRETATION_B_W = 1
+    BW = 1,
+    ///  `Histogram` -> VIPS_INTERPRETATION_HISTOGRAM = 10
+    Histogram = 10,
+    ///  `Xyz` -> VIPS_INTERPRETATION_XYZ = 12
+    Xyz = 12,
+    ///  `Lab` -> VIPS_INTERPRETATION_LAB = 13
+    Lab = 13,
+    ///  `Cmyk` -> VIPS_INTERPRETATION_CMYK = 15
+    Cmyk = 15,
+    ///  `Labq` -> VIPS_INTERPRETATION_LABQ = 16
+    Labq = 16,
+    ///  `Rgb` -> VIPS_INTERPRETATION_RGB = 17
+    Rgb = 17,
+    ///  `Cmc` -> VIPS_INTERPRETATION_CMC = 18
+    Cmc = 18,
+    ///  `Lch` -> VIPS_INTERPRETATION_LCH = 19
+    Lch = 19,
+    ///  `Lab` -> VIPS_INTERPRETATION_LABS = 21
+    Labs = 21,
+    ///  `Srgb` -> VIPS_INTERPRETATION_sRGB = 22
+    Srgb = 22,
+    ///  `Yxy` -> VIPS_INTERPRETATION_YXY = 23
+    Yxy = 23,
+    ///  `Fourier` -> VIPS_INTERPRETATION_FOURIER = 24
+    Fourier = 24,
+    ///  `Rgb16` -> VIPS_INTERPRETATION_RGB16 = 25
+    Rgb16 = 25,
+    ///  `Grey16` -> VIPS_INTERPRETATION_GREY16 = 26
+    Grey16 = 26,
+    ///  `Matrix` -> VIPS_INTERPRETATION_MATRIX = 27
+    Matrix = 27,
+    ///  `Scrgb` -> VIPS_INTERPRETATION_scRGB = 28
+    Scrgb = 28,
+    ///  `Hsv` -> VIPS_INTERPRETATION_HSV = 29
+    Hsv = 29,
+    ///  `Last` -> VIPS_INTERPRETATION_LAST = 30
+    Last = 30,
+}
+
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum Kernel {
+    ///  `Nearest` -> VIPS_KERNEL_NEAREST = 0
+    Nearest = 0,
+    ///  `Linear` -> VIPS_KERNEL_LINEAR = 1
+    Linear = 1,
+    ///  `Cubic` -> VIPS_KERNEL_CUBIC = 2
+    Cubic = 2,
+    ///  `Mitchell` -> VIPS_KERNEL_MITCHELL = 3
+    Mitchell = 3,
+    ///  `Lanczos2` -> VIPS_KERNEL_LANCZOS2 = 4
+    Lanczos2 = 4,
+    ///  `Lanczos3` -> VIPS_KERNEL_LANCZOS3 = 5
+    Lanczos3 = 5,
+    ///  `Last` -> VIPS_KERNEL_MKS2013  = 6
+    Mks2013 = 6,
+    ///  `Last` -> VIPS_KERNEL_MKS2021  = 7
+    Mks2021 = 7,
+}
+
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
+pub enum OperationBoolean {
+    ///  `And` -> VIPS_OPERATION_BOOLEAN_AND = 0
+    And = 0,
+    ///  `Or` -> VIPS_OPERATION_BOOLEAN_OR = 1
+    Or = 1,
+    ///  `Eor` -> VIPS_OPERATION_BOOLEAN_EOR = 2
+    Eor = 2,
+    ///  `Lshift` -> VIPS_OPERATION_BOOLEAN_LSHIFT = 3
+    Lshift = 3,
+    ///  `Rshift` -> VIPS_OPERATION_BOOLEAN_RSHIFT = 4
+    Rshift = 4,
+    ///  `Last` -> VIPS_OPERATION_BOOLEAN_LAST = 5
+    Last = 5,
+}
+
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum OperationComplex {
+    ///  `Polar` -> VIPS_OPERATION_COMPLEX_POLAR = 0
+    Polar = 0,
+    ///  `Rect` -> VIPS_OPERATION_COMPLEX_RECT = 1
+    Rect = 1,
+    ///  `Conj` -> VIPS_OPERATION_COMPLEX_CONJ = 2
+    Conj = 2,
+    ///  `Last` -> VIPS_OPERATION_COMPLEX_LAST = 3
+    Last = 3,
+}
+
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum OperationComplex2 {
+    ///  `CrossPhase` -> VIPS_OPERATION_COMPLEX2_CROSS_PHASE = 0
+    CrossPhase = 0,
+    ///  `Last` -> VIPS_OPERATION_COMPLEX2_LAST = 1
+    Last = 1,
+}
+
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum OperationComplexget {
+    ///  `Real` -> VIPS_OPERATION_COMPLEXGET_REAL = 0
+    Real = 0,
+    ///  `Imag` -> VIPS_OPERATION_COMPLEXGET_IMAG = 1
+    Imag = 1,
+    ///  `Last` -> VIPS_OPERATION_COMPLEXGET_LAST = 2
+    Last = 2,
+}
+
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum OperationMath {
+    ///  `Sin` -> VIPS_OPERATION_MATH_SIN = 0
+    Sin = 0,
+    ///  `Co` -> VIPS_OPERATION_MATH_COS = 1
+    Co = 1,
+    ///  `Tan` -> VIPS_OPERATION_MATH_TAN = 2
+    Tan = 2,
+    ///  `Asin` -> VIPS_OPERATION_MATH_ASIN = 3
+    Asin = 3,
+    ///  `Aco` -> VIPS_OPERATION_MATH_ACOS = 4
+    Aco = 4,
+    ///  `Atan` -> VIPS_OPERATION_MATH_ATAN = 5
+    Atan = 5,
+    ///  `Log` -> VIPS_OPERATION_MATH_LOG = 6
+    Log = 6,
+    ///  `Log10` -> VIPS_OPERATION_MATH_LOG10 = 7
+    Log10 = 7,
+    ///  `Exp` -> VIPS_OPERATION_MATH_EXP = 8
+    Exp = 8,
+    ///  `Exp10` -> VIPS_OPERATION_MATH_EXP10 = 9
+    Exp10 = 9,
+    ///  `Sinh` -> VIPS_OPERATION_MATH_SINH = 10
+    Sinh = 10,
+    ///  `Cosh` -> VIPS_OPERATION_MATH_COSH = 11
+    Cosh = 11,
+    ///  `Tanh` -> VIPS_OPERATION_MATH_TANH = 12
+    Tanh = 12,
+    ///  `Asinh` -> VIPS_OPERATION_MATH_ASINH = 13
+    Asinh = 13,
+    ///  `Acosh` -> VIPS_OPERATION_MATH_ACOSH = 14
+    Acosh = 14,
+    ///  `Atanh` -> VIPS_OPERATION_MATH_ATANH = 15
+    Atanh = 15,
+    ///  `Last` -> VIPS_OPERATION_MATH_LAST = 16
+    Last = 16,
+}
+
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum OperationMath2 {
+    ///  `Pow` -> VIPS_OPERATION_MATH2_POW = 0
+    Pow = 0,
+    ///  `Wop` -> VIPS_OPERATION_MATH2_WOP = 1
+    Wop = 1,
+    ///  `Atan2` -> VIPS_OPERATION_MATH2_ATAN2 = 2
+    Atan2 = 2,
+    ///  `Last` -> VIPS_OPERATION_MATH2_LAST = 3
+    Last = 3,
+}
+
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum OperationMorphology {
+    ///  `Erode` -> VIPS_OPERATION_MORPHOLOGY_ERODE = 0
+    Erode = 0,
+    ///  `Dilate` -> VIPS_OPERATION_MORPHOLOGY_DILATE = 1
+    Dilate = 1,
+    ///  `Last` -> VIPS_OPERATION_MORPHOLOGY_LAST = 2
+    Last = 2,
+}
+
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum OperationRelational {
+    ///  `Equal` -> VIPS_OPERATION_RELATIONAL_EQUAL = 0
+    Equal = 0,
+    ///  `Noteq` -> VIPS_OPERATION_RELATIONAL_NOTEQ = 1
+    Noteq = 1,
+    ///  `Less` -> VIPS_OPERATION_RELATIONAL_LESS = 2
+    Less = 2,
+    ///  `Lesseq` -> VIPS_OPERATION_RELATIONAL_LESSEQ = 3
+    Lesseq = 3,
+    ///  `More` -> VIPS_OPERATION_RELATIONAL_MORE = 4
+    More = 4,
+    ///  `Moreeq` -> VIPS_OPERATION_RELATIONAL_MOREEQ = 5
+    Moreeq = 5,
+    ///  `Last` -> VIPS_OPERATION_RELATIONAL_LAST = 6
+    Last = 6,
+}
+
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum OperationRound {
+    ///  `Rint` -> VIPS_OPERATION_ROUND_RINT = 0
+    Rint = 0,
+    ///  `Ceil` -> VIPS_OPERATION_ROUND_CEIL = 1
+    Ceil = 1,
+    ///  `Floor` -> VIPS_OPERATION_ROUND_FLOOR = 2
+    Floor = 2,
+    ///  `Last` -> VIPS_OPERATION_ROUND_LAST = 3
+    Last = 3,
+}
+
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum PCS {
+    ///  `Lab` -> VIPS_PCS_LAB = 0
+    Lab = 0,
+    ///  `Xyz` -> VIPS_PCS_XYZ = 1
+    Xyz = 1,
+    ///  `Last` -> VIPS_PCS_LAST = 2
+    Last = 2,
+}
+
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum Precision {
+    ///  `Integer` -> VIPS_PRECISION_INTEGER = 0
+    Integer = 0,
+    ///  `Float` -> VIPS_PRECISION_FLOAT = 1
+    Float = 1,
+    ///  `Approximate` -> VIPS_PRECISION_APPROXIMATE = 2
+    Approximate = 2,
+    ///  `Last` -> VIPS_PRECISION_LAST = 3
+    Last = 3,
+}
+
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum RegionShrink {
+    ///  `Mean` -> VIPS_REGION_SHRINK_MEAN = 0
+    Mean = 0,
+    ///  `Median` -> VIPS_REGION_SHRINK_MEDIAN = 1
+    Median = 1,
+    ///  `Mode` -> VIPS_REGION_SHRINK_MODE = 2
+    Mode = 2,
+    ///  `Max` -> VIPS_REGION_SHRINK_MAX = 3
+    Max = 3,
+    ///  `Min` -> VIPS_REGION_SHRINK_MIN = 4
+    Min = 4,
+    ///  `Nearest` -> VIPS_REGION_SHRINK_NEAREST = 5
+    Nearest = 5,
+    ///  `Last` -> VIPS_REGION_SHRINK_LAST = 6
+    Last = 6,
+}
+
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum SdfShape {
+    ///  `Circle` -> VIPS_SDF_SHAPE_CIRCLE = 0
+    Circle = 0,
+    ///  `Box` -> VIPS_SDF_SHAPE_BOX = 1
+    Box = 1,
+    ///  `RoundedBox` -> VIPS_SDF_SHAPE_ROUNDED_BOX = 2
+    RoundedBox = 2,
+    ///  `Line` -> VIPS_SDF_SHAPE_LINE = 3
+    Line = 3,
+    ///  `Last` -> VIPS_SDF_SHAPE_LAST = 4
+    Last = 4,
+}
+
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum Size {
+    ///  `Both` -> VIPS_SIZE_BOTH = 0
+    Both = 0,
+    ///  `Up` -> VIPS_SIZE_UP = 1
+    Up = 1,
+    ///  `Down` -> VIPS_SIZE_DOWN = 2
+    Down = 2,
+    ///  `Force` -> VIPS_SIZE_FORCE = 3
+    Force = 3,
+    ///  `Last` -> VIPS_SIZE_LAST = 4
+    Last = 4,
+}
+
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+pub enum TextWrap {
+    ///  `Word` -> VIPS_TEXT_WRAP_WORD = 0
+    Word = 0,
+    ///  `Char` -> VIPS_TEXT_WRAP_CHAR = 1
+    Char = 1,
+    ///  `WordChar` -> VIPS_TEXT_WRAP_WORD_CHAR = 2
+    WordChar = 2,
+    ///  `None` -> VIPS_TEXT_WRAP_NONE = 3
+    None = 3,
+    ///  `Last` -> VIPS_TEXT_WRAP_LAST = 4
+    Last = 4,
 }
 
 impl VipsImage {
-    /// VipsCMC2LCh (CMC2LCh), transform LCh to CMC
-    /// returns `VipsImage` - Output image
+    /// Transform LCh to CMC
     pub fn CMC2LCh(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -299,8 +801,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsCMYK2XYZ (CMYK2XYZ), transform CMYK to XYZ
-    /// returns `VipsImage` - Output image
+    /// Transform CMYK to XYZ
     pub fn CMYK2XYZ(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -321,8 +822,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsHSV2sRGB (HSV2sRGB), transform HSV to sRGB
-    /// returns `VipsImage` - Output image
+    /// Transform HSV to sRGB
     pub fn HSV2sRGB(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -343,8 +843,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsLCh2CMC (LCh2CMC), transform LCh to CMC
-    /// returns `VipsImage` - Output image
+    /// Transform LCh to CMC
     pub fn LCh2CMC(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -365,8 +864,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsLCh2Lab (LCh2Lab), transform LCh to Lab
-    /// returns `VipsImage` - Output image
+    /// Transform LCh to Lab
     pub fn LCh2Lab(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -387,8 +885,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsLab2LCh (Lab2LCh), transform Lab to LCh
-    /// returns `VipsImage` - Output image
+    /// Transform Lab to LCh
     pub fn Lab2LCh(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -409,8 +906,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsLab2LabQ (Lab2LabQ), transform float Lab to LabQ coding
-    /// returns `VipsImage` - Output image
+    /// Transform float Lab to LabQ coding
     pub fn Lab2LabQ(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -431,8 +927,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsLab2LabS (Lab2LabS), transform float Lab to signed short
-    /// returns `VipsImage` - Output image
+    /// Transform float Lab to signed short
     pub fn Lab2LabS(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -453,8 +948,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsLab2XYZ (Lab2XYZ), transform CIELAB to XYZ
-    /// returns `VipsImage` - Output image
+    /// Transform CIELAB to XYZ
     pub fn Lab2XYZ(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -475,9 +969,11 @@ impl VipsImage {
         }
     }
 
-    /// VipsLab2XYZ (Lab2XYZ), transform CIELAB to XYZ
-    /// lab_2xyz_options: `&Lab2XyzOptions` -> optional arguments
-    /// returns `VipsImage` - Output image
+    /// Transform CIELAB to XYZ
+    ///
+    /// Optional arguments
+    ///
+    /// temp: `&[f64]`, colour temperature.
     pub fn Lab2XYZ_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -500,7 +996,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsLabQ2Lab (LabQ2Lab), unpack a LabQ image to float Lab
+    /// Unpack a LabQ image to float Lab
     pub fn LabQ2Lab(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -521,7 +1017,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsLabQ2LabS (LabQ2LabS), unpack a LabQ image to short Lab
+    /// Unpack a LabQ image to short Lab
     pub fn LabQ2LabS(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -542,7 +1038,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsLabQ2sRGB (LabQ2sRGB), convert a LabQ image to sRGB
+    /// Convert a LabQ image to sRGB
     pub fn LabQ2sRGB(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -563,7 +1059,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsLabS2Lab (LabS2Lab), transform signed short Lab to float
+    /// Transform signed short Lab to float
     pub fn LabS2Lab(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -584,7 +1080,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsLabS2LabQ (LabS2LabQ), transform short Lab to LabQ coding
+    /// Transform short Lab to LabQ coding
     pub fn LabS2LabQ(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -605,7 +1101,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsXYZ2CMYK (XYZ2CMYK), transform XYZ to CMYK
+    /// Transform XYZ to CMYK
     pub fn XYZ2CMYK(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -626,8 +1122,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsXYZ2Lab (XYZ2Lab), transform XYZ to Lab
-    /// returns `VipsImage` - Output image
+    /// Transform XYZ to Lab
     pub fn XYZ2Lab(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -648,9 +1143,11 @@ impl VipsImage {
         }
     }
 
-    /// VipsXYZ2Lab (XYZ2Lab), transform XYZ to Lab
-    /// xyz2_lab_options: `&Xyz2LabOptions` -> optional arguments
-    /// returns `VipsImage` - Output image
+    /// Transform XYZ to Lab
+    ///
+    /// Optional arguments
+    ///
+    /// temp: `&[f64]`, colour temperature.
     pub fn XYZ2Lab_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -673,8 +1170,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsXYZ2Yxy (XYZ2Yxy), transform XYZ to Yxy
-    /// returns `VipsImage` - Output image
+    /// Transform XYZ to Yxy
     pub fn XYZ2Yxy(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -695,8 +1191,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsXYZ2scRGB (XYZ2scRGB), transform XYZ to scRGB
-    /// returns `VipsImage` - Output image
+    /// Transform XYZ to scRGB
     pub fn XYZ2scRGB(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -717,8 +1212,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsYxy2XYZ (Yxy2XYZ), transform Yxy to XYZ
-    /// returns `VipsImage` - Output image
+    /// Transform Yxy to XYZ
     pub fn Yxy2XYZ(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -739,8 +1233,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsAbs (abs), absolute value of an image
-    /// returns `VipsImage` - Output image
+    /// Absolute value of an image
     pub fn abs(&self) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -764,9 +1257,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsAdd (add), add two images
-    /// right: `&VipsImage` -> Right-hand image argument
-    /// returns `VipsImage` - Output image
+    /// Add this image to right image
     pub fn add(&self, right: &VipsImage) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -798,8 +1289,7 @@ impl VipsImage {
         self.add(right)
     }
 
-    /// VipsAddAlpha (addalpha), append an alpha channel
-    /// returns `VipsImage` - Output image
+    /// Append an alpha channel
     pub fn addalpha(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -820,9 +1310,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsAffine (affine), affine transform of an image
-    /// matrix: `[f64]` -> Transformation Matrix coefficient
-    /// returns `VipsImage` - Output image
+    /// Affine transform of an image
     pub fn affine(&self, matrix: &[f64]) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -849,16 +1337,27 @@ impl VipsImage {
         )
     }
 
-    /// VipsAffine (affine), affine transform of an image
-    /// interpolate: VipsInterpolate, interpolate pixels with this
-    /// oarea: VipsArrayInt, output rectangle
-    /// idx: gdouble, input horizontal offset
-    /// idy: gdouble, input vertical offset
-    /// odx: gdouble, output horizontal offset
-    /// ody: gdouble, output vertical offset
-    /// extend: VipsExtend, how to generate new pixels
-    /// background: VipsArrayDouble colour for new pixels
-    /// premultiplied: gboolean, images are already premultiplied
+    /// Affine transform of an image
+    ///
+    /// Optional arguments
+    ///
+    /// interpolate: `Interpolate`, interpolate pixels with this
+    ///
+    /// oarea: `&[f64]`, output rectangle
+    ///
+    /// idx: `f64`, input horizontal offset
+    ///
+    /// idy: `f64`, input vertical offset
+    ///
+    /// odx: `f64`, output horizontal offset
+    ///
+    /// ody: `f64`, output vertical offset
+    ///
+    /// extend: `VipsExtend`, how to generate new pixels
+    ///
+    /// background: `&[f64]` colour for new pixels
+    ///
+    /// premultiplied: `bool`, images are already premultiplied
     pub fn affine_with_opts(&self, matrix: &[f64], option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -885,9 +1384,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignLoadAnalyze (analyzeload), load an Analyze6 image (.img, .hdr), priority=-50, untrusted, is_a, get_flags, get_flags_filename, header, load
-    /// filename: `&str` -> Filename to load from
-    /// returns `VipsImage` - Output image
+    /// Load an Analyze 6.0 file.
     pub fn analyzeload(filename: &str) -> Result<VipsImage> {
         unsafe {
             let filename_in: CString = utils::new_c_string(filename)?;
@@ -908,32 +1405,7 @@ impl VipsImage {
         }
     }
 
-    pub fn analyzeload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out = VipsImage::from(null_mut());
-
-        let vips_op_response = call(
-            "analyzeload",
-            option
-                .with(
-                    "out",
-                    VipsValue::MutImage(&mut out_out),
-                )
-                .with(
-                    "filename",
-                    VipsValue::Str(filename),
-                ),
-        );
-
-        utils::result(
-            vips_op_response,
-            out_out,
-            Error::OperationError("Analyzeload failed"),
-        )
-    }
-
-    /// VipsArrayjoin (arrayjoin), join an array of images
-    /// inp: `&mut [VipsImage]` -> Array of input images
-    /// returns `VipsImage` - Output image
+    /// Join an array of images
     pub fn arrayjoin(inp: &[VipsImage]) -> Result<VipsImage> {
         unsafe {
             let (inp_len, mut inp_in) = {
@@ -965,6 +1437,23 @@ impl VipsImage {
         }
     }
 
+    /// Join an array of images
+    ///
+    /// Optional arguments
+    ///
+    /// across: `i32`, number of images per row
+    ///
+    /// shim: `i32`, space between images, in pixels
+    ///
+    /// background: `&[f64]`, background ink colour
+    ///
+    /// halign: `Align`, low, centre or high alignment
+    ///
+    /// valign: `Align`, low, centre or high alignment
+    ///
+    /// hspacing: `i32`, horizontal distance between images
+    ///
+    /// vspacing: `i32`, vertical distance between images
     pub fn arrayjoin_with_opts(inps: &[VipsImage], option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -988,8 +1477,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsAutorot (autorot), autorotate image by exif tag
-    /// returns `VipsImage` - Output image
+    /// Autorotate image by exif tag
     pub fn autorot(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -1010,6 +1498,13 @@ impl VipsImage {
         }
     }
 
+    /// Autorotate image by exif tag
+    ///
+    /// Optional arguments
+    ///
+    /// angle: `Angle`, output, the image was rotated by
+    ///
+    /// flip: `bool`, output, whether the image was flipped.
     pub fn autorot_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -1032,8 +1527,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsAvg (avg), find image average
-    /// returns `f64` - Output value
+    /// Find image average
     pub fn avg(&self) -> Result<f64> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -1052,15 +1546,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsBandbool (bandbool), boolean operation across image bands
-    /// boolean: `OperationBoolean` -> Boolean to perform
-    ///  `And` -> VIPS_OPERATION_BOOLEAN_AND = 0 [DEFAULT]
-    ///  `Or` -> VIPS_OPERATION_BOOLEAN_OR = 1
-    ///  `Eor` -> VIPS_OPERATION_BOOLEAN_EOR = 2
-    ///  `Lshift` -> VIPS_OPERATION_BOOLEAN_LSHIFT = 3
-    ///  `Rshift` -> VIPS_OPERATION_BOOLEAN_RSHIFT = 4
-    ///  `Last` -> VIPS_OPERATION_BOOLEAN_LAST = 5
-    /// returns `VipsImage` - Output image
+    /// Boolean operation across image bands
     pub fn bandbool(&self, boolean: OperationBoolean) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -1085,8 +1571,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsBandfold (bandfold), fold up x axis into bands
-    /// returns `VipsImage` - Output image
+    /// Fold up an image horizontally
     pub fn bandfold(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -1107,6 +1592,11 @@ impl VipsImage {
         }
     }
 
+    /// Fold up an image horizontally
+    ///
+    /// Optional arguments
+    ///
+    /// factor: `i32`, fold by this factor
     pub fn bandfold_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -1130,9 +1620,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsBandjoin (bandjoin), bandwise join a set of images
-    /// inp: `&[VipsImage]` -> Array of input images
-    /// returns `VipsImage` - Output image
+    /// Join a set of images together, bandwise.
     pub fn bandjoin(inp: &[VipsImage]) -> Result<VipsImage> {
         unsafe {
             let (inp_len, mut inp_in) = {
@@ -1164,11 +1652,12 @@ impl VipsImage {
         }
     }
 
-    pub fn bandjoin_with(&self, inp: &[VipsImage]) -> Result<VipsImage> {
+    /// Join this image with a set of images, bandwise.
+    pub fn bandjoin_with(&self, others: &[VipsImage]) -> Result<VipsImage> {
         unsafe {
             let mut inp_in = Vec::new();
             inp_in.push(self.ctx);
-            for img in inp {
+            for img in others {
                 inp_in.push(img.ctx)
             }
             let mut out_out: *mut bindings::VipsImage = null_mut();
@@ -1189,9 +1678,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsBandjoinConst (bandjoin_const), append a constant band to an image
-    /// c: `&[f64]` -> Array of constants to add
-    /// returns `VipsImage` - Output image
+    /// Append a set of constant bands to an image.
     pub fn bandjoin_const(&self, c: &[f64]) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -1215,8 +1702,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsBandmean (bandmean), band-wise average
-    /// returns `VipsImage` - Output image
+    /// Band-wise average
     pub fn bandmean(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -1237,31 +1723,7 @@ impl VipsImage {
         }
     }
 
-    pub fn bandmean_with_opts(&self, option: VOption) -> Result<VipsImage> {
-        let mut out_out = VipsImage::from(null_mut());
-
-        let vips_op_response = call(
-            "bandmean",
-            option
-                .with(
-                    "in",
-                    VipsValue::Image(&VipsImage::from(self.ctx)),
-                )
-                .with(
-                    "out",
-                    VipsValue::MutImage(&mut out_out),
-                ),
-        );
-        utils::result(
-            vips_op_response,
-            out_out,
-            Error::OperationError("Bandmean failed"),
-        )
-    }
-
-    /// VipsBandrank (bandrank), band-wise rank of a set of images
-    /// inp: `&mut [VipsImage]` -> Array of input images
-    /// returns `VipsImage` - Output image
+    /// Band-wise rank of a set of images
     pub fn bandrank(inp: &[VipsImage]) -> Result<VipsImage> {
         unsafe {
             let (inp_len, mut inp_in) = {
@@ -1293,6 +1755,11 @@ impl VipsImage {
         }
     }
 
+    /// Band-wise rank of a set of images
+    ///
+    /// Optional arguments
+    ///
+    /// index: `i32`, pick this index from list of sorted values
     pub fn bandrank_with_opts(inps: &[VipsImage], option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -1316,8 +1783,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsBandunfold (bandunfold), unfold image bands into x axis
-    /// returns `VipsImage` - Output image
+    /// Unfold image bands into x axis
     pub fn bandunfold(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -1338,6 +1804,11 @@ impl VipsImage {
         }
     }
 
+    /// Unfold image bands into x axis
+    ///
+    /// Optional arguments
+    ///
+    /// factor: `i32`, unfold by this factor
     pub fn bandunfold_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -1360,12 +1831,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsBlack (black), make a black image
-    /// width: `i32` -> Image width in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// height: `i32` -> Image height in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// returns `VipsImage` - Output image
+    /// Make a black image
     pub fn black(width: i32, height: i32) -> Result<VipsImage> {
         unsafe {
             let width_in: i32 = width;
@@ -1388,6 +1854,11 @@ impl VipsImage {
         }
     }
 
+    /// Make a black image
+    ///
+    /// Optional arguments
+    ///
+    /// bands: `i32`, output bands
     pub fn black_with_opts(width: i32, height: i32, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -1414,16 +1885,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsBoolean (boolean), boolean operation on two images
-    /// right: `&VipsImage` -> Right-hand image argument
-    /// boolean: `OperationBoolean` -> Boolean to perform
-    ///  `And` -> VIPS_OPERATION_BOOLEAN_AND = 0 [DEFAULT]
-    ///  `Or` -> VIPS_OPERATION_BOOLEAN_OR = 1
-    ///  `Eor` -> VIPS_OPERATION_BOOLEAN_EOR = 2
-    ///  `Lshift` -> VIPS_OPERATION_BOOLEAN_LSHIFT = 3
-    ///  `Rshift` -> VIPS_OPERATION_BOOLEAN_RSHIFT = 4
-    ///  `Last` -> VIPS_OPERATION_BOOLEAN_LAST = 5
-    /// returns `VipsImage` - Output image
+    /// Boolean operation on two images
     pub fn boolean(&self, right: &VipsImage, boolean: OperationBoolean) -> Result<VipsImage> {
         unsafe {
             let left_in: *mut bindings::VipsImage = self.ctx;
@@ -1450,16 +1912,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsBooleanConst (boolean_const), boolean operations against a constant
-    /// boolean: `OperationBoolean` -> Boolean to perform
-    ///  `And` -> VIPS_OPERATION_BOOLEAN_AND = 0 [DEFAULT]
-    ///  `Or` -> VIPS_OPERATION_BOOLEAN_OR = 1
-    ///  `Eor` -> VIPS_OPERATION_BOOLEAN_EOR = 2
-    ///  `Lshift` -> VIPS_OPERATION_BOOLEAN_LSHIFT = 3
-    ///  `Rshift` -> VIPS_OPERATION_BOOLEAN_RSHIFT = 4
-    ///  `Last` -> VIPS_OPERATION_BOOLEAN_LAST = 5
-    /// c: `&mut [f64]` -> Array of constants
-    /// returns `VipsImage` - Output image
+    /// Boolean operations against a constant
     pub fn boolean_const(&self, boolean: OperationBoolean, c: &[f64]) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -1487,9 +1940,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsBuildlut (buildlut), build a look-up table
-    /// inp: `&VipsImage` -> Matrix of XY coordinates
-    /// returns `VipsImage` - Output image
+    /// Build a look-up table
     pub fn buildlut(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -1510,8 +1961,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsByteswap (byteswap), byteswap an image
-    /// returns `VipsImage` - Output image
+    /// Byteswap an image
     pub fn byteswap(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -1532,8 +1982,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsCanny (canny), Canny edge detector
-    /// returns `VipsImage` - Output image
+    /// Canny edge detector
     pub fn canny(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -1554,6 +2003,13 @@ impl VipsImage {
         }
     }
 
+    /// Canny edge detector
+    ///
+    /// Optional arguments
+    ///
+    /// sigma: `f64`, sigma for gaussian blur
+    ///
+    /// precision: `Precision`, calculation accuracy
     pub fn canny_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -1576,12 +2032,13 @@ impl VipsImage {
         )
     }
 
-    pub fn case_image(&self, cases: &[VipsImage], option: VOption) -> Result<VipsImage> {
+    /// Use values in index to select pixels from cases
+    pub fn case(&self, cases: &[VipsImage]) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "case",
-            option
+            VOption::new()
                 .with(
                     "index",
                     VipsValue::Image(&VipsImage::from(self.ctx)),
@@ -1602,21 +2059,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsCast (cast), cast an image
-    /// format: `BandFormat` -> Format to cast to
-    ///  `Notset` -> VIPS_FORMAT_NOTSET = -1
-    ///  `Uchar` -> VIPS_FORMAT_UCHAR = 0 [DEFAULT]
-    ///  `Char` -> VIPS_FORMAT_CHAR = 1
-    ///  `Ushort` -> VIPS_FORMAT_USHORT = 2
-    ///  `Short` -> VIPS_FORMAT_SHORT = 3
-    ///  `Uint` -> VIPS_FORMAT_UINT = 4
-    ///  `Int` -> VIPS_FORMAT_INT = 5
-    ///  `Float` -> VIPS_FORMAT_FLOAT = 6
-    ///  `Complex` -> VIPS_FORMAT_COMPLEX = 7
-    ///  `Double` -> VIPS_FORMAT_DOUBLE = 8
-    ///  `Dpcomplex` -> VIPS_FORMAT_DPCOMPLEX = 9
-    ///  `Last` -> VIPS_FORMAT_LAST = 10
-    /// returns `VipsImage` - Output image
+    /// Cast an image
     pub fn cast(&self, format: BandFormat) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -1638,6 +2081,11 @@ impl VipsImage {
         }
     }
 
+    /// Cast an image
+    ///
+    /// Optional arguments
+    ///
+    /// shift: `bool`, integer values are shifted
     pub fn cast_with_opts(&self, format: BandFormat, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -1664,8 +2112,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsClamp (clamp), clamp values of an image
-    /// returns `VipsImage` - Output image
+    /// Clamps pixel values to a range, by default 0 - 1.
     pub fn clamp(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -1686,6 +2133,13 @@ impl VipsImage {
         }
     }
 
+    /// Clamps pixel values to a range, by default 0 - 1.
+    ///
+    /// Optional arguments
+    ///
+    /// min: `f64`, minimum value
+    ///
+    /// max: `f64`, maximum value
     pub fn clamp_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -1708,30 +2162,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsColourspace (colourspace), convert to a new colorspace
-    /// space: `Interpretation` -> Destination color space
-    ///  `Error` -> VIPS_INTERPRETATION_ERROR = -1
-    ///  `Multiband` -> VIPS_INTERPRETATION_MULTIBAND = 0
-    ///  `BW` -> VIPS_INTERPRETATION_B_W = 1
-    ///  `Histogram` -> VIPS_INTERPRETATION_HISTOGRAM = 10
-    ///  `Xyz` -> VIPS_INTERPRETATION_XYZ = 12
-    ///  `Lab` -> VIPS_INTERPRETATION_LAB = 13
-    ///  `Cmyk` -> VIPS_INTERPRETATION_CMYK = 15
-    ///  `Labq` -> VIPS_INTERPRETATION_LABQ = 16
-    ///  `Rgb` -> VIPS_INTERPRETATION_RGB = 17
-    ///  `Cmc` -> VIPS_INTERPRETATION_CMC = 18
-    ///  `Lch` -> VIPS_INTERPRETATION_LCH = 19
-    ///  `Lab` -> VIPS_INTERPRETATION_LABS = 21
-    ///  `Srgb` -> VIPS_INTERPRETATION_sRGB = 22 [DEFAULT]
-    ///  `Yxy` -> VIPS_INTERPRETATION_YXY = 23
-    ///  `Fourier` -> VIPS_INTERPRETATION_FOURIER = 24
-    ///  `Rgb16` -> VIPS_INTERPRETATION_RGB16 = 25
-    ///  `Grey16` -> VIPS_INTERPRETATION_GREY16 = 26
-    ///  `Matrix` -> VIPS_INTERPRETATION_MATRIX = 27
-    ///  `Scrgb` -> VIPS_INTERPRETATION_scRGB = 28
-    ///  `Hsv` -> VIPS_INTERPRETATION_HSV = 29
-    ///  `Last` -> VIPS_INTERPRETATION_LAST = 30
-    /// returns `VipsImage` - Output image
+    /// Convert to a new colorspace
     pub fn colourspace(&self, space: Interpretation) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -1753,6 +2184,11 @@ impl VipsImage {
         }
     }
 
+    /// Convert to a new colorspace
+    ///
+    /// Optional arguments
+    ///
+    /// source_space: `Interpretation`, input colour space
     pub fn colourspace_with_opts(
         &self,
         space: Interpretation,
@@ -1783,9 +2219,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsCompass (compass), convolve with rotating mask
-    /// mask: `&VipsImage` -> Input matrix image
-    /// returns `VipsImage` - Output image
+    /// Convolve with rotating mask
     pub fn compass(&self, mask: &VipsImage) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -1808,6 +2242,21 @@ impl VipsImage {
         }
     }
 
+    /// Convolve with rotating mask
+    ///
+    /// Optional arguments
+    ///
+    /// times: `i32`, how many times to rotate and convolve
+    ///
+    /// angle: `Angle`, rotate mask by this much between colvolutions
+    ///
+    /// combine: `Combine`, combine results like this
+    ///
+    /// precision: `Precision`, precision for blur, default float
+    ///
+    /// layers: `i32`, number of layers for approximation
+    ///
+    /// cluster: `i32`, cluster lines closer than this distance
     pub fn compass_with_opts(&self, mask: &VipsImage, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -1834,13 +2283,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsComplex (complex), perform a complex operation on an image
-    /// cmplx: `OperationComplex` -> Complex to perform
-    ///  `Polar` -> VIPS_OPERATION_COMPLEX_POLAR = 0 [DEFAULT]
-    ///  `Rect` -> VIPS_OPERATION_COMPLEX_RECT = 1
-    ///  `Conj` -> VIPS_OPERATION_COMPLEX_CONJ = 2
-    ///  `Last` -> VIPS_OPERATION_COMPLEX_LAST = 3
-    /// returns `VipsImage` - Output image
+    /// Perform a complex operation on an image
     pub fn complex(&self, cmplx: OperationComplex) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -1865,13 +2308,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsComplex2 (complex2), complex binary operations on two images
-    /// left: `&VipsImage` -> Left-hand image argument
-    /// right: `&VipsImage` -> Right-hand image argument
-    /// cmplx: `OperationComplex2` -> Binary complex operation to perform
-    ///  `CrossPhase` -> VIPS_OPERATION_COMPLEX2_CROSS_PHASE = 0 [DEFAULT]
-    ///  `Last` -> VIPS_OPERATION_COMPLEX2_LAST = 1
-    /// returns `VipsImage` - Output image
+    /// Complex binary operations on two images
     pub fn complex2(&self, right: &VipsImage, cmplx: OperationComplex2) -> Result<VipsImage> {
         unsafe {
             let left_in: *mut bindings::VipsImage = self.ctx;
@@ -1898,10 +2335,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsComplexform (complexform), form a complex image from two real images
-    /// left: `&VipsImage` -> Left-hand image argument
-    /// right: `&VipsImage` -> Right-hand image argument
-    /// returns `VipsImage` - Output image
+    /// Form a complex image from two real images
     pub fn complexform(&self, right: &VipsImage) -> Result<VipsImage> {
         unsafe {
             let left_in: *mut bindings::VipsImage = self.ctx;
@@ -1923,12 +2357,8 @@ impl VipsImage {
             )
         }
     }
-    /// VipsComplexget (complexget), get a component from a complex image
-    /// get: `OperationComplexget` -> Complex to perform
-    ///  `Real` -> VIPS_OPERATION_COMPLEXGET_REAL = 0 [DEFAULT]
-    ///  `Imag` -> VIPS_OPERATION_COMPLEXGET_IMAG = 1
-    ///  `Last` -> VIPS_OPERATION_COMPLEXGET_LAST = 2
-    /// returns `VipsImage` - Output image
+
+    /// Get a component from a complex image
     pub fn complexget(&self, get: OperationComplexget) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -1953,10 +2383,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsComposite (composite), blend an array of images with an array of blend modes
-    /// inp: `&mut [VipsImage]` -> Array of input images
-    /// mode: `&mut [i32]` -> Array of VipsBlendMode to join with
-    /// returns `VipsImage` - Output image
+    /// Blend an array of images with an array of blend modes
     pub fn composite(&self, inp: &[VipsImage], mode: &[i32]) -> Result<VipsImage> {
         unsafe {
             let (inp_len, mut inp_in) = {
@@ -1991,6 +2418,17 @@ impl VipsImage {
         }
     }
 
+    /// Blend an array of images with an array of blend modes
+    ///
+    /// Optional arguments
+    ///
+    /// compositing_space: `Interpretation` to composite in
+    ///
+    /// premultiplied: `bool`, images are already premultiplied
+    ///
+    /// x: `&[i32]`, array of (n - 1) x coordinates
+    ///
+    /// y: `&[i32]`, array of (n - 1) y coordinates
     pub fn composite_with_opts(
         inps: &[VipsImage],
         mode: &[i32],
@@ -2022,37 +2460,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsComposite2 (composite2), blend a pair of images with a blend mode
-    /// base: `&VipsImage` -> Base image
-    /// overlay: `&VipsImage` -> Overlay image
-    /// mode: `BlendMode` -> VipsBlendMode to join with
-    ///  `Clear` -> VIPS_BLEND_MODE_CLEAR = 0
-    ///  `Source` -> VIPS_BLEND_MODE_SOURCE = 1
-    ///  `Over` -> VIPS_BLEND_MODE_OVER = 2 [DEFAULT]
-    ///  `In` -> VIPS_BLEND_MODE_IN = 3
-    ///  `Out` -> VIPS_BLEND_MODE_OUT = 4
-    ///  `Atop` -> VIPS_BLEND_MODE_ATOP = 5
-    ///  `Dest` -> VIPS_BLEND_MODE_DEST = 6
-    ///  `DestOver` -> VIPS_BLEND_MODE_DEST_OVER = 7
-    ///  `DestIn` -> VIPS_BLEND_MODE_DEST_IN = 8
-    ///  `DestOut` -> VIPS_BLEND_MODE_DEST_OUT = 9
-    ///  `DestAtop` -> VIPS_BLEND_MODE_DEST_ATOP = 10
-    ///  `Xor` -> VIPS_BLEND_MODE_XOR = 11
-    ///  `Add` -> VIPS_BLEND_MODE_ADD = 12
-    ///  `Saturate` -> VIPS_BLEND_MODE_SATURATE = 13
-    ///  `Multiply` -> VIPS_BLEND_MODE_MULTIPLY = 14
-    ///  `Screen` -> VIPS_BLEND_MODE_SCREEN = 15
-    ///  `Overlay` -> VIPS_BLEND_MODE_OVERLAY = 16
-    ///  `Darken` -> VIPS_BLEND_MODE_DARKEN = 17
-    ///  `Lighten` -> VIPS_BLEND_MODE_LIGHTEN = 18
-    ///  `ColourDodge` -> VIPS_BLEND_MODE_COLOUR_DODGE = 19
-    ///  `ColourBurn` -> VIPS_BLEND_MODE_COLOUR_BURN = 20
-    ///  `HardLight` -> VIPS_BLEND_MODE_HARD_LIGHT = 21
-    ///  `SoftLight` -> VIPS_BLEND_MODE_SOFT_LIGHT = 22
-    ///  `Difference` -> VIPS_BLEND_MODE_DIFFERENCE = 23
-    ///  `Exclusion` -> VIPS_BLEND_MODE_EXCLUSION = 24
-    ///  `Last` -> VIPS_BLEND_MODE_LAST = 25
-    /// returns `VipsImage` - Output image
+    /// Blend a pair of images with a blend mode
     pub fn composite2(&self, overlay: &VipsImage, mode: BlendMode) -> Result<VipsImage> {
         unsafe {
             let base_in: *mut bindings::VipsImage = self.ctx;
@@ -2079,6 +2487,17 @@ impl VipsImage {
         }
     }
 
+    /// Blend a pair of images with a blend mode
+    ///
+    /// Optional arguments
+    ///
+    /// compositing_space: `Interpretation` to composite in
+    ///
+    /// premultiplied: `bool`, images are already premultiplied
+    ///
+    /// x: `i32`, position of overlay
+    ///
+    /// y: `i32`, position of overlay.
     pub fn composite2_with_opts(
         &self,
         overlay: &VipsImage,
@@ -2114,9 +2533,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsConv (conv), convolution operation
-    /// mask: `&VipsImage` -> Input matrix image
-    /// returns `VipsImage` - Output image
+    /// Convolution operation
     pub fn conv(&self, mask: &VipsImage) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -2139,6 +2556,15 @@ impl VipsImage {
         }
     }
 
+    /// Convolution operation
+    ///
+    /// Optional arguments
+    ///
+    /// precision: `Precision`, calculation accuracy
+    ///
+    /// layers: `i32`, number of layers for approximation
+    ///
+    /// cluster: `i32`, cluster lines closer than this distance
     pub fn conv_with_opts(&self, mask: &VipsImage, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -2165,9 +2591,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsConva (conva), approximate integer convolution
-    /// mask: `&VipsImage` -> Input matrix image
-    /// returns `VipsImage` - Output image
+    /// Approximate integer convolution
     pub fn conva(&self, mask: &VipsImage) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -2189,6 +2613,14 @@ impl VipsImage {
             )
         }
     }
+
+    /// Approximate integer convolution
+    ///
+    /// Optional arguments
+    ///
+    /// layers: `i32`, number of layers for approximation
+    ///
+    /// cluster: `i32`, cluster lines closer than this distance
     pub fn conva_with_opts(&self, mask: &VipsImage, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -2215,9 +2647,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsConvasep (convasep), approximate separable integer convolution
-    /// mask: `&VipsImage` -> Input matrix image
-    /// returns `VipsImage` - Output image
+    /// Approximate separable integer convolution
     pub fn convasep(&self, mask: &VipsImage) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -2240,6 +2670,11 @@ impl VipsImage {
         }
     }
 
+    /// Approximate separable integer convolution
+    ///
+    /// Optional arguments
+    ///
+    /// layers: `i32`, number of layers for approximation
     pub fn convasep_with_opts(&self, mask: &VipsImage, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -2266,9 +2701,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsConvf (convf), float convolution operation
-    /// mask: `&VipsImage` -> Input matrix image
-    /// returns `VipsImage` - Output image
+    /// Float convolution operation
     pub fn convf(&self, mask: &VipsImage) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -2290,9 +2723,7 @@ impl VipsImage {
             )
         }
     }
-    /// VipsConvi (convi), int convolution operation
-    /// mask: `&VipsImage` -> Input matrix image
-    /// returns `VipsImage` - Output image
+    /// Int convolution operation
     pub fn convi(&self, mask: &VipsImage) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -2315,9 +2746,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsConvsep (convsep), separable convolution operation
-    /// mask: `&VipsImage` -> Input matrix image
-    /// returns `VipsImage` - Output image
+    /// Separable convolution operation
     pub fn convsep(&self, mask: &VipsImage) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -2339,6 +2768,16 @@ impl VipsImage {
             )
         }
     }
+
+    /// Separable convolution operation
+    ///
+    /// Optional arguments
+    ///
+    /// precision: `Precision`, calculation accuracy
+    ///
+    /// layers: `i32`, number of layers for approximation
+    ///
+    /// cluster: `i32`, cluster lines closer than this distance
     pub fn convsep_with_opts(&self, mask: &VipsImage, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -2365,8 +2804,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsCopy (copy), copy an image
-    /// returns `VipsImage` - Output image
+    /// Copy an image
     pub fn copy(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -2387,6 +2825,29 @@ impl VipsImage {
         }
     }
 
+    /// Copy an image
+    ///
+    /// Optional arguments
+    ///
+    /// width: `i32`, set image width
+    ///
+    /// height: `i32`, set image height
+    ///
+    /// bands: `i32`, set image bands
+    ///
+    /// format: `BandFormat`, set image format
+    ///
+    /// coding: `Coding`, set image coding
+    ///
+    /// interpretation: `Interpretation`, set image interpretation
+    ///
+    /// xres: `f64`, set image xres
+    ///
+    /// yres: `f64`, set image yres
+    ///
+    /// xoffset: `i32`, set image xoffset
+    ///
+    /// yoffset: `i32`, set image yoffset
     pub fn copy_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -2409,12 +2870,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsCountlines (countlines), count lines in an image
-    /// direction: `Direction` -> Countlines left-right or up-down
-    ///  `Horizontal` -> VIPS_DIRECTION_HORIZONTAL = 0 [DEFAULT]
-    ///  `Vertical` -> VIPS_DIRECTION_VERTICAL = 1
-    ///  `Last` -> VIPS_DIRECTION_LAST = 2
-    /// returns `f64` - Number of lines
+    /// Count lines in an image
     pub fn countlines(&self, direction: Direction) -> Result<f64> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -2437,6 +2893,7 @@ impl VipsImage {
         }
     }
 
+    /// A synonym for vips_extract_area()
     pub fn crop(
         &self,
         left: i32,
@@ -2482,9 +2939,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignLoadCsvFile (csvload), load csv (.csv), priority=0, untrusted, get_flags, get_flags_filename, header, load
-    /// filename: `&str` -> Filename to load from
-    /// returns `VipsImage` - Output image
+    /// Load a CSV (comma-separated values) file.
     pub fn csvload(filename: &str) -> Result<VipsImage> {
         unsafe {
             let filename_in: CString = utils::new_c_string(filename)?;
@@ -2505,6 +2960,19 @@ impl VipsImage {
         }
     }
 
+    /// Load a CSV (comma-separated values) file.
+    ///
+    /// Optional arguments
+    ///
+    /// skip: `i32`, skip this many lines at start of file
+    ///
+    /// lines: `i32`, read this many lines from file
+    ///
+    /// whitespace: `&str`, set of whitespace characters
+    ///
+    /// separator: `&str`, set of separator characters
+    ///
+    /// fail_on: `FailOn`, types of read error to fail on
     pub fn csvload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -2527,9 +2995,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignLoadCsvSource (csvload_source), load csv, priority=0, untrusted, is_a_source, get_flags, header, load
-    /// source: `&VipsSource` -> Source to load from
-    /// returns `VipsImage` - Output image
+    /// Exactly as vips_csvload(), but read from a source.
     pub fn csvload_source(source: &VipsSource) -> Result<VipsImage> {
         unsafe {
             let source_in: *mut bindings::VipsSource = source.ctx;
@@ -2550,6 +3016,19 @@ impl VipsImage {
         }
     }
 
+    /// Exactly as vips_csvload(), but read from a source.
+    ///
+    /// Optional arguments
+    ///
+    /// skip: `i32`, skip this many lines at start of file
+    ///
+    /// lines: `i32`, read this many lines from file
+    ///
+    /// whitespace: &str, set of whitespace characters
+    ///
+    /// separator: &str, set of separator characters
+    ///
+    /// fail_on: FailOn, types of read error to fail on
     pub fn csvload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -2572,9 +3051,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignSaveCsvFile (csvsave), save image to csv (.csv), priority=0, mono
-    /// inp: `&VipsImage` -> Image to save
-    /// filename: `&str` -> Filename to save to
+    /// Writes the pixels in in to the filename as CSV (comma-separated values).
     pub fn csvsave(&self, filename: &str) -> Result<()> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -2593,6 +3070,11 @@ impl VipsImage {
         }
     }
 
+    /// Writes the pixels in in to the filename as CSV (comma-separated values).
+    ///
+    /// Optional arguments
+    ///
+    /// separator: `&str`, separator string
     pub fn csvsave_with_opts(&self, filename: &str, option: VOption) -> Result<()> {
         let vips_op_response = call(
             "csvsave",
@@ -2613,9 +3095,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignSaveCsvTarget (csvsave_target), save image to csv (.csv), priority=0, mono
-    /// inp: `&VipsImage` -> Image to save
-    /// target: `&VipsTarget` -> Target to save to
+    /// As vips_csvsave(), but save to a target.
     pub fn csvsave_target(&self, target: &VipsTarget) -> Result<()> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -2634,6 +3114,11 @@ impl VipsImage {
         }
     }
 
+    /// As vips_csvsave(), but save to a target.
+    ///
+    /// Optional arguments
+    ///
+    /// separator: `&str`, separator string
     pub fn csvsave_target_with_opts(&self, target: &VipsTarget, option: VOption) -> Result<()> {
         let vips_op_response = call(
             "csvsave_target",
@@ -2654,10 +3139,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsdE00 (dE00), calculate dE00
-    /// left: `&VipsImage` -> Left-hand input image
-    /// right: `&VipsImage` -> Right-hand input image
-    /// returns `VipsImage` - Output image
+    /// Calculate dE00
     pub fn dE00(&self, right: &VipsImage) -> Result<VipsImage> {
         unsafe {
             let left_in: *mut bindings::VipsImage = self.ctx;
@@ -2680,10 +3162,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsdE76 (dE76), calculate dE76
-    /// left: `&VipsImage` -> Left-hand input image
-    /// right: `&VipsImage` -> Right-hand input image
-    /// returns `VipsImage` - Output image
+    /// Calculate dE76
     pub fn dE76(&self, right: &VipsImage) -> Result<VipsImage> {
         unsafe {
             let left_in: *mut bindings::VipsImage = self.ctx;
@@ -2706,10 +3185,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsdECMC (dECMC), calculate dECMC
-    /// left: `&VipsImage` -> Left-hand input image
-    /// right: `&VipsImage` -> Right-hand input image
-    /// returns `VipsImage` - Output image
+    /// Calculate dECMC
     pub fn dECMC(&self, right: &VipsImage) -> Result<VipsImage> {
         unsafe {
             let left_in: *mut bindings::VipsImage = self.ctx;
@@ -2732,8 +3208,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsDeviate (deviate), find image standard deviation
-    /// returns `f64` - Output value
+    /// Find image standard deviation
     pub fn deviate(&self) -> Result<f64> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -2752,10 +3227,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsDivide (divide), divide two images
-    /// left: `&VipsImage` -> Left-hand image argument
-    /// right: `&VipsImage` -> Right-hand image argument
-    /// returns `VipsImage` - Output image
+    /// Divide two images
     pub fn divide(&self, right: &VipsImage) -> Result<VipsImage> {
         unsafe {
             let left_in: *mut bindings::VipsImage = self.ctx;
@@ -2778,16 +3250,15 @@ impl VipsImage {
         }
     }
 
-    /// VipsDrawCircle (draw_circle), draw a circle on an image
-    /// image: `&VipsImage` -> Image to draw on
+    /// Draw a circle on an image
+    ///
     /// ink: `&mut [f64]` -> Color for pixels
+    ///
     /// cx: `i32` -> Centre of draw_circle
-    /// min: -1000000000, max: 1000000000, default: 0
+    ///
     /// cy: `i32` -> Centre of draw_circle
-    /// min: -1000000000, max: 1000000000, default: 0
+    ///
     /// radius: `i32` -> Radius in pixels
-    /// min: 0, max: 1000000000, default: 0
-
     pub fn draw_circle(&self, ink: &[f64], cx: i32, cy: i32, radius: i32) -> Result<()> {
         unsafe {
             let image_in: *mut bindings::VipsImage = self.ctx;
@@ -2813,6 +3284,19 @@ impl VipsImage {
         }
     }
 
+    /// Draw a circle on an image
+    ///
+    /// ink: `&mut [f64]` -> Color for pixels
+    ///
+    /// cx: `i32` -> Centre of draw_circle
+    ///
+    /// cy: `i32` -> Centre of draw_circle
+    ///
+    /// radius: `i32` -> Radius in pixels
+    ///
+    /// Optional arguments
+    ///
+    /// fill: `bool`, fill the draw_circle
     pub fn draw_circle_with_opts(
         &self,
         ink: &[f64],
@@ -2852,13 +3336,13 @@ impl VipsImage {
         )
     }
 
-    /// VipsDrawFlood (draw_flood), flood-fill an area
-    /// image: `&VipsImage` -> Image to draw on
+    /// Flood-fill an area
+    ///
     /// ink: `&mut [f64]` -> Color for pixels
+    ///
     /// x: `i32` -> DrawFlood start point
-    /// min: 0, max: 1000000000, default: 0
+    ///
     /// y: `i32` -> DrawFlood start point
-    /// min: 0, max: 1000000000, default: 0
     pub fn draw_flood(&self, ink: &[f64], x: i32, y: i32) -> Result<()> {
         unsafe {
             let image_in: *mut bindings::VipsImage = self.ctx;
@@ -2882,6 +3366,27 @@ impl VipsImage {
         }
     }
 
+    /// Flood-fill an area
+    ///
+    /// ink: `&mut [f64]` -> Color for pixels
+    ///
+    /// x: `i32` -> DrawFlood start point
+    ///
+    /// y: `i32` -> DrawFlood start point
+    ///
+    /// Optional arguments
+    ///
+    /// test: `&VipsImage`, test this image
+    ///
+    /// equal: `bool`, fill while equal to edge
+    ///
+    /// left: `i32`, output left edge of bounding box of modified area
+    ///
+    /// top: `i32`, output top edge of bounding box of modified area
+    ///
+    /// width: `i32`, output width of bounding box of modified area
+    ///
+    /// height: `i32`, output height of bounding box of modified area
     pub fn draw_flood_with_opts(&self, ink: &[f64], x: i32, y: i32, option: VOption) -> Result<()> {
         let vips_op_response = call(
             "draw_flood",
@@ -2910,13 +3415,13 @@ impl VipsImage {
         )
     }
 
-    /// VipsDrawImage (draw_image), paint an image into another image
-    /// image: `&VipsImage` -> Image to draw on
+    /// Paint an image into another image
+    ///
     /// sub: `&VipsImage` -> Sub-image to insert into main image
+    ///
     /// x: `i32` -> Draw image here
-    /// min: -1000000000, max: 1000000000, default: 0
+    ///
     /// y: `i32` -> Draw image here
-    /// min: -1000000000, max: 1000000000, default: 0
     pub fn draw_image(&self, sub: &VipsImage, x: i32, y: i32) -> Result<()> {
         unsafe {
             let image_in: *mut bindings::VipsImage = self.ctx;
@@ -2939,6 +3444,17 @@ impl VipsImage {
         }
     }
 
+    /// Paint an image into another image
+    ///
+    /// sub: `&VipsImage` -> Sub-image to insert into main image
+    ///
+    /// x: `i32` -> Draw image here
+    ///
+    /// y: `i32` -> Draw image here
+    ///
+    /// Optional arguments
+    ///
+    /// mode: `CombineMode`, how to combine pixels
     pub fn draw_image_with_opts(
         &self,
         sub: &VipsImage,
@@ -2973,17 +3489,17 @@ impl VipsImage {
         )
     }
 
-    /// VipsDrawLine (draw_line), draw a line on an image
-    /// image: `&VipsImage` -> Image to draw on
+    /// Draw a line on an image
+    ///
     /// ink: `&mut [f64]` -> Color for pixels
+    ///
     /// x1: `i32` -> Start of draw_line
-    /// min: -1000000000, max: 1000000000, default: 0
+    ///
     /// y1: `i32` -> Start of draw_line
-    /// min: -1000000000, max: 1000000000, default: 0
+    ///
     /// x2: `i32` -> End of draw_line
-    /// min: -1000000000, max: 1000000000, default: 0
+    ///
     /// y2: `i32` -> End of draw_line
-    /// min: -1000000000, max: 1000000000, default: 0
     pub fn draw_line(&self, ink: &[f64], x1: i32, y1: i32, x2: i32, y2: i32) -> Result<()> {
         unsafe {
             let image_in: *mut bindings::VipsImage = self.ctx;
@@ -3011,14 +3527,15 @@ impl VipsImage {
         }
     }
 
-    /// VipsDrawMask (draw_mask), draw a mask on an image
-    /// image: `&VipsImage` -> Image to draw on
+    /// Draw a mask on an image
+    ///
     /// ink: `&mut [f64]` -> Color for pixels
+    ///
     /// mask: `&VipsImage` -> Mask of pixels to draw
+    ///
     /// x: `i32` -> Draw mask here
-    /// min: -1000000000, max: 1000000000, default: 0
+    ///
     /// y: `i32` -> Draw mask here
-    /// min: -1000000000, max: 1000000000, default: 0
     pub fn draw_mask(&self, ink: &[f64], mask: &VipsImage, x: i32, y: i32) -> Result<()> {
         unsafe {
             let image_in: *mut bindings::VipsImage = self.ctx;
@@ -3044,17 +3561,17 @@ impl VipsImage {
         }
     }
 
-    /// VipsDrawRect (draw_rect), paint a rectangle on an image
-    /// image: `&VipsImage` -> Image to draw on
+    /// Paint a rectangle on an image
+    ///
     /// ink: `&mut [f64]` -> Color for pixels
+    ///
     /// left: `i32` -> Rect to fill
-    /// min: -1000000000, max: 1000000000, default: 0
+    ///
     /// top: `i32` -> Rect to fill
-    /// min: -1000000000, max: 1000000000, default: 0
+    ///
     /// width: `i32` -> Rect to fill
-    /// min: -1000000000, max: 1000000000, default: 0
+    ///
     /// height: `i32` -> Rect to fill
-    /// min: -1000000000, max: 1000000000, default: 0
     pub fn draw_rect(
         &self,
         ink: &[f64],
@@ -3088,6 +3605,22 @@ impl VipsImage {
             )
         }
     }
+
+    /// Paint a rectangle on an image
+    ///
+    /// ink: `&mut [f64]` -> Color for pixels
+    ///
+    /// left: `i32` -> Rect to fill
+    ///
+    /// top: `i32` -> Rect to fill
+    ///
+    /// width: `i32` -> Rect to fill
+    ///
+    /// height: `i32` -> Rect to fill
+    ///
+    /// Optional arguments
+    ///
+    /// fill: `bool`, fill the rect
     pub fn draw_rect_with_opts(
         &self,
         ink: &[f64],
@@ -3131,16 +3664,16 @@ impl VipsImage {
             Error::OperationError("DrawRect failed"),
         )
     }
-    /// VipsDrawSmudge (draw_smudge), blur a rectangle on an image
-    /// image: `&VipsImage` -> Image to draw on
+
+    /// Blur a rectangle on an image
+    ///
     /// left: `i32` -> Rect to fill
-    /// min: -1000000000, max: 1000000000, default: 0
+    ///
     /// top: `i32` -> Rect to fill
-    /// min: -1000000000, max: 1000000000, default: 0
+    ///
     /// width: `i32` -> Rect to fill
-    /// min: -1000000000, max: 1000000000, default: 0
+    ///
     /// height: `i32` -> Rect to fill
-    /// min: -1000000000, max: 1000000000, default: 0
     pub fn draw_smudge(&self, left: i32, top: i32, width: i32, height: i32) -> Result<()> {
         unsafe {
             let image_in: *mut bindings::VipsImage = self.ctx;
@@ -3165,6 +3698,7 @@ impl VipsImage {
         }
     }
 
+    /// Save an image as a set of tiles at various resolutions.
     pub fn dzsave(&self, filename: &str) -> Result<()> {
         let vips_op_response = call(
             "dzsave",
@@ -3185,6 +3719,39 @@ impl VipsImage {
         )
     }
 
+    /// Save an image as a set of tiles at various resolutions.
+    ///
+    /// Optional arguments
+    ///
+    /// basename: `&str`, base part of name
+    ///
+    /// layout: `ForeignDzLayout`, directory layout convention
+    ///
+    /// suffix: `&str`, suffix for tiles
+    ///
+    /// overlap: `i32`, set tile overlap
+    ///
+    /// tile_size: `i32`, set tile size
+    ///
+    /// background: `&[f64]`, background colour
+    ///
+    /// depth: `ForeignDzDepth`, how deep to make the pyramid
+    ///
+    /// centre: `bool`, centre the tiles
+    ///
+    /// angle: `Angle`, rotate the image by this much
+    ///
+    /// container: `ForeignDzContainer`, set container type
+    ///
+    /// compression: `i32`, zip deflate compression level
+    ///
+    /// region_shrink: `RegionShrink`, how to shrink each 2x2 region
+    ///
+    /// skip_blanks: `i32`, skip tiles which are nearly equal to the background
+    ///
+    /// id: `&str`, id for IIIF properties
+    ///
+    /// Q: `i32`, quality factor
     pub fn dzsave_with_opts(&self, filename: &str, option: VOption) -> Result<()> {
         let vips_op_response = call(
             "dzsave",
@@ -3205,6 +3772,7 @@ impl VipsImage {
         )
     }
 
+    /// As vips_dzsave(), but save to a memory buffer.
     pub fn dzsave_buffer(&self) -> Result<Vec<u8>> {
         let mut blob = VipsBlob::from(null_mut());
 
@@ -3227,6 +3795,39 @@ impl VipsImage {
         )
     }
 
+    /// As vips_dzsave(), but save to a memory buffer.
+    ///
+    /// Optional arguments
+    ///
+    /// basename: `&str`, base part of name
+    ///
+    /// layout: `ForeignDzLayout`, directory layout convention
+    ///
+    /// suffix: `&str`, suffix for tiles
+    ///
+    /// overlap: `i32`, set tile overlap
+    ///
+    /// tile_size: `i32`, set tile size
+    ///
+    /// background: `&[f64]`, background colour
+    ///
+    /// depth: `ForeignDzDepth`, how deep to make the pyramid
+    ///
+    /// centre: `bool`, centre the tiles
+    ///
+    /// angle: `Angle`, rotate the image by this much
+    ///
+    /// container: `ForeignDzContainer`, set container type
+    ///
+    /// compression: `i32`, zip deflate compression level
+    ///
+    /// region_shrink: `RegionShrink`, how to shrink each 2x2 region
+    ///
+    /// skip_blanks: `i32`, skip tiles which are nearly equal to the background
+    ///
+    /// id: `&str`, id for IIIF properties
+    ///
+    /// Q: `i32`, quality factor
     pub fn dzsave_buffer_with_opts(&self, option: VOption) -> Result<Vec<u8>> {
         let mut blob = VipsBlob::from(null_mut());
 
@@ -3249,6 +3850,7 @@ impl VipsImage {
         )
     }
 
+    /// As vips_dzsave(), but save to a target.
     pub fn dzsave_target(&self, target: &VipsTarget) -> Result<()> {
         let vips_op_response = call(
             "dzsave_target",
@@ -3269,6 +3871,39 @@ impl VipsImage {
         )
     }
 
+    /// As vips_dzsave(), but save to a target.
+    ///
+    /// Optional arguments
+    ///
+    /// basename: `&str`, base part of name
+    ///
+    /// layout: `ForeignDzLayout`, directory layout convention
+    ///
+    /// suffix: `&str`, suffix for tiles
+    ///
+    /// overlap: `i32`, set tile overlap
+    ///
+    /// tile_size: `i32`, set tile size
+    ///
+    /// background: `&[f64]`, background colour
+    ///
+    /// depth: `ForeignDzDepth`, how deep to make the pyramid
+    ///
+    /// centre: `bool`, centre the tiles
+    ///
+    /// angle: `Angle`, rotate the image by this much
+    ///
+    /// container: `ForeignDzContainer`, set container type
+    ///
+    /// compression: `i32`, zip deflate compression level
+    ///
+    /// region_shrink: `RegionShrink`, how to shrink each 2x2 region
+    ///
+    /// skip_blanks: `i32`, skip tiles which are nearly equal to the background
+    ///
+    /// id: `&str`, id for IIIF properties
+    ///
+    /// Q: `i32`, quality factor
     pub fn dzsave_target_with_opts(&self, target: &VipsTarget, option: VOption) -> Result<()> {
         let vips_op_response = call(
             "dzsave_target",
@@ -3289,16 +3924,15 @@ impl VipsImage {
         )
     }
 
-    /// VipsEmbed (embed), embed an image in a larger image
+    /// Embed an image in a larger image
+    ///
     /// x: `i32` -> Left edge of input in output
-    /// min: -1000000000, max: 1000000000, default: 0
+    ///
     /// y: `i32` -> Top edge of input in output
-    /// min: -1000000000, max: 1000000000, default: 0
+    ///
     /// width: `i32` -> Image width in pixels
-    /// min: 1, max: 1000000000, default: 1
+    ///
     /// height: `i32` -> Image height in pixels
-    /// min: 1, max: 1000000000, default: 1
-    /// returns `VipsImage` - Output image
     pub fn embed(&self, x: i32, y: i32, width: i32, height: i32) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -3327,6 +3961,21 @@ impl VipsImage {
         }
     }
 
+    /// Embed an image in a larger image
+    ///
+    /// x: `i32` -> Left edge of input in output
+    ///
+    /// y: `i32` -> Top edge of input in output
+    ///
+    /// width: `i32` -> Image width in pixels
+    ///
+    /// height: `i32` -> Image height in pixels
+    ///
+    /// Optional arguments
+    ///
+    /// extend: `Extend` to generate the edge pixels (default: VIPS_EXTEND_BLACK)
+    ///
+    /// background: `&[f64]` colour for edge pixels
     pub fn embed_with_opts(
         &self,
         x: i32,
@@ -3372,17 +4021,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsExtractArea (extract_area), extract an area from an image
-    /// input: `&VipsImage` -> Input image
-    /// left: `i32` -> Left edge of extract area
-    /// min: -100000000, max: 100000000, default: 0
-    /// top: `i32` -> Top edge of extract area
-    /// min: -100000000, max: 100000000, default: 0
-    /// width: `i32` -> Width of extract area
-    /// min: 1, max: 100000000, default: 1
-    /// height: `i32` -> Height of extract area
-    /// min: 1, max: 100000000, default: 1
-    /// returns `VipsImage` - Output image
+    /// Extract an area from an image
     pub fn extract_area(&self, left: i32, top: i32, width: i32, height: i32) -> Result<VipsImage> {
         unsafe {
             let input_in: *mut bindings::VipsImage = self.ctx;
@@ -3411,10 +4050,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsExtractBand (extract_band), extract band from an image
-    /// band: `i32` -> Band to extract
-    /// min: 0, max: 100000000, default: 0
-    /// returns `VipsImage` - Output image
+    /// Extract band from an image
     pub fn extract_band(&self, band: i32) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -3437,6 +4073,11 @@ impl VipsImage {
         }
     }
 
+    /// Extract band from an image
+    ///
+    /// Optional arguments
+    ///
+    /// n: `i32`, number of bands to extract
     pub fn extract_band_with_opts(&self, band: i32, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -3463,12 +4104,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsEye (eye), make an image showing the eye's spatial response
-    /// width: `i32` -> Image width in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// height: `i32` -> Image height in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// returns `VipsImage` - Output image
+    /// Make an image showing the eye's spatial response
     pub fn eye(width: i32, height: i32) -> Result<VipsImage> {
         unsafe {
             let width_in: i32 = width;
@@ -3491,6 +4127,13 @@ impl VipsImage {
         }
     }
 
+    /// Make an image showing the eye's spatial response
+    ///
+    /// Optional arguments
+    ///
+    /// factor: `f64`, maximum spatial frequency
+    ///
+    /// uchar: `bool`, output a uchar image
     pub fn eye_with_opts(width: i32, height: i32, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -3517,8 +4160,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsFalsecolour (falsecolour), false-color an image
-    /// returns `VipsImage` - Output image
+    /// False-color an image
     pub fn falsecolour(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -3539,9 +4181,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsFastcor (fastcor), fast correlation
-    /// refp: `&VipsImage` -> Input reference image
-    /// returns `VipsImage` - Output image
+    /// Fast correlation
     pub fn fastcor(&self, refp: &VipsImage) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -3564,8 +4204,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsFillNearest (fill_nearest), fill image zeros with nearest non-zero pixel
-    /// returns `VipsImage` - Value of nearest non-zero pixel
+    /// Fill image zeros with nearest non-zero pixel
     pub fn fill_nearest(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -3586,6 +4225,11 @@ impl VipsImage {
         }
     }
 
+    /// Fill image zeros with nearest non-zero pixel
+    ///
+    /// Optional arguments
+    ///
+    /// distance: `&mut VipsImage`, output, image of distance to nearest non-zero pixel
     pub fn fill_nearest_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -3608,13 +4252,18 @@ impl VipsImage {
         )
     }
 
-    /// VipsFindTrim (find_trim), search an image for non-edge areas
-    /// inp: `&VipsImage` -> Image to find_trim
+    /// Search an image for non-edge areas
+    ///
     /// Tuple (
+    ///
     /// i32 - Left edge of image
+    ///
     /// i32 - Top edge of extract area
+    ///
     /// i32 - Width of extract area
+    ///
     /// i32 - Height of extract area
+    ///
     ///)
     pub fn find_trim(
         &self,
@@ -3652,6 +4301,27 @@ impl VipsImage {
         }
     }
 
+    /// Search an image for non-edge areas
+    ///
+    /// Tuple (
+    ///
+    /// i32 - Left edge of image
+    ///
+    /// i32 - Top edge of extract area
+    ///
+    /// i32 - Width of extract area
+    ///
+    /// i32 - Height of extract area
+    ///
+    ///)
+    ///
+    /// Optional arguments
+    ///
+    /// threshold: `f64`, background / object threshold
+    ///
+    /// background: `&[f64]`, background colour
+    ///
+    /// line_art: `bool`, enable line art mode
     pub fn find_trim_with_opts(
         &self,
         option: VOption,
@@ -3703,12 +4373,13 @@ impl VipsImage {
         )
     }
 
-    pub fn fitsload(filename: &str, option: VOption) -> Result<VipsImage> {
+    /// Read a FITS image file into a VIPS image.
+    pub fn fitsload(filename: &str) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "fitsload",
-            option
+            VOption::new()
                 .with(
                     "out",
                     VipsValue::MutImage(&mut out_out),
@@ -3725,12 +4396,13 @@ impl VipsImage {
         )
     }
 
-    pub fn fitsload_source(source: &VipsSource, option: VOption) -> Result<VipsImage> {
+    /// Exactly as vips_fitsload(), but read from a source.
+    pub fn fitsload_source(source: &VipsSource) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "fitsload_source",
-            option
+            VOption::new()
                 .with(
                     "out",
                     VipsValue::MutImage(&mut out_out),
@@ -3747,10 +4419,11 @@ impl VipsImage {
         )
     }
 
-    pub fn fitssave(&self, filename: &str, option: VOption) -> Result<()> {
+    /// Write a VIPS image to a file in FITS format.
+    pub fn fitssave(&self, filename: &str) -> Result<()> {
         let vips_op_response = call(
             "fitssave",
-            option
+            VOption::new()
                 .with(
                     "in",
                     VipsValue::Image(&VipsImage::from(self.ctx)),
@@ -3767,8 +4440,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsFlatten (flatten), flatten alpha out of an image
-    /// returns `VipsImage` - Output image
+    /// Flatten alpha out of an image
     pub fn flatten(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -3789,6 +4461,13 @@ impl VipsImage {
         }
     }
 
+    /// Flatten alpha out of an image
+    ///
+    /// Optional arguments
+    ///
+    /// background: `&[f64]` colour for new pixels
+    ///
+    /// max_alpha: `f64`, maximum value for alpha
     pub fn flatten_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -3811,12 +4490,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsFlip (flip), flip an image
-    /// direction: `Direction` -> Direction to flip image
-    ///  `Horizontal` -> VIPS_DIRECTION_HORIZONTAL = 0 [DEFAULT]
-    ///  `Vertical` -> VIPS_DIRECTION_VERTICAL = 1
-    ///  `Last` -> VIPS_DIRECTION_LAST = 2
-    /// returns `VipsImage` - Output image
+    /// Flip an image
     pub fn flip(&self, direction: Direction) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -3841,8 +4515,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsFloat2rad (float2rad), transform float RGB to Radiance coding
-    /// returns `VipsImage` - Output image
+    /// Transform float RGB to Radiance coding
     pub fn float2rad(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -3863,14 +4536,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsFractsurf (fractsurf), make a fractal surface
-    /// width: `i32` -> Image width in pixels
-    /// min: 1, max: 100000000, default: 64
-    /// height: `i32` -> Image height in pixels
-    /// min: 1, max: 100000000, default: 64
-    /// fractal_dimension: `f64` -> Fractal dimension
-    /// min: 2, max: 3, default: 2.5
-    /// returns `VipsImage` - Output image
+    /// Make a fractal surface
     pub fn fractsurf(width: i32, height: i32, fractal_dimension: f64) -> Result<VipsImage> {
         unsafe {
             let width_in: i32 = width;
@@ -3895,9 +4561,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsFreqmult (freqmult), frequency-domain filtering
-    /// mask: `&VipsImage` -> Input mask image
-    /// returns `VipsImage` - Output image
+    /// Frequency-domain filtering
     pub fn freqmult(&self, mask: &VipsImage) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -3920,8 +4584,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsFwfft (fwfft), forward FFT
-    /// returns `VipsImage` - Output image
+    /// Forward FFT
     pub fn fwfft(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -3942,8 +4605,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsGamma (gamma), gamma an image
-    /// returns `VipsImage` - Output image
+    /// Gamma an image
     pub fn gamma(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -3964,6 +4626,11 @@ impl VipsImage {
         }
     }
 
+    /// Gamma an image
+    ///
+    /// Optional arguments
+    ///
+    /// exponent: `f64`, gamma, default 1.0 / 2.4
     pub fn gamma_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -3986,10 +4653,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsGaussblur (gaussblur), gaussian blur
-    /// sigma: `f64` -> Sigma of Gaussian
-    /// min: 0, max: 1000, default: 1.5
-    /// returns `VipsImage` - Output image
+    /// Gaussian blur
     pub fn gaussblur(&self, sigma: f64) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -4012,6 +4676,13 @@ impl VipsImage {
         }
     }
 
+    /// Gaussian blur
+    ///
+    /// Optional arguments
+    ///
+    /// precision: `Precision`, precision for blur, default int
+    ///
+    /// min_ampl: `f64`, minimum amplitude, default 0.2
     pub fn gaussblur_with_opts(&self, sigma: f64, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -4038,12 +4709,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsGaussmat (gaussmat), make a gaussian image
-    /// sigma: `f64` -> Sigma of Gaussian
-    /// min: 0.000001, max: 10000, default: 1
-    /// min_ampl: `f64` -> Minimum amplitude of Gaussian
-    /// min: 0.000001, max: 10000, default: 0.1
-    /// returns `VipsImage` - Output image
+    /// Make a gaussian image
     pub fn gaussmat(sigma: f64, min_ampl: f64) -> Result<VipsImage> {
         unsafe {
             let sigma_in: f64 = sigma;
@@ -4066,6 +4732,13 @@ impl VipsImage {
         }
     }
 
+    /// Make a gaussian image
+    ///
+    /// Optional arguments
+    ///
+    /// precision: `Precision`, precision for blur, default int
+    ///
+    /// separable: `bool`, generate a separable gaussian
     pub fn gaussmat_with_opts(sigma: f64, min_ampl: f64, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -4092,12 +4765,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsGaussnoise (gaussnoise), make a gaussnoise image
-    /// width: `i32` -> Image width in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// height: `i32` -> Image height in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// returns `VipsImage` - Output image
+    /// Make a gaussnoise image
     pub fn gaussnoise(width: i32, height: i32) -> Result<VipsImage> {
         unsafe {
             let width_in: i32 = width;
@@ -4120,6 +4788,13 @@ impl VipsImage {
         }
     }
 
+    /// Make a gaussnoise image
+    ///
+    /// Optional arguments
+    ///
+    /// mean: `f64`, mean of generated pixels
+    ///
+    /// sigma: `f64`, standard deviation of generated pixels
     pub fn gaussnoise_with_opts(width: i32, height: i32, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -4146,12 +4821,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsGetpoint (getpoint), read a point from an image
-    /// x: `i32` -> Point to read
-    /// min: 0, max: 10000000, default: 0
-    /// y: `i32` -> Point to read
-    /// min: 0, max: 10000000, default: 0
-    /// returns `Vec<f64>` - Array of output values
+    /// Read a point from an image
     pub fn getpoint(&self, x: i32, y: i32) -> Result<Vec<f64>> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -4179,9 +4849,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsForeignLoadNsgifFile (gifload), load GIF with libnsgif (.gif), priority=50, is_a, get_flags, get_flags_filename, header, load
-    /// filename: `&str` -> Filename to load from
-    /// returns `VipsImage` - Output image
+    /// Read a GIF file into a libvips image.
     pub fn gifload(filename: &str) -> Result<VipsImage> {
         unsafe {
             let filename_in: CString = utils::new_c_string(filename)?;
@@ -4202,6 +4870,15 @@ impl VipsImage {
         }
     }
 
+    /// Read a GIF file into a libvips image.
+    ///
+    /// Optional arguments
+    ///
+    /// page: `i32`, page (frame) to read
+    ///
+    /// n: `i32`, load this many pages
+    ///
+    /// fail_on: `FailOn`, types of read error to fail on
     pub fn gifload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -4224,9 +4901,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignLoadNsgifBuffer (gifload_buffer), load GIF with libnsgif, priority=50, is_a_buffer, get_flags, get_flags_filename, header, load
-    /// buffer: `&[u8]` -> Buffer to load from
-    /// returns `VipsImage` - Output image
+    /// Exactly as vips_gifload(), but read from a memory buffer.
     pub fn gifload_buffer(buffer: &[u8]) -> Result<VipsImage> {
         unsafe {
             let buffer_in: *mut c_void = buffer.as_ptr() as *mut c_void;
@@ -4248,6 +4923,15 @@ impl VipsImage {
         }
     }
 
+    /// Exactly as vips_gifload(), but read from a memory buffer.
+    ///
+    /// Optional arguments
+    ///
+    /// page: `i32`, page (frame) to read
+    ///
+    /// n: `i32`, load this many pages
+    ///
+    /// fail_on: `FailOn`, types of read error to fail on
     pub fn gifload_buffer_with_opts(buffer: &[u8], option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -4270,9 +4954,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignLoadNsgifSource (gifload_source), load gif from source, priority=50, is_a_source, get_flags, get_flags_filename, header, load
-    /// source: `&VipsSource` -> Source to load from
-    /// returns `VipsImage` - Output image
+    /// Exactly as vips_gifload(), but read from a source.
     pub fn gifload_source(source: &VipsSource) -> Result<VipsImage> {
         unsafe {
             let source_in: *mut bindings::VipsSource = source.ctx;
@@ -4293,6 +4975,15 @@ impl VipsImage {
         }
     }
 
+    /// Exactly as vips_gifload(), but read from a source.
+    ///
+    /// Optional arguments
+    ///
+    /// page: `i32`, page (frame) to read
+    ///
+    /// n: `i32`, load this many pages
+    ///
+    /// fail_on: `FailOn`, types of read error to fail on
     pub fn gifload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -4315,9 +5006,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignSaveCgifFile (gifsave), save as gif (.gif), priority=0, rgba-only
-    /// inp: `&VipsImage` -> Image to save
-    /// filename: `&str` -> Filename to save to
+    /// Write to a file in GIF format.
     pub fn gifsave(&self, filename: &str) -> Result<()> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -4336,6 +5025,25 @@ impl VipsImage {
         }
     }
 
+    /// Write to a file in GIF format.
+    ///
+    /// Optional arguments
+    ///
+    /// dither: `f64`, quantisation dithering level
+    ///
+    /// effort: `i32`, quantisation CPU effort
+    ///
+    /// bitdepth: `i32`, number of bits per pixel
+    ///
+    /// interframe_maxerror: `f64`, maximum inter-frame error for transparency
+    ///
+    /// reuse: `bool`, reuse palette from input
+    ///
+    /// interlace: `bool`, write an interlaced (progressive) GIF
+    ///
+    /// interpalette_maxerror: `f64`, maximum inter-palette error for palette reusage
+    ///
+    /// keep_duplicate_frames: `bool`, keep duplicate frames in the output instead of combining them
     pub fn gifsave_with_opts(&self, filename: &str, option: VOption) -> Result<()> {
         let vips_op_response = call(
             "gifsave",
@@ -4356,9 +5064,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignSaveCgifBuffer (gifsave_buffer), save as gif (.gif), priority=0, rgba-only
-    /// inp: `&VipsImage` -> Image to save
-    /// returns `Vec<u8>` - Buffer to save to
+    /// As vips_gifsave(), but save to a memory buffer.
     pub fn gifsave_buffer(&self) -> Result<Vec<u8>> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -4382,6 +5088,25 @@ impl VipsImage {
         }
     }
 
+    /// As vips_gifsave(), but save to a memory buffer.
+    ///
+    /// Optional arguments
+    ///
+    /// dither: `f64`, quantisation dithering level
+    ///
+    /// effort: `i32`, quantisation CPU effort
+    ///
+    /// bitdepth: `i32`, number of bits per pixel
+    ///
+    /// interframe_maxerror: `f64`, maximum inter-frame error for transparency
+    ///
+    /// reuse: `bool`, reuse palette from input
+    ///
+    /// interlace: `bool`, write an interlaced (progressive) GIF
+    ///
+    /// interpalette_maxerror: `f64`, maximum inter-palette error for palette reusage
+    ///
+    /// keep_duplicate_frames: `bool`, keep duplicate frames in the output instead of combining them
     pub fn gifsave_buffer_with_opts(&self, option: VOption) -> Result<Vec<u8>> {
         let mut blob = VipsBlob::from(null_mut());
 
@@ -4404,9 +5129,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignSaveCgifTarget (gifsave_target), save as gif (.gif), priority=0, rgba-only
-    /// inp: `&VipsImage` -> Image to save
-    /// target: `&VipsTarget` -> Target to save to
+    /// As vips_gifsave(), but save to a target.
     pub fn gifsave_target(&self, target: &VipsTarget) -> Result<()> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -4425,6 +5148,25 @@ impl VipsImage {
         }
     }
 
+    /// As vips_gifsave(), but save to a target.
+    ///
+    /// Optional arguments
+    ///
+    /// dither: `f64`, quantisation dithering level
+    ///
+    /// effort: `i32`, quantisation CPU effort
+    ///
+    /// bitdepth: `i32`, number of bits per pixel
+    ///
+    /// interframe_maxerror: `f64`, maximum inter-frame error for transparency
+    ///
+    /// reuse: `bool`, reuse palette from input
+    ///
+    /// interlace: `bool`, write an interlaced (progressive) GIF
+    ///
+    /// interpalette_maxerror: `f64`, maximum inter-palette error for palette reusage
+    ///
+    /// keep_duplicate_frames: `bool`, keep duplicate frames in the output instead of combining them
     pub fn gifsave_target_with_opts(&self, target: &VipsTarget, option: VOption) -> Result<()> {
         let vips_op_response = call(
             "gifsave_target",
@@ -4445,8 +5187,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsGlobalbalance (globalbalance), global balance an image mosaic
-    /// returns `VipsImage` - Output image
+    /// Global balance an image mosaic
     pub fn globalbalance(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -4467,6 +5208,13 @@ impl VipsImage {
         }
     }
 
+    /// Global balance an image mosaic
+    ///
+    /// Optional arguments
+    ///
+    /// gamma: `f64`, gamma of source images
+    ///
+    /// int_output: `bool`, TRUE for integer image output
     pub fn globalbalance_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -4489,23 +5237,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsGravity (gravity), place an image within a larger image with a certain gravity
-    /// direction: `CompassDirection` -> Direction to place image within width/height
-    ///  `Centre` -> VIPS_COMPASS_DIRECTION_CENTRE = 0 [DEFAULT]
-    ///  `North` -> VIPS_COMPASS_DIRECTION_NORTH = 1
-    ///  `East` -> VIPS_COMPASS_DIRECTION_EAST = 2
-    ///  `South` -> VIPS_COMPASS_DIRECTION_SOUTH = 3
-    ///  `West` -> VIPS_COMPASS_DIRECTION_WEST = 4
-    ///  `NorthEast` -> VIPS_COMPASS_DIRECTION_NORTH_EAST = 5
-    ///  `SouthEast` -> VIPS_COMPASS_DIRECTION_SOUTH_EAST = 6
-    ///  `SouthWest` -> VIPS_COMPASS_DIRECTION_SOUTH_WEST = 7
-    ///  `NorthWest` -> VIPS_COMPASS_DIRECTION_NORTH_WEST = 8
-    ///  `Last` -> VIPS_COMPASS_DIRECTION_LAST = 9
-    /// width: `i32` -> Image width in pixels
-    /// min: 1, max: 1000000000, default: 1
-    /// height: `i32` -> Image height in pixels
-    /// min: 1, max: 1000000000, default: 1
-    /// returns `VipsImage` - Output image
+    /// Place an image within a larger image with a certain gravity
     pub fn gravity(
         &self,
         direction: CompassDirection,
@@ -4539,6 +5271,13 @@ impl VipsImage {
         }
     }
 
+    /// Place an image within a larger image with a certain gravity
+    ///
+    /// Optional arguments
+    ///
+    /// extend: `Extend` to generate the edge pixels (default: VIPS_EXTEND_BLACK)
+    ///
+    /// background: `&[f64]` colour for edge pixels
     pub fn gravity_with_opts(
         &self,
         direction: CompassDirection,
@@ -4579,12 +5318,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsGrey (grey), make a grey ramp image
-    /// width: `i32` -> Image width in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// height: `i32` -> Image height in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// returns `VipsImage` - Output image
+    /// Make a grey ramp image
     pub fn grey(width: i32, height: i32) -> Result<VipsImage> {
         unsafe {
             let width_in: i32 = width;
@@ -4607,6 +5341,11 @@ impl VipsImage {
         }
     }
 
+    /// Make a grey ramp image
+    ///
+    /// Optional arguments
+    ///
+    /// uchar: `bool`, output a uchar image
     pub fn grey_with_opts(width: i32, height: i32, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -4633,14 +5372,14 @@ impl VipsImage {
         )
     }
 
-    /// VipsGrid (grid), grid an image
+    /// Grid an image
+    ///
     /// tile_height: `i32` -> Chop into tiles this high
-    /// min: 1, max: 10000000, default: 128
+    ///
     /// across: `i32` -> Number of tiles across
-    /// min: 1, max: 10000000, default: 1
+    ///
     /// down: `i32` -> Number of tiles down
-    /// min: 1, max: 10000000, default: 1
-    /// returns `VipsImage` - Output image
+    ///
     pub fn grid(&self, tile_height: i32, across: i32, down: i32) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -4667,9 +5406,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsForeignLoadHeifFile (heifload), load a HEIF image (.heic, .heif, .avif), priority=0, is_a, get_flags, header, load
-    /// filename: `&str` -> Filename to load from
-    /// returns `VipsImage` - Output image
+    /// Read a HEIF image file into a VIPS image.
     pub fn heifload(filename: &str) -> Result<VipsImage> {
         unsafe {
             let filename_in: CString = utils::new_c_string(filename)?;
@@ -4689,6 +5426,18 @@ impl VipsImage {
             )
         }
     }
+
+    /// Read a HEIF image file into a VIPS image.
+    ///
+    /// Optional arguments
+    ///
+    /// page: `i32`, page (top-level image number) to read
+    ///
+    /// n: `i32`, load this many pages
+    ///
+    /// thumbnail: `bool`, fetch thumbnail instead of image
+    ///
+    /// unlimited: `bool`, remove all denial of service limits
     pub fn heifload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -4711,9 +5460,8 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignLoadHeifBuffer (heifload_buffer), load a HEIF image, priority=0, is_a_buffer, get_flags, header, load
+    /// Read a HEIF image file into a VIPS image from a memory buffer.
     /// buffer: `&[u8]` -> Buffer to load from
-    /// returns `VipsImage` - Output image
     pub fn heifload_buffer(buffer: &[u8]) -> Result<VipsImage> {
         unsafe {
             let buffer_in: *mut c_void = buffer.as_ptr() as *mut c_void;
@@ -4735,6 +5483,17 @@ impl VipsImage {
         }
     }
 
+    /// Read a HEIF image file into a VIPS image from a memory buffer.
+    ///
+    /// Optional arguments
+    ///
+    /// page: `i32`, page (top-level image number) to read
+    ///
+    /// n: `i32`, load this many pages
+    ///
+    /// thumbnail: `bool`, fetch thumbnail instead of image
+    ///
+    /// unlimited: `bool`, remove all denial of service limits
     pub fn heifload_buffer_with_opts(buffer: &[u8], option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -4758,9 +5517,8 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignLoadHeifSource (heifload_source), load a HEIF image, priority=0, is_a_source, get_flags, header, load
+    /// Exactly as vips_heifload(), but read from a source.
     /// source: `&VipsSource` -> Source to load from
-    /// returns `VipsImage` - Output image
     pub fn heifload_source(source: &VipsSource) -> Result<VipsImage> {
         unsafe {
             let source_in: *mut bindings::VipsSource = source.ctx;
@@ -4781,6 +5539,17 @@ impl VipsImage {
         }
     }
 
+    /// Exactly as vips_heifload(), but read from a source.
+    ///
+    /// Optional arguments
+    ///
+    /// page: `i32`, page (top-level image number) to read
+    ///
+    /// n: `i32`, load this many pages
+    ///
+    /// thumbnail: `bool`, fetch thumbnail instead of image
+    ///
+    /// unlimited: `bool`, remove all denial of service limits
     pub fn heifload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -4804,9 +5573,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignSaveHeifFile (heifsave), save image in HEIF format (.heic, .heif, .avif), priority=0, rgba-only
-    /// inp: `&VipsImage` -> Image to save
-    /// filename: `&str` -> Filename to save to
+    /// Write a VIPS image to a file in HEIF format.
     pub fn heifsave(&self, filename: &str) -> Result<()> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -4825,6 +5592,23 @@ impl VipsImage {
         }
     }
 
+    /// Write a VIPS image to a file in HEIF format.
+    ///
+    /// Optional arguments
+    ///
+    /// Q: `i32`, quality factor
+    ///
+    /// bitdepth: `i32`, set write bit depth to 8, 10, or 12 bits
+    ///
+    /// lossless: `bool`, enable lossless encoding
+    ///
+    /// compression: `ForeignHeifCompression`, write with this compression
+    ///
+    /// effort: `i32`, encoding effort
+    ///
+    /// subsample_mode: `ForeignSubsample`, chroma subsampling mode
+    ///
+    /// encoder: `ForeignHeifEncoder`, select encoder to use
     pub fn heifsave_with_opts(&self, filename: &str, option: VOption) -> Result<()> {
         let vips_op_response = call(
             "heifsave",
@@ -4845,9 +5629,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignSaveHeifBuffer (heifsave_buffer), save image in HEIF format (.heic, .heif), priority=0, rgba-only
-    /// inp: `&VipsImage` -> Image to save
-    /// returns `Vec<u8>` - Buffer to save to
+    /// As vips_heifsave(), but save to a memory buffer.
     pub fn heifsave_buffer(&self) -> Result<Vec<u8>> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -4871,6 +5653,23 @@ impl VipsImage {
         }
     }
 
+    /// As vips_heifsave(), but save to a memory buffer.
+    ///
+    /// Optional arguments
+    ///
+    /// Q: `i32`, quality factor
+    ///
+    /// bitdepth: `i32`, set write bit depth to 8, 10, or 12 bits
+    ///
+    /// lossless: `bool`, enable lossless encoding
+    ///
+    /// compression: `ForeignHeifCompression`, write with this compression
+    ///
+    /// effort: `i32`, encoding effort
+    ///
+    /// subsample_mode: `ForeignSubsample`, chroma subsampling mode
+    ///
+    /// encoder: `ForeignHeifEncoder`, select encoder to use
     pub fn heifsave_buffer_with_opts(&self, option: VOption) -> Result<Vec<u8>> {
         let mut blob = VipsBlob::from(null_mut());
 
@@ -4894,9 +5693,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignSaveHeifTarget (heifsave_target), save image in HEIF format (.heic, .heif), priority=0, rgba-only
-    /// inp: `&VipsImage` -> Image to save
-    /// target: `&VipsTarget` -> Target to save to
+    /// As vips_heifsave(), but save to a target.
     pub fn heifsave_target(&self, target: &VipsTarget) -> Result<()> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -4915,6 +5712,23 @@ impl VipsImage {
         }
     }
 
+    /// As vips_heifsave(), but save to a target.
+    ///
+    /// Optional arguments
+    ///
+    /// Q: `i32`, quality factor
+    ///
+    /// bitdepth: `i32`, set write bit depth to 8, 10, or 12 bits
+    ///
+    /// lossless: `bool`, enable lossless encoding
+    ///
+    /// compression: `ForeignHeifCompression`, write with this compression
+    ///
+    /// effort: `i32`, encoding effort
+    ///
+    /// subsample_mode: `ForeignSubsample`, chroma subsampling mode
+    ///
+    /// encoder: `ForeignHeifEncoder`, select encoder to use
     pub fn heifsave_target_with_opts(&self, target: &VipsTarget, option: VOption) -> Result<()> {
         let vips_op_response = call(
             "heifsave_target",
@@ -4935,8 +5749,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsHistCum (hist_cum), form cumulative histogram
-    /// returns `VipsImage` - Output image
+    /// Form cumulative histogram
     pub fn hist_cum(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -4957,9 +5770,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsHistEntropy (hist_entropy), estimate image entropy
-    /// inp: `&VipsImage` -> Input histogram image
-    /// returns `f64` - Output value
+    /// Estimate image entropy
     pub fn hist_entropy(&self) -> Result<f64> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -4978,8 +5789,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsHistEqual (hist_equal), histogram equalisation
-    /// returns `VipsImage` - Output image
+    /// Histogram equalisation
     pub fn hist_equal(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -5000,6 +5810,11 @@ impl VipsImage {
         }
     }
 
+    /// Histogram equalisation
+    ///
+    /// Optional arguments
+    ///
+    /// band: `i32`, band to equalise.
     pub fn hist_equal_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -5023,8 +5838,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsHistFind (hist_find), find image histogram
-    /// returns `VipsImage` - Output histogram
+    /// Find image histogram
     pub fn hist_find(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -5045,6 +5859,11 @@ impl VipsImage {
         }
     }
 
+    /// Find image histogram
+    ///
+    /// Optional arguments
+    ///
+    /// band: `i32`, band to equalise
     pub fn hist_find_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -5068,9 +5887,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsHistFindIndexed (hist_find_indexed), find indexed image histogram
-    /// index: `&VipsImage` -> Index image
-    /// returns `VipsImage` - Output histogram
+    /// Find indexed image histogram
     pub fn hist_find_indexed(&self, index: &VipsImage) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -5093,6 +5910,11 @@ impl VipsImage {
         }
     }
 
+    /// Find indexed image histogram
+    ///
+    /// Optional arguments
+    ///
+    /// combine: `Combine`, combine bins like this
     pub fn hist_find_indexed_with_opts(
         &self,
         index: &VipsImage,
@@ -5124,8 +5946,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsHistFindNDim (hist_find_ndim), find n-dimensional image histogram
-    /// returns `VipsImage` - Output histogram
+    /// Find n-dimensional image histogram
     pub fn hist_find_ndim(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -5146,6 +5967,11 @@ impl VipsImage {
         }
     }
 
+    /// Find n-dimensional image histogram
+    ///
+    /// Optional arguments
+    ///
+    /// bins: `i32`, number of bins to make on each axis
     pub fn hist_find_ndim_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -5169,9 +5995,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsHistIsmonotonic (hist_ismonotonic), test for monotonicity
-    /// inp: `&VipsImage` -> Input histogram image
-    /// returns `bool` - true if in is monotonic
+    /// Test for monotonicity
     pub fn hist_ismonotonic(&self) -> Result<bool> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -5190,12 +6014,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsHistLocal (hist_local), local histogram equalisation
-    /// width: `i32` -> Window width in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// height: `i32` -> Window height in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// returns `VipsImage` - Output image
+    /// Local histogram equalisation
     pub fn hist_local(&self, width: i32, height: i32) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -5220,6 +6039,11 @@ impl VipsImage {
         }
     }
 
+    /// Local histogram equalisation
+    ///
+    /// Optional arguments
+    ///
+    /// max_slope: `i32`, maximum brightening
     pub fn hist_local_with_opts(
         &self,
         width: i32,
@@ -5256,10 +6080,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsHistMatch (hist_match), match two histograms
-    /// inp: `&VipsImage` -> Input histogram
-    /// refp: `&VipsImage` -> Reference histogram
-    /// returns `VipsImage` - Output image
+    /// Match two histograms
     pub fn hist_match(&self, refp: &VipsImage) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -5282,8 +6103,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsHistNorm (hist_norm), normalise histogram
-    /// returns `VipsImage` - Output image
+    /// Normalise histogram
     pub fn hist_norm(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -5304,8 +6124,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsHistPlot (hist_plot), plot histogram
-    /// returns `VipsImage` - Output image
+    /// Plot histogram
     pub fn hist_plot(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -5326,8 +6145,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsHoughCircle (hough_circle), find hough circle transform
-    /// returns `VipsImage` - Output image
+    /// Find hough circle transform
     pub fn hough_circle(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -5348,6 +6166,15 @@ impl VipsImage {
         }
     }
 
+    /// Find hough circle transform
+    ///
+    /// Optional arguments
+    ///
+    /// scale: `i32`, scale down dimensions by this much
+    ///
+    /// min_radius: `i32`, smallest radius to search for
+    ///
+    /// max_radius: `i32`, largest radius to search for
     pub fn hough_circle_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -5371,8 +6198,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsHoughLine (hough_line), find hough line transform
-    /// returns `VipsImage` - Output image
+    /// Find hough line transform
     pub fn hough_line(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -5393,6 +6219,13 @@ impl VipsImage {
         }
     }
 
+    /// Find hough line transform
+    ///
+    /// Optional arguments
+    ///
+    /// width: `i32`, horizontal size of parameter space
+    ///
+    /// height: `i32`, vertical size of parameter space
     pub fn hough_line_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -5416,8 +6249,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsIccExport (icc_export), output to device with ICC profile
-    /// returns `VipsImage` - Output image
+    /// Output to device with ICC profile
     pub fn icc_export(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -5438,6 +6270,19 @@ impl VipsImage {
         }
     }
 
+    /// Output to device with ICC profile
+    ///
+    /// Optional arguments
+    ///
+    /// pcs: `PCS`, use XYZ or LAB PCS
+    ///
+    /// intent: `Intent`, transform with this intent
+    ///
+    /// black_point_compensation: `bool`, enable black point compensation
+    ///
+    /// output_profile: `&str`, get the output profile from here
+    ///
+    /// depth: `i32`, depth of output image in bits.
     pub fn icc_export_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -5461,8 +6306,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsIccImport (icc_import), import from device with ICC profile
-    /// returns `VipsImage` - Output image
+    /// Import from device with ICC profile
     pub fn icc_import(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -5483,6 +6327,19 @@ impl VipsImage {
         }
     }
 
+    /// Import from device with ICC profile
+    ///
+    /// Optional arguments
+    ///
+    /// pcs: `PCS`, use XYZ or LAB PCS
+    ///
+    /// intent: `Intent`, transform with this intent
+    ///
+    /// black_point_compensation: `bool`, enable black point compensation
+    ///
+    /// embedded: `bool`, use profile embedded in input image
+    ///
+    /// input_profile: `&str`, get the input profile from here.
     pub fn icc_import_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -5506,9 +6363,9 @@ impl VipsImage {
         )
     }
 
-    /// VipsIccTransform (icc_transform), transform between devices with ICC profiles
+    /// Transform between devices with ICC profiles
+    ///
     /// output_profile: `&str` -> Filename to load output profile from
-    /// returns `VipsImage` - Output image
     pub fn icc_transform(&self, output_profile: &str) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -5531,6 +6388,23 @@ impl VipsImage {
         }
     }
 
+    /// Transform between devices with ICC profiles
+    ///
+    /// output_profile: `&str` -> Filename to load output profile from
+    ///
+    /// Optional arguments
+    ///
+    /// pcs: `PCS`, use XYZ or LAB PCS
+    ///
+    /// intent: `Intent`, transform with this intent
+    ///
+    /// black_point_compensation: `bool`, enable black point compensation
+    ///
+    /// embedded: `bool`, use profile embedded in input image
+    ///
+    /// input_profile: `&str`, get the input profile from here
+    ///
+    /// depth: `i32`, depth of output image in bits.
     pub fn icc_transform_with_opts(
         &self,
         output_profile: &str,
@@ -5562,8 +6436,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsIdentity (identity), make a 1D image where pixel values are indexes
-    /// returns `VipsImage` - Output image
+    /// Make a 1D image where pixel values are indexes
     pub fn identity() -> Result<VipsImage> {
         unsafe {
             let mut out_out: *mut bindings::VipsImage = null_mut();
@@ -5582,6 +6455,15 @@ impl VipsImage {
         }
     }
 
+    /// Make a 1D image where pixel values are indexes
+    ///
+    /// Optional arguments
+    ///
+    /// bands: `i32`, number of bands to create
+    ///
+    /// ushort: `bool`, TRUE for an unsigned short identity
+    ///
+    /// size: `i32`, number of LUT elements for a ushort image
     pub fn identity_with_opts(option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -5600,11 +6482,11 @@ impl VipsImage {
         )
     }
 
-    /// VipsIfthenelse (ifthenelse), ifthenelse an image
-    /// cond: `&VipsImage` -> Condition input image
+    /// Ifthenelse an image
+    ///
     /// in1: `&VipsImage` -> Source for TRUE pixels
+    ///
     /// in2: `&VipsImage` -> Source for FALSE pixels
-    /// returns `VipsImage` - Output image
     pub fn ifthenelse(&self, in1: &VipsImage, in2: &VipsImage) -> Result<VipsImage> {
         unsafe {
             let cond_in: *mut bindings::VipsImage = self.ctx;
@@ -5629,6 +6511,15 @@ impl VipsImage {
         }
     }
 
+    /// Ifthenelse an image
+    ///
+    /// in1: `&VipsImage` -> Source for TRUE pixels
+    ///
+    /// in2: `&VipsImage` -> Source for FALSE pixels
+    ///
+    /// Optional arguments
+    ///
+    /// blend: `bool`, blend smoothly between in1 and in2
     pub fn ifthenelse_with_opts(
         &self,
         in1: &VipsImage,
@@ -5665,14 +6556,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsInsert (insert), insert image @sub into @main at @x, @y
-    /// main: `&VipsImage` -> Main input image
-    /// sub: `&VipsImage` -> Sub-image to insert into main image
-    /// x: `i32` -> Left edge of sub in main
-    /// min: -100000000, max: 100000000, default: 0
-    /// y: `i32` -> Top edge of sub in main
-    /// min: -100000000, max: 100000000, default: 0
-    /// returns `VipsImage` - Output image
+    /// Insert sub into this image at position x, y.
     pub fn insert(&self, sub: &VipsImage, x: i32, y: i32) -> Result<VipsImage> {
         unsafe {
             let main_in: *mut bindings::VipsImage = self.ctx;
@@ -5699,6 +6583,13 @@ impl VipsImage {
         }
     }
 
+    /// Insert sub into this image at position x, y.
+    ///
+    /// Optional arguments
+    ///
+    /// expand: `f64`, expand output to hold whole of both images
+    ///
+    /// background: `&[f64]`, colour for new pixels
     pub fn insert_with_opts(
         &self,
         sub: &VipsImage,
@@ -5740,8 +6631,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsInvert (invert), invert an image
-    /// returns `VipsImage` - Output image
+    /// Invert an image
     pub fn invert(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -5762,9 +6652,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsInvertlut (invertlut), build an inverted look-up table
-    /// inp: `&VipsImage` -> Matrix of XY coordinates
-    /// returns `VipsImage` - Output image
+    /// Build an inverted look-up table
     pub fn invertlut(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -5785,6 +6673,11 @@ impl VipsImage {
         }
     }
 
+    /// Build an inverted look-up table
+    ///
+    /// Optional arguments
+    ///
+    /// size: `i32`, generate this much
     pub fn invertlut_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -5808,8 +6701,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsInvfft (invfft), inverse FFT
-    /// returns `VipsImage` - Output image
+    /// Inverse FFT
     pub fn invfft(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -5830,6 +6722,11 @@ impl VipsImage {
         }
     }
 
+    /// Inverse FFT
+    ///
+    /// Optional arguments
+    ///
+    /// real: `bool`, only output the real part
     pub fn invfft_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -5853,14 +6750,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsJoin (join), join a pair of images
-    /// in_1: `&VipsImage` -> First input image
-    /// in2: `&VipsImage` -> Second input image
-    /// direction: `Direction` -> Join left-right or up-down
-    ///  `Horizontal` -> VIPS_DIRECTION_HORIZONTAL = 0 [DEFAULT]
-    ///  `Vertical` -> VIPS_DIRECTION_VERTICAL = 1
-    ///  `Last` -> VIPS_DIRECTION_LAST = 2
-    /// returns `VipsImage` - Output image
+    /// Join a pair of images
     pub fn join(&self, in2: &VipsImage, direction: Direction) -> Result<VipsImage> {
         unsafe {
             let in_1_in: *mut bindings::VipsImage = self.ctx;
@@ -5887,6 +6777,17 @@ impl VipsImage {
         }
     }
 
+    /// Join a pair of images
+    ///
+    /// Optional arguments
+    ///
+    /// expand: `bool`, TRUE to expand the output image to hold all of the input pixels
+    ///
+    /// shim: `i32`, space between images, in pixels
+    ///
+    /// background: `&[f64]`, background ink colour
+    ///
+    /// align: `Align`, low, centre or high alignment
     pub fn join_with_opts(
         &self,
         in2: &VipsImage,
@@ -5923,7 +6824,40 @@ impl VipsImage {
         )
     }
 
-    pub fn jp2kload(&self, filename: &str, option: VOption) -> Result<VipsImage> {
+    /// Read a JPEG2000 image.
+    pub fn jp2kload(&self, filename: &str) -> Result<VipsImage> {
+        let mut out_out = VipsImage::from(null_mut());
+
+        let vips_op_response = call(
+            "jp2kload",
+            VOption::new()
+                .with(
+                    "out",
+                    VipsValue::MutImage(&mut out_out),
+                )
+                .with(
+                    "filename",
+                    VipsValue::Str(filename),
+                ),
+        );
+
+        utils::result(
+            vips_op_response,
+            out_out,
+            Error::OperationError("jp2kload failed"),
+        )
+    }
+
+    /// Read a JPEG2000 image.
+    ///
+    /// Optional arguments
+    ///
+    /// page: `i32`, load this page
+    ///
+    /// oneshot: `bool`, load pages in one-shot mode
+    ///
+    /// fail_on: `FailOn`, types of read error to fail on
+    pub fn jp2kload_with_opts(&self, filename: &str, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
@@ -5946,7 +6880,40 @@ impl VipsImage {
         )
     }
 
-    pub fn jp2kload_buffer(buffer: &[u8], option: VOption) -> Result<VipsImage> {
+    /// Exactly as vips_jp2kload(), but read from a buffer.
+    pub fn jp2kload_buffer(buffer: &[u8]) -> Result<VipsImage> {
+        let mut out_out = VipsImage::from(null_mut());
+
+        let vips_op_response = call(
+            "jp2kload_buffer",
+            VOption::new()
+                .with(
+                    "out",
+                    VipsValue::MutImage(&mut out_out),
+                )
+                .with(
+                    "buffer",
+                    VipsValue::Buffer(buffer),
+                ),
+        );
+
+        utils::result(
+            vips_op_response,
+            out_out,
+            Error::OperationError("jp2kload_buffer failed"),
+        )
+    }
+
+    /// Exactly as vips_jp2kload(), but read from a buffer.
+    ///
+    /// Optional arguments
+    ///
+    /// page: `i32`, load this page
+    ///
+    /// oneshot: `bool`, load pages in one-shot mode
+    ///
+    /// fail_on: `FailOn`, types of read error to fail on
+    pub fn jp2kload_buffer_with_opts(buffer: &[u8], option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
@@ -5969,12 +6936,13 @@ impl VipsImage {
         )
     }
 
-    pub fn jp2kload_source(source: &VipsSource, option: VOption) -> Result<VipsImage> {
+    /// Exactly as vips_jp2kload(), but read from a source.
+    pub fn jp2kload_source(source: &VipsSource) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "jp2kload_source",
-            option
+            VOption::new()
                 .with(
                     "out",
                     VipsValue::MutImage(&mut out_out),
@@ -5992,6 +6960,39 @@ impl VipsImage {
         )
     }
 
+    /// Exactly as vips_jp2kload(), but read from a source.
+    ///
+    /// Optional arguments
+    ///
+    /// page: `i32`, load this page
+    ///
+    /// oneshot: `bool`, load pages in one-shot mode
+    ///
+    /// fail_on: `FailOn`, types of read error to fail on
+    pub fn jp2kload_source_with_opts(source: &VipsSource, options: VOption) -> Result<VipsImage> {
+        let mut out_out = VipsImage::from(null_mut());
+
+        let vips_op_response = call(
+            "jp2kload_source",
+            options
+                .with(
+                    "out",
+                    VipsValue::MutImage(&mut out_out),
+                )
+                .with(
+                    "source",
+                    VipsValue::Source(source),
+                ),
+        );
+
+        utils::result(
+            vips_op_response,
+            out_out,
+            Error::OperationError("jp2kload_source failed"),
+        )
+    }
+
+    /// Write a VIPS image to a file in JPEG2000 format.
     pub fn jp2ksave(&self, filename: &str) -> Result<()> {
         let vips_op_response = call(
             "jp2ksave",
@@ -6012,6 +7013,19 @@ impl VipsImage {
         )
     }
 
+    /// Write a VIPS image to a file in JPEG2000 format.
+    ///
+    /// Optional arguments
+    ///
+    /// Q: `i32`, quality factor
+    ///
+    /// lossless: `bool`, enables lossless compression
+    ///
+    /// tile_width: `i32`, tile width
+    ///
+    /// tile_height: `i32`, tile width
+    ///
+    /// subsample_mode: `ForeignSubsample`, chroma subsampling mode
     pub fn jp2ksave_with_opts(&self, filename: &str, option: VOption) -> Result<()> {
         let vips_op_response = call(
             "jp2ksave",
@@ -6032,6 +7046,7 @@ impl VipsImage {
         )
     }
 
+    /// Save jp2 image to buffer
     pub fn jp2ksave_buffer(&self) -> Result<Vec<u8>> {
         let mut blob = VipsBlob::from(null_mut());
 
@@ -6054,6 +7069,19 @@ impl VipsImage {
         )
     }
 
+    /// Save jp2 image to buffer
+    ///
+    /// Optional arguments
+    ///
+    /// Q: `i32`, quality factor
+    ///
+    /// lossless: `bool`, enables lossless compression
+    ///
+    /// tile_width: `i32`, tile width
+    ///
+    /// tile_height: `i32`, tile width
+    ///
+    /// subsample_mode: `ForeignSubsample`, chroma subsampling mode
     pub fn jp2ksave_buffer_with_opts(&self, option: VOption) -> Result<Vec<u8>> {
         let mut blob = VipsBlob::from(null_mut());
 
@@ -6076,6 +7104,7 @@ impl VipsImage {
         )
     }
 
+    /// As vips_jp2ksave(), but save to a target.
     pub fn jp2ksave_target(&self, target: &VipsTarget) -> Result<()> {
         let vips_op_response = call(
             "jp2ksave_target",
@@ -6096,6 +7125,19 @@ impl VipsImage {
         )
     }
 
+    /// As vips_jp2ksave(), but save to a target.
+    ///
+    /// Optional arguments
+    ///
+    /// Q: `i32`, quality factor
+    ///
+    /// lossless: `bool`, enables lossless compression
+    ///
+    /// tile_width: `i32`, tile width
+    ///
+    /// tile_height: `i32`, tile width
+    ///
+    /// subsample_mode: `ForeignSubsample`, chroma subsampling mode
     pub fn jp2ksave_target_with_opts(&self, target: &VipsTarget, option: VOption) -> Result<()> {
         let vips_op_response = call(
             "jp2ksave_target",
@@ -6116,9 +7158,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignLoadJpegFile (jpegload), load jpeg from file (.jpg, .jpeg, .jpe, .jfif), priority=50, is_a, get_flags, get_flags_filename, header, load
-    /// filename: `&str` -> Filename to load from
-    /// returns `VipsImage` - Output image
+    /// Read a JPEG file into a VIPS image.
     pub fn jpegload(filename: &str) -> Result<VipsImage> {
         unsafe {
             let filename_in: CString = utils::new_c_string(filename)?;
@@ -6139,6 +7179,15 @@ impl VipsImage {
         }
     }
 
+    /// Read a JPEG file into a VIPS image.
+    ///
+    /// Optional arguments
+    ///
+    /// shrink: `i32`, shrink by this much on load
+    ///
+    /// fail_on: `FailOn`, types of read error to fail on
+    ///
+    /// autorotate: `bool`, use exif Orientation tag to rotate the image during load
     pub fn jpegload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -6162,9 +7211,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignLoadJpegBuffer (jpegload_buffer), load jpeg from buffer, priority=50, is_a_buffer, get_flags, get_flags_filename, header, load
-    /// buffer: `&[u8]` -> Buffer to load from
-    /// returns `VipsImage` - Output image
+    /// Read a JPEG-formatted memory block into a VIPS image.
     pub fn jpegload_buffer(buffer: &[u8]) -> Result<VipsImage> {
         unsafe {
             let buffer_in: *mut c_void = buffer.as_ptr() as *mut c_void;
@@ -6186,6 +7233,15 @@ impl VipsImage {
         }
     }
 
+    /// Read a JPEG-formatted memory block into a VIPS image.
+    ///
+    /// Optional arguments
+    ///
+    /// shrink: `i32`, shrink by this much on load
+    ///
+    /// fail_on: `FailOn`, types of read error to fail on
+    ///
+    /// autorotate: `bool`, use exif Orientation tag to rotate the image during load
     pub fn jpegload_buffer_with_opts(buffer: &[u8], option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -6209,7 +7265,40 @@ impl VipsImage {
         )
     }
 
-    pub fn jpegload_source(source: &VipsSource, option: VOption) -> Result<VipsImage> {
+    /// Read a JPEG-formatted memory block into a VIPS image from source.
+    pub fn jpegload_source(source: &VipsSource) -> Result<VipsImage> {
+        let mut out_out = VipsImage::from(null_mut());
+
+        let vips_op_response = call(
+            "jpegload_source",
+            VOption::new()
+                .with(
+                    "out",
+                    VipsValue::MutImage(&mut out_out),
+                )
+                .with(
+                    "source",
+                    VipsValue::Source(source),
+                ),
+        );
+
+        utils::result(
+            vips_op_response,
+            out_out,
+            Error::OperationError("jpegload_source failed"),
+        )
+    }
+
+    /// Read a JPEG-formatted memory block into a VIPS image from source.
+    ///
+    /// Optional arguments
+    ///
+    /// shrink: `i32`, shrink by this much on load
+    ///
+    /// fail_on: `FailOn`, types of read error to fail on
+    ///
+    /// autorotate: `bool`, use exif Orientation tag to rotate the image during load
+    pub fn jpegload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
@@ -6232,9 +7321,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignSaveJpegFile (jpegsave), save image to jpeg file (.jpg, .jpeg, .jpe, .jfif), priority=0, rgb-cmyk
-    /// inp: `&VipsImage` -> Image to save
-    /// filename: `&str` -> Filename to save to
+    /// Write a VIPS image to a file as JPEG.
     pub fn jpegsave(&self, filename: &str) -> Result<()> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -6253,6 +7340,27 @@ impl VipsImage {
         }
     }
 
+    /// Write a VIPS image to a file as JPEG.
+    ///
+    /// Optional arguments
+    ///
+    /// Q: `i32`, quality factor
+    ///
+    /// optimize_coding: `bool`, compute optimal Huffman coding tables
+    ///
+    /// interlace: `bool`, write an interlaced (progressive) jpeg
+    ///
+    /// subsample_mode: `ForeignSubsample`, chroma subsampling mode
+    ///
+    /// trellis_quant: `bool`, apply trellis quantisation to each 8x8 block
+    ///
+    /// overshoot_deringing: `bool`, overshoot samples with extreme values
+    ///
+    /// optimize_scans: `bool`, split DCT coefficients into separate scans
+    ///
+    /// quant_table: `i32`, quantization table index
+    ///
+    /// restart_interval: `i32`, restart interval in mcu
     pub fn jpegsave_with_opts(&self, filename: &str, option: VOption) -> Result<()> {
         let vips_op_response = call(
             "jpegsave",
@@ -6273,9 +7381,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignSaveJpegBuffer (jpegsave_buffer), save image to jpeg buffer (.jpg, .jpeg, .jpe, .jfif), priority=0, rgb-cmyk
-    /// inp: `&VipsImage` -> Image to save
-    /// returns `Vec<u8>` - Buffer to save to
+    /// As vips_jpegsave(), but save to a memory buffer.
     pub fn jpegsave_buffer(&self) -> Result<Vec<u8>> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -6299,6 +7405,27 @@ impl VipsImage {
         }
     }
 
+    /// As vips_jpegsave(), but save to a memory buffer.
+    ///
+    /// Optional arguments
+    ///
+    /// Q: `i32`, quality factor
+    ///
+    /// optimize_coding: `bool`, compute optimal Huffman coding tables
+    ///
+    /// interlace: `bool`, write an interlaced (progressive) jpeg
+    ///
+    /// subsample_mode: `ForeignSubsample`, chroma subsampling mode
+    ///
+    /// trellis_quant: `bool`, apply trellis quantisation to each 8x8 block
+    ///
+    /// overshoot_deringing: `bool`, overshoot samples with extreme values
+    ///
+    /// optimize_scans: `bool`, split DCT coefficients into separate scans
+    ///
+    /// quant_table: `i32`, quantization table index
+    ///
+    /// restart_interval: `i32`, restart interval in mcu
     pub fn jpegsave_buffer_with_opts(&self, option: VOption) -> Result<Vec<u8>> {
         let mut blob = VipsBlob::from(null_mut());
 
@@ -6321,8 +7448,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignSaveJpegMime (jpegsave_mime), save image to jpeg mime (.jpg, .jpeg, .jpe, .jfif), priority=0, rgb-cmyk
-    /// inp: `&VipsImage` -> Image to save
+    /// As vips_jpegsave(), but save as a mime jpeg on stdout.
     pub fn jpegsave_mime(&self) -> Result<()> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -6339,6 +7465,27 @@ impl VipsImage {
         }
     }
 
+    /// As vips_jpegsave(), but save as a mime jpeg on stdout.
+    ///
+    /// Optional arguments
+    ///
+    /// Q: `i32`, quality factor
+    ///
+    /// optimize_coding: `bool`, compute optimal Huffman coding tables
+    ///
+    /// interlace: `bool`, write an interlaced (progressive) jpeg
+    ///
+    /// subsample_mode: `ForeignSubsample`, chroma subsampling mode
+    ///
+    /// trellis_quant: `bool`, apply trellis quantisation to each 8x8 block
+    ///
+    /// overshoot_deringing: `bool`, overshoot samples with extreme values
+    ///
+    /// optimize_scans: `bool`, split DCT coefficients into separate scans
+    ///
+    /// quant_table: `i32`, quantization table index
+    ///
+    /// restart_interval: `i32`, restart interval in mcu
     pub fn jpegsave_mime_with_opts(&self, option: VOption) -> Result<()> {
         let vips_op_response = call(
             "jpegsave_mime",
@@ -6354,9 +7501,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignSaveJpegTarget (jpegsave_target), save image to jpeg target (.jpg, .jpeg, .jpe, .jfif), priority=0, rgb-cmyk
-    /// inp: `&VipsImage` -> Image to save
-    /// target: `&VipsTarget` -> Target to save to
+    /// As vips_jpegsave(), but save to a target.
     pub fn jpegsave_target(&self, target: &VipsTarget) -> Result<()> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -6375,6 +7520,27 @@ impl VipsImage {
         }
     }
 
+    /// As vips_jpegsave(), but save to a target.
+    ///
+    /// Optional arguments
+    ///
+    /// Q: `i32`, quality factor
+    ///
+    /// optimize_coding: `bool`, compute optimal Huffman coding tables
+    ///
+    /// interlace: `bool`, write an interlaced (progressive) jpeg
+    ///
+    /// subsample_mode: `ForeignSubsample`, chroma subsampling mode
+    ///
+    /// trellis_quant: `bool`, apply trellis quantisation to each 8x8 block
+    ///
+    /// overshoot_deringing: `bool`, overshoot samples with extreme values
+    ///
+    /// optimize_scans: `bool`, split DCT coefficients into separate scans
+    ///
+    /// quant_table: `i32`, quantization table index
+    ///
+    /// restart_interval: `i32`, restart interval in mcu
     pub fn jpegsave_target_with_opts(&self, target: &VipsTarget, option: VOption) -> Result<()> {
         let vips_op_response = call(
             "jpegsave_target",
@@ -6395,6 +7561,7 @@ impl VipsImage {
         )
     }
 
+    /// Load jxl from file
     pub fn jxlload(filename: &str) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -6417,28 +7584,7 @@ impl VipsImage {
         )
     }
 
-    pub fn jxlload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out = VipsImage::from(null_mut());
-
-        let vips_op_response = call(
-            "jxlload",
-            option
-                .with(
-                    "out",
-                    VipsValue::MutImage(&mut out_out),
-                )
-                .with(
-                    "filename",
-                    VipsValue::Str(filename),
-                ),
-        );
-        utils::result(
-            vips_op_response,
-            out_out,
-            Error::OperationError("jxlload_with_opts failed"),
-        )
-    }
-
+    /// Load jxl from buffer
     pub fn jxlload_buffer(buffer: &[u8]) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -6461,28 +7607,7 @@ impl VipsImage {
         )
     }
 
-    pub fn jxlload_buffer_with_opts(buffer: &[u8], option: VOption) -> Result<VipsImage> {
-        let mut out_out = VipsImage::from(null_mut());
-
-        let vips_op_response = call(
-            "jxlload_buffer",
-            option
-                .with(
-                    "out",
-                    VipsValue::MutImage(&mut out_out),
-                )
-                .with(
-                    "buffer",
-                    VipsValue::Buffer(buffer),
-                ),
-        );
-        utils::result(
-            vips_op_response,
-            out_out,
-            Error::OperationError("jxlload_buffer_with_opts failed"),
-        )
-    }
-
+    /// Load jxl from source
     pub fn jxlload_source(source: &VipsSource) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -6505,28 +7630,7 @@ impl VipsImage {
         )
     }
 
-    pub fn jxlload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
-        let mut out_out = VipsImage::from(null_mut());
-
-        let vips_op_response = call(
-            "jxlload_source",
-            option
-                .with(
-                    "out",
-                    VipsValue::MutImage(&mut out_out),
-                )
-                .with(
-                    "source",
-                    VipsValue::Source(source),
-                ),
-        );
-        utils::result(
-            vips_op_response,
-            out_out,
-            Error::OperationError("jxlload_source_with_opts failed"),
-        )
-    }
-
+    /// Save image to jxl file
     pub fn jxlsave(&self, filename: &str) -> Result<()> {
         let vips_op_response = call(
             "jxlsave",
@@ -6547,6 +7651,19 @@ impl VipsImage {
         )
     }
 
+    /// Save image to jxl file
+    ///
+    /// Optional arguments
+    ///
+    /// tier: `i32`, decode speed tier
+    ///
+    /// distance: `f64`, maximum encoding error
+    ///
+    /// effort: `i32`, encoding effort
+    ///
+    /// lossless: `bool`, enables lossless compression
+    ///
+    /// Q: `i32`, quality setting.
     pub fn jxlsave_with_opts(&self, filename: &str, option: VOption) -> Result<()> {
         let vips_op_response = call(
             "jxlsave",
@@ -6567,6 +7684,7 @@ impl VipsImage {
         )
     }
 
+    /// Save jxl image to buffer
     pub fn jxlsave_buffer(&self) -> Result<Vec<u8>> {
         let mut blob = VipsBlob::from(null_mut());
 
@@ -6589,6 +7707,19 @@ impl VipsImage {
         )
     }
 
+    /// Save jxl image to buffer
+    ///
+    /// Optional arguments
+    ///
+    /// tier: `i32`, decode speed tier
+    ///
+    /// distance: `f64`, maximum encoding error
+    ///
+    /// effort: `i32`, encoding effort
+    ///
+    /// lossless: `bool`, enables lossless compression
+    ///
+    /// Q: `i32`, quality setting.
     pub fn jxlsave_buffer_with_opts(&self, option: VOption) -> Result<Vec<u8>> {
         let mut blob = VipsBlob::from(null_mut());
 
@@ -6611,6 +7742,7 @@ impl VipsImage {
         )
     }
 
+    /// Save jxl image to target
     pub fn jxlsave_target(&self, target: &VipsTarget) -> Result<()> {
         let vips_op_response = call(
             "jxlsave_target",
@@ -6631,6 +7763,19 @@ impl VipsImage {
         )
     }
 
+    /// Save jxl image to target
+    ///
+    /// Optional arguments
+    ///
+    /// tier: `i32`, decode speed tier
+    ///
+    /// distance: `f64`, maximum encoding error
+    ///
+    /// effort: `i32`, encoding effort
+    ///
+    /// lossless: `bool`, enables lossless compression
+    ///
+    /// Q: `i32`, quality setting.
     pub fn jxlsave_target_with_opts(&self, target: &VipsTarget, option: VOption) -> Result<()> {
         let vips_op_response = call(
             "jxlsave_target",
@@ -6651,8 +7796,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsLabelregions (labelregions), label regions in an image
-    /// returns `VipsImage` - Mask of region labels
+    /// Label regions in an image
     pub fn labelregions(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -6673,6 +7817,11 @@ impl VipsImage {
         }
     }
 
+    /// Label regions in an image
+    ///
+    /// Optional arguments
+    ///
+    /// segments: `i32`, output, number of regions found
     pub fn labelregions_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -6696,6 +7845,7 @@ impl VipsImage {
         )
     }
 
+    /// Pass an image through a linear transform, ie. (out = in * a + b).
     pub fn linear(&self, a: &[f64], b: &[f64]) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -6726,6 +7876,11 @@ impl VipsImage {
         )
     }
 
+    /// Pass an image through a linear transform, ie. (out = in * a + b).
+    ///
+    /// Optional arguments
+    ///
+    /// uchar: `bool`, output uchar pixels
     pub fn linear_with_opts(&self, a: &[f64], b: &[f64], option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -6756,8 +7911,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsLineCache (linecache), cache an image as a set of lines
-    /// returns `VipsImage` - Output image
+    /// Cache an image as a set of lines
     pub fn linecache(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -6778,6 +7932,15 @@ impl VipsImage {
         }
     }
 
+    /// Cache an image as a set of lines
+    ///
+    /// Optional arguments
+    ///
+    /// access: `Access`, hint expected access pattern
+    ///
+    /// tile_height: `i32`, height of tiles in cache
+    ///
+    /// threaded: `bool`, allow many threads
     pub fn linecache_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -6801,12 +7964,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsLogmat (logmat), make a Laplacian of Gaussian image
-    /// sigma: `f64` -> Radius of Gaussian
-    /// min: 0.000001, max: 10000, default: 1
-    /// min_ampl: `f64` -> Minimum amplitude of Gaussian
-    /// min: 0.000001, max: 10000, default: 0.1
-    /// returns `VipsImage` - Output image
+    /// Make a Laplacian of Gaussian image
     pub fn logmat(sigma: f64, min_ampl: f64) -> Result<VipsImage> {
         unsafe {
             let sigma_in: f64 = sigma;
@@ -6829,6 +7987,13 @@ impl VipsImage {
         }
     }
 
+    /// Make a Laplacian of Gaussian image
+    ///
+    /// Optional arguments
+    ///
+    /// separable: `bool`, generate a separable mask
+    ///
+    /// precision: `Precision` for out
     pub fn logmat_with_opts(sigma: f64, min_ampl: f64, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -6856,99 +8021,7 @@ impl VipsImage {
         )
     }
 
-    pub fn magickload(filename: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out = VipsImage::from(null_mut());
-
-        let vips_op_response = call(
-            "magickload",
-            option
-                .with(
-                    "out",
-                    VipsValue::MutImage(&mut out_out),
-                )
-                .with(
-                    "filename",
-                    VipsValue::Str(filename),
-                ),
-        );
-
-        utils::result(
-            vips_op_response,
-            out_out,
-            Error::OperationError("magickload failed"),
-        )
-    }
-
-    pub fn magickload_buffer(buffer: &[u8], option: VOption) -> Result<VipsImage> {
-        let mut out_out = VipsImage::from(null_mut());
-
-        let vips_op_response = call(
-            "magickload_buffer",
-            option
-                .with(
-                    "out",
-                    VipsValue::MutImage(&mut out_out),
-                )
-                .with(
-                    "buffer",
-                    VipsValue::Buffer(buffer),
-                ),
-        );
-
-        utils::result(
-            vips_op_response,
-            out_out,
-            Error::OperationError("magickload_buffer failed"),
-        )
-    }
-
-    pub fn magicksave(&self, filename: &str, option: VOption) -> Result<()> {
-        let vips_op_response = call(
-            "magicksave",
-            option
-                .with(
-                    "in",
-                    VipsValue::Image(&VipsImage::from(self.ctx)),
-                )
-                .with(
-                    "filename",
-                    VipsValue::Str(filename),
-                ),
-        );
-
-        utils::result(
-            vips_op_response,
-            (),
-            Error::OperationError("magicksave failed"),
-        )
-    }
-
-    pub fn magicksave_buffer(&self, option: VOption) -> Result<Vec<u8>> {
-        let mut blob = VipsBlob::from(null_mut());
-
-        let vips_op_response = call(
-            "magicksave_buffer",
-            option
-                .with(
-                    "in",
-                    VipsValue::Image(&VipsImage::from(self.ctx)),
-                )
-                .with(
-                    "buffer",
-                    VipsValue::MutBlob(&mut blob),
-                ),
-        );
-
-        utils::result(
-            vips_op_response,
-            blob.into(),
-            Error::OperationError("magicksave_buffer failed"),
-        )
-    }
-
-    /// VipsMapim (mapim), resample with a map image
-    /// index: `&VipsImage` -> Index pixels with this
-    /// returns `VipsImage` - Output image
+    /// Resample with a map image
     pub fn mapim(&self, index: &VipsImage) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -6971,6 +8044,17 @@ impl VipsImage {
         }
     }
 
+    /// Resample with a map image
+    ///
+    /// Optional arguments
+    ///
+    /// interpolate: `Interpolate`, interpolate pixels with this
+    ///
+    /// extend: `Extend`, how to generate new pixels
+    ///
+    /// background: `&[f64]`, colour for new pixels
+    ///
+    /// premultiplied: `bool`, images are already premultiplied
     pub fn mapim_with_opts(&self, index: &VipsImage, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -6998,9 +8082,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsMaplut (maplut), map an image though a lut
-    /// lut: `&VipsImage` -> Look-up table image
-    /// returns `VipsImage` - Output image
+    /// Map an image though a lut
     pub fn maplut(&self, lut: &VipsImage) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -7023,6 +8105,11 @@ impl VipsImage {
         }
     }
 
+    /// Map an image though a lut
+    ///
+    /// Optional arguments
+    ///
+    /// band: `i32`, apply one-band lut to this band of in
     pub fn maplut_with_opts(&self, lut: &VipsImage, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -7050,18 +8137,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsMaskButterworth (mask_butterworth), make a butterworth filter
-    /// width: `i32` -> Image width in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// height: `i32` -> Image height in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// order: `f64` -> Filter order
-    /// min: 1, max: 1000000, default: 1
-    /// frequency_cutoff: `f64` -> Frequency cutoff
-    /// min: 0, max: 1000000, default: 0.5
-    /// amplitude_cutoff: `f64` -> Amplitude cutoff
-    /// min: 0, max: 1, default: 0.5
-    /// returns `VipsImage` - Output image
+    /// Make a butterworth filter
     pub fn mask_butterworth(
         width: i32,
         height: i32,
@@ -7096,6 +8172,17 @@ impl VipsImage {
         }
     }
 
+    /// Make a butterworth filter
+    ///
+    /// Optional arguments
+    ///
+    /// nodc: `bool`, don’t set the DC pixel
+    ///
+    /// reject: `bool`, invert the filter sense
+    ///
+    /// optical: `bool`, coordinates in optical space
+    ///
+    /// uchar: `bool`, output a uchar image
     pub fn mask_butterworth_with_opts(
         width: i32,
         height: i32,
@@ -7142,22 +8229,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsMaskButterworthBand (mask_butterworth_band), make a butterworth_band filter
-    /// width: `i32` -> Image width in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// height: `i32` -> Image height in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// order: `f64` -> Filter order
-    /// min: 1, max: 1000000, default: 1
-    /// frequency_cutoff_x: `f64` -> Frequency cutoff x
-    /// min: 0, max: 1000000, default: 0.5
-    /// frequency_cutoff_y: `f64` -> Frequency cutoff y
-    /// min: 0, max: 1000000, default: 0.5
-    /// radius: `f64` -> Radius of circle
-    /// min: 0, max: 1000000, default: 0.1
-    /// amplitude_cutoff: `f64` -> Amplitude cutoff
-    /// min: 0, max: 1, default: 0.5
-    /// returns `VipsImage` - Output image
+    /// Make a butterworth_band filter
     pub fn mask_butterworth_band(
         width: i32,
         height: i32,
@@ -7198,6 +8270,17 @@ impl VipsImage {
         }
     }
 
+    /// Make a butterworth_band filter
+    ///
+    /// Optional arguments
+    ///
+    /// nodc: `bool`, don’t set the DC pixel
+    ///
+    /// reject: `bool`, invert the filter sense
+    ///
+    /// optical: `bool`, coordinates in optical space
+    ///
+    /// uchar: `bool`, output a uchar image
     pub fn mask_butterworth_band_with_opts(
         width: i32,
         height: i32,
@@ -7254,20 +8337,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsMaskButterworthRing (mask_butterworth_ring), make a butterworth ring filter
-    /// width: `i32` -> Image width in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// height: `i32` -> Image height in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// order: `f64` -> Filter order
-    /// min: 1, max: 1000000, default: 1
-    /// frequency_cutoff: `f64` -> Frequency cutoff
-    /// min: 0, max: 1000000, default: 0.5
-    /// amplitude_cutoff: `f64` -> Amplitude cutoff
-    /// min: 0, max: 1, default: 0.5
-    /// ringwidth: `f64` -> Ringwidth
-    /// min: 0, max: 1000000, default: 0.1
-    /// returns `VipsImage` - Output image
+    /// Make a butterworth ring filter
     pub fn mask_butterworth_ring(
         width: i32,
         height: i32,
@@ -7305,6 +8375,17 @@ impl VipsImage {
         }
     }
 
+    /// Make a butterworth ring filter
+    ///
+    /// Optional arguments
+    ///
+    /// nodc: `bool`, don’t set the DC pixel
+    ///
+    /// reject: `bool`, invert the filter sense
+    ///
+    /// optical: `bool`, coordinates in optical space
+    ///
+    /// uchar: `bool`, output a uchar image
     pub fn mask_butterworth_ring_with_opts(
         width: i32,
         height: i32,
@@ -7356,14 +8437,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsMaskFractal (mask_fractal), make fractal filter
-    /// width: `i32` -> Image width in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// height: `i32` -> Image height in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// fractal_dimension: `f64` -> Fractal dimension
-    /// min: 2, max: 3, default: 2.5
-    /// returns `VipsImage` - Output image
+    /// Make fractal filter
     pub fn mask_fractal(width: i32, height: i32, fractal_dimension: f64) -> Result<VipsImage> {
         unsafe {
             let width_in: i32 = width;
@@ -7388,6 +8462,17 @@ impl VipsImage {
         }
     }
 
+    /// Make fractal filter
+    ///
+    /// Optional arguments
+    ///
+    /// nodc: `bool`, don’t set the DC pixel
+    ///
+    /// reject: `bool`, invert the filter sense
+    ///
+    /// optical: `bool`, coordinates in optical space
+    ///
+    /// uchar: `bool`, output a uchar image
     pub fn mask_fractal_with_opts(
         width: i32,
         height: i32,
@@ -7424,16 +8509,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsMaskGaussian (mask_gaussian), make a gaussian filter
-    /// width: `i32` -> Image width in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// height: `i32` -> Image height in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// frequency_cutoff: `f64` -> Frequency cutoff
-    /// min: 0, max: 1000000, default: 0.5
-    /// amplitude_cutoff: `f64` -> Amplitude cutoff
-    /// min: 0, max: 1, default: 0.5
-    /// returns `VipsImage` - Output image
+    /// Make a gaussian filter
     pub fn mask_gaussian(
         width: i32,
         height: i32,
@@ -7465,6 +8541,17 @@ impl VipsImage {
         }
     }
 
+    /// Make a gaussian filter
+    ///
+    /// Optional arguments
+    ///
+    /// nodc: `bool`, don’t set the DC pixel
+    ///
+    /// reject: `bool`, invert the filter sense
+    ///
+    /// optical: `bool`, coordinates in optical space
+    ///
+    /// uchar: `bool`, output a uchar image
     pub fn mask_gaussian_with_opts(
         width: i32,
         height: i32,
@@ -7506,20 +8593,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsMaskGaussianBand (mask_gaussian_band), make a gaussian filter
-    /// width: `i32` -> Image width in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// height: `i32` -> Image height in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// frequency_cutoff_x: `f64` -> Frequency cutoff x
-    /// min: 0, max: 1000000, default: 0.5
-    /// frequency_cutoff_y: `f64` -> Frequency cutoff y
-    /// min: 0, max: 1000000, default: 0.5
-    /// radius: `f64` -> Radius of circle
-    /// min: 0, max: 1000000, default: 0.1
-    /// amplitude_cutoff: `f64` -> Amplitude cutoff
-    /// min: 0, max: 1, default: 0.5
-    /// returns `VipsImage` - Output image
+    /// Make a gaussian filter
     pub fn mask_gaussian_band(
         width: i32,
         height: i32,
@@ -7557,6 +8631,17 @@ impl VipsImage {
         }
     }
 
+    /// Make a gaussian filter
+    ///
+    /// Optional arguments
+    ///
+    /// nodc: `bool`, don’t set the DC pixel
+    ///
+    /// reject: `bool`, invert the filter sense
+    ///
+    /// optical: `bool`, coordinates in optical space
+    ///
+    /// uchar: `bool`, output a uchar image
     pub fn mask_gaussian_band_with_opts(
         width: i32,
         height: i32,
@@ -7608,18 +8693,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsMaskGaussianRing (mask_gaussian_ring), make a gaussian ring filter
-    /// width: `i32` -> Image width in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// height: `i32` -> Image height in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// frequency_cutoff: `f64` -> Frequency cutoff
-    /// min: 0, max: 1000000, default: 0.5
-    /// amplitude_cutoff: `f64` -> Amplitude cutoff
-    /// min: 0, max: 1, default: 0.5
-    /// ringwidth: `f64` -> Ringwidth
-    /// min: 0, max: 1000000, default: 0.5
-    /// returns `VipsImage` - Output image
+    /// Make a gaussian ring filter
     pub fn mask_gaussian_ring(
         width: i32,
         height: i32,
@@ -7654,6 +8728,17 @@ impl VipsImage {
         }
     }
 
+    /// Make a gaussian ring filter
+    ///
+    /// Optional arguments
+    ///
+    /// nodc: `bool`, don’t set the DC pixel
+    ///
+    /// reject: `bool`, invert the filter sense
+    ///
+    /// optical: `bool`, coordinates in optical space
+    ///
+    /// uchar: `bool`, output a uchar image
     pub fn mask_gaussian_ring_with_opts(
         width: i32,
         height: i32,
@@ -7700,14 +8785,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsMaskIdeal (mask_ideal), make an ideal filter
-    /// width: `i32` -> Image width in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// height: `i32` -> Image height in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// frequency_cutoff: `f64` -> Frequency cutoff
-    /// min: 0, max: 1000000, default: 0.5
-    /// returns `VipsImage` - Output image
+    /// Make an ideal filter
     pub fn mask_ideal(width: i32, height: i32, frequency_cutoff: f64) -> Result<VipsImage> {
         unsafe {
             let width_in: i32 = width;
@@ -7732,6 +8810,17 @@ impl VipsImage {
         }
     }
 
+    /// Make an ideal filter
+    ///
+    /// Optional arguments
+    ///
+    /// nodc: `bool`, don’t set the DC pixel
+    ///
+    /// reject: `bool`, invert the filter sense
+    ///
+    /// optical: `bool`, coordinates in optical space
+    ///
+    /// uchar: `bool`, output a uchar image
     pub fn mask_ideal_with_opts(
         width: i32,
         height: i32,
@@ -7768,18 +8857,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsMaskIdealBand (mask_ideal_band), make an ideal band filter
-    /// width: `i32` -> Image width in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// height: `i32` -> Image height in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// frequency_cutoff_x: `f64` -> Frequency cutoff x
-    /// min: 0, max: 1000000, default: 0.5
-    /// frequency_cutoff_y: `f64` -> Frequency cutoff y
-    /// min: 0, max: 1000000, default: 0.5
-    /// radius: `f64` -> Radius of circle
-    /// min: 0, max: 1000000, default: 0.1
-    /// returns `VipsImage` - Output image
+    /// Make an ideal band filter
     pub fn mask_ideal_band(
         width: i32,
         height: i32,
@@ -7814,6 +8892,17 @@ impl VipsImage {
         }
     }
 
+    /// Make an ideal band filter
+    ///
+    /// Optional arguments
+    ///
+    /// nodc: `bool`, don’t set the DC pixel
+    ///
+    /// reject: `bool`, invert the filter sense
+    ///
+    /// optical: `bool`, coordinates in optical space
+    ///
+    /// uchar: `bool`, output a uchar image
     pub fn mask_ideal_band_with_opts(
         width: i32,
         height: i32,
@@ -7860,16 +8949,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsMaskIdealRing (mask_ideal_ring), make an ideal ring filter
-    /// width: `i32` -> Image width in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// height: `i32` -> Image height in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// frequency_cutoff: `f64` -> Frequency cutoff
-    /// min: 0, max: 1000000, default: 0.5
-    /// ringwidth: `f64` -> Ringwidth
-    /// min: 0, max: 1000000, default: 0.5
-    /// returns `VipsImage` - Output image
+    /// Make an ideal ring filter
     pub fn mask_ideal_ring(
         width: i32,
         height: i32,
@@ -7901,6 +8981,17 @@ impl VipsImage {
         }
     }
 
+    /// Make an ideal ring filter
+    ///
+    /// Optional arguments
+    ///
+    /// nodc: `bool`, don’t set the DC pixel
+    ///
+    /// reject: `bool`, invert the filter sense
+    ///
+    /// optical: `bool`, coordinates in optical space
+    ///
+    /// uchar: `bool`, output a uchar image
     pub fn mask_ideal_ring_with_opts(
         width: i32,
         height: i32,
@@ -7942,7 +9033,89 @@ impl VipsImage {
         )
     }
 
+    /// Rotate and translate sec so that the tie-points line up.
     pub fn match_(
+        &self,
+        sec: &VipsImage,
+        xr1: i32,
+        yr1: i32,
+        xs1: i32,
+        ys1: i32,
+        xr2: i32,
+        yr2: i32,
+        xs2: i32,
+        ys2: i32,
+    ) -> Result<VipsImage> {
+        let mut out_out = VipsImage::from(null_mut());
+
+        let vips_op_response = call(
+            "match",
+            VOption::new()
+                .with(
+                    "ref",
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
+                )
+                .with(
+                    "out",
+                    VipsValue::MutImage(&mut out_out),
+                )
+                .with(
+                    "sec",
+                    VipsValue::Image(sec),
+                )
+                .with(
+                    "xr1",
+                    VipsValue::Int(xr1),
+                )
+                .with(
+                    "yr1",
+                    VipsValue::Int(yr1),
+                )
+                .with(
+                    "xs1",
+                    VipsValue::Int(xs1),
+                )
+                .with(
+                    "ys1",
+                    VipsValue::Int(ys1),
+                )
+                .with(
+                    "xr2",
+                    VipsValue::Int(xr2),
+                )
+                .with(
+                    "yr2",
+                    VipsValue::Int(yr2),
+                )
+                .with(
+                    "xs2",
+                    VipsValue::Int(xs2),
+                )
+                .with(
+                    "ys2",
+                    VipsValue::Int(ys2),
+                ),
+        );
+
+        utils::result(
+            vips_op_response,
+            out_out,
+            Error::OperationError("Match failed"),
+        )
+    }
+
+    /// Rotate and translate sec so that the tie-points line up.
+    ///
+    /// Optional arguments
+    ///
+    /// search: `bool`, search to improve tie-points
+    ///
+    /// hwindow: `i32`, half window size
+    ///
+    /// harea: `i32`, half search size
+    ///
+    /// interpolate: `Interpolate`, interpolate pixels with this.
+    pub fn match_with_opts(
         &self,
         sec: &VipsImage,
         xr1: i32,
@@ -8013,26 +9186,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsMath (math), apply a math operation to an image
-    /// math: `OperationMath` -> Math to perform
-    ///  `Sin` -> VIPS_OPERATION_MATH_SIN = 0 [DEFAULT]
-    ///  `Co` -> VIPS_OPERATION_MATH_COS = 1
-    ///  `Tan` -> VIPS_OPERATION_MATH_TAN = 2
-    ///  `Asin` -> VIPS_OPERATION_MATH_ASIN = 3
-    ///  `Aco` -> VIPS_OPERATION_MATH_ACOS = 4
-    ///  `Atan` -> VIPS_OPERATION_MATH_ATAN = 5
-    ///  `Log` -> VIPS_OPERATION_MATH_LOG = 6
-    ///  `Log10` -> VIPS_OPERATION_MATH_LOG10 = 7
-    ///  `Exp` -> VIPS_OPERATION_MATH_EXP = 8
-    ///  `Exp10` -> VIPS_OPERATION_MATH_EXP10 = 9
-    ///  `Sinh` -> VIPS_OPERATION_MATH_SINH = 10
-    ///  `Cosh` -> VIPS_OPERATION_MATH_COSH = 11
-    ///  `Tanh` -> VIPS_OPERATION_MATH_TANH = 12
-    ///  `Asinh` -> VIPS_OPERATION_MATH_ASINH = 13
-    ///  `Acosh` -> VIPS_OPERATION_MATH_ACOSH = 14
-    ///  `Atanh` -> VIPS_OPERATION_MATH_ATANH = 15
-    ///  `Last` -> VIPS_OPERATION_MATH_LAST = 16
-    /// returns `VipsImage` - Output image
+    /// Apply a math operation to an image
     pub fn math(&self, math: OperationMath) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -8057,15 +9211,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsMath2 (math2), binary math operations
-    /// left: `&VipsImage` -> Left-hand image argument
-    /// right: `&VipsImage` -> Right-hand image argument
-    /// math2: `OperationMath2` -> Math to perform
-    ///  `Pow` -> VIPS_OPERATION_MATH2_POW = 0 [DEFAULT]
-    ///  `Wop` -> VIPS_OPERATION_MATH2_WOP = 1
-    ///  `Atan2` -> VIPS_OPERATION_MATH2_ATAN2 = 2
-    ///  `Last` -> VIPS_OPERATION_MATH2_LAST = 3
-    /// returns `VipsImage` - Output image
+    /// Binary math operations
     pub fn math2(&self, right: &VipsImage, math2: OperationMath2) -> Result<VipsImage> {
         unsafe {
             let left_in: *mut bindings::VipsImage = self.ctx;
@@ -8092,14 +9238,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsMath2Const (math2_const), binary math operations with a constant
-    /// math_2: `OperationMath2` -> Math to perform
-    ///  `Pow` -> VIPS_OPERATION_MATH2_POW = 0 [DEFAULT]
-    ///  `Wop` -> VIPS_OPERATION_MATH2_WOP = 1
-    ///  `Atan2` -> VIPS_OPERATION_MATH2_ATAN2 = 2
-    ///  `Last` -> VIPS_OPERATION_MATH2_LAST = 3
-    /// c: `&mut [f64]` -> Array of constants
-    /// returns `VipsImage` - Output image
+    /// Binary math operations with a constant
     pub fn math2_const(&self, math_2: OperationMath2, c: &[f64]) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -8127,32 +9266,7 @@ impl VipsImage {
         }
     }
 
-    pub fn matload(filename: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out = VipsImage::from(null_mut());
-
-        let vips_op_response = call(
-            "matload",
-            option
-                .with(
-                    "out",
-                    VipsValue::MutImage(&mut out_out),
-                )
-                .with(
-                    "filename",
-                    VipsValue::Str(filename),
-                ),
-        );
-
-        utils::result(
-            vips_op_response,
-            out_out,
-            Error::OperationError("Matrixload failed"),
-        )
-    }
-
-    /// VipsMatrixinvert (matrixinvert), invert an matrix
-    /// inp: `&VipsImage` -> An square matrix
-    /// returns `VipsImage` - Output matrix
+    /// Invert an matrix
     pub fn matrixinvert(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -8173,9 +9287,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsForeignLoadMatrixFile (matrixload), load matrix (.mat), priority=0, is_a, get_flags, get_flags_filename, header, load
-    /// filename: `&str` -> Filename to load from
-    /// returns `VipsImage` - Output image
+    /// Reads a matrix from a file.
     pub fn matrixload(filename: &str) -> Result<VipsImage> {
         unsafe {
             let filename_in: CString = utils::new_c_string(filename)?;
@@ -8196,32 +9308,7 @@ impl VipsImage {
         }
     }
 
-    pub fn matrixload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out = VipsImage::from(null_mut());
-
-        let vips_op_response = call(
-            "matrixload",
-            option
-                .with(
-                    "out",
-                    VipsValue::MutImage(&mut out_out),
-                )
-                .with(
-                    "filename",
-                    VipsValue::Str(filename),
-                ),
-        );
-
-        utils::result(
-            vips_op_response,
-            out_out,
-            Error::OperationError("Matrixload failed"),
-        )
-    }
-
-    /// VipsForeignLoadMatrixSource (matrixload_source), load matrix, priority=0, is_a_source, get_flags, header, load
-    /// source: `&VipsSource` -> Source to load from
-    /// returns `VipsImage` - Output image
+    /// Exactly as vips_matrixload(), but read from a source.
     pub fn matrixload_source(source: &VipsSource) -> Result<VipsImage> {
         unsafe {
             let source_in: *mut bindings::VipsSource = source.ctx;
@@ -8242,35 +9329,13 @@ impl VipsImage {
         }
     }
 
-    pub fn matrixload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
-        let mut out_out = VipsImage::from(null_mut());
-
-        let vips_op_response = call(
-            "matrixload_source",
-            option
-                .with(
-                    "out",
-                    VipsValue::MutImage(&mut out_out),
-                )
-                .with(
-                    "source",
-                    VipsValue::Source(source),
-                ),
-        );
-
-        utils::result(
-            vips_op_response,
-            out_out,
-            Error::OperationError("MatrixloadSource failed"),
-        )
-    }
-
-    pub fn matrixmultiply(&self, right: &VipsImage, option: VOption) -> Result<VipsImage> {
+    /// Multiplies two matrix images.
+    pub fn matrixmultiply(&self, right: &VipsImage) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "matrixmultiply",
-            option
+            VOption::new()
                 .with(
                     "left",
                     VipsValue::Image(&VipsImage::from(self.ctx)),
@@ -8292,8 +9357,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignPrintMatrix (matrixprint), print matrix (.mat), priority=0, mono
-    /// inp: `&VipsImage` -> Image to save
+    /// Print in to %stdout in matrix format.
     pub fn matrixprint(&self) -> Result<()> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -8310,25 +9374,7 @@ impl VipsImage {
         }
     }
 
-    pub fn matrixprint_with_opts(&self, option: VOption) -> Result<()> {
-        let vips_op_response = call(
-            "matrixprint",
-            option.with(
-                "in",
-                VipsValue::Image(&VipsImage::from(self.ctx)),
-            ),
-        );
-
-        utils::result(
-            vips_op_response,
-            (),
-            Error::OperationError("Matrixprint failed"),
-        )
-    }
-
-    /// VipsForeignSaveMatrixFile (matrixsave), save image to matrix (.mat), priority=0, mono
-    /// inp: `&VipsImage` -> Image to save
-    /// filename: `&str` -> Filename to save to
+    /// Write image to filename in matrix format.
     pub fn matrixsave(&self, filename: &str) -> Result<()> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -8347,30 +9393,7 @@ impl VipsImage {
         }
     }
 
-    pub fn matrixsave_with_opts(&self, filename: &str, option: VOption) -> Result<()> {
-        let vips_op_response = call(
-            "matrixsave",
-            option
-                .with(
-                    "in",
-                    VipsValue::Image(&VipsImage::from(self.ctx)),
-                )
-                .with(
-                    "filename",
-                    VipsValue::Str(filename),
-                ),
-        );
-
-        utils::result(
-            vips_op_response,
-            (),
-            Error::OperationError("Matrixsave failed"),
-        )
-    }
-
-    /// VipsForeignSaveMatrixTarget (matrixsave_target), save image to matrix (.mat), priority=0, mono
-    /// inp: `&VipsImage` -> Image to save
-    /// target: `&VipsTarget` -> Target to save to
+    /// As vips_matrixsave(), but save to a target.
     pub fn matrixsave_target(&self, target: &VipsTarget) -> Result<()> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -8389,28 +9412,7 @@ impl VipsImage {
         }
     }
 
-    pub fn matrixsave_target_with_opts(&self, target: &VipsTarget, option: VOption) -> Result<()> {
-        let vips_op_response = call(
-            "matrixsave_target",
-            option
-                .with(
-                    "in",
-                    VipsValue::Image(&VipsImage::from(self.ctx)),
-                )
-                .with(
-                    "target",
-                    VipsValue::Target(target),
-                ),
-        );
-        utils::result(
-            vips_op_response,
-            (),
-            Error::OperationError("MatrixsaveTarget failed"),
-        )
-    }
-
-    /// VipsMax (max), find image maximum
-    /// returns `f64` - Output value
+    /// Find image maximum
     pub fn max(&self) -> Result<f64> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -8429,6 +9431,21 @@ impl VipsImage {
         }
     }
 
+    /// Find image maximum
+    ///
+    /// Optional arguments
+    ///
+    /// x: `i32`, output, horizontal position of maximum
+    ///
+    /// y: `i32`, output, vertical position of maximum
+    ///
+    /// size: `i32`, number of maxima to find
+    ///
+    /// out_array: `&[f64]`, output, array of maximum values
+    ///
+    /// x_array: `&[i32]`, output, corresponding horizontal positions
+    ///
+    /// y_array: `&[i32]`. output, corresponding vertical positions
     pub fn max_with_opts(&self, option: VOption) -> Result<f64> {
         let mut out_out: f64 = 0.0;
 
@@ -8452,10 +9469,34 @@ impl VipsImage {
         )
     }
 
-    /// VipsMaxpair (maxpair), maximum of a pair of images
-    /// left: `&VipsImage` -> Left-hand image argument
-    /// right: `&VipsImage` -> Right-hand image argument
-    /// returns `VipsImage` - Output image
+    pub fn maxpos(&self) -> Result<(f64, f64)> {
+        let mut x: f64 = 0.0;
+        let mut y: f64 = 0.0;
+
+        let vips_op_response = call(
+            "max",
+            VOption::new()
+                .with(
+                    "in",
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
+                )
+                .with(
+                    "x",
+                    VipsValue::MutDouble(&mut x),
+                )
+                .with(
+                    "y",
+                    VipsValue::MutDouble(&mut y),
+                ),
+        );
+        utils::result(
+            vips_op_response,
+            (x, y),
+            Error::OperationError("maxpos failed"),
+        )
+    }
+
+    /// Maximum of a pair of images
     pub fn maxpair(&self, right: &VipsImage) -> Result<VipsImage> {
         unsafe {
             let left_in: *mut bindings::VipsImage = self.ctx;
@@ -8478,13 +9519,11 @@ impl VipsImage {
         }
     }
 
-    /// VipsMeasure (measure), measure a set of patches on a color chart
-    /// inp: `&VipsImage` -> Image to measure
+    /// Measure a set of patches on a color chart
+    ///
     /// h: `i32` -> Number of patches across chart
-    /// min: 1, max: 100000000, default: 1
+    ///
     /// v: `i32` -> Number of patches down chart
-    /// min: 1, max: 100000000, default: 1
-    /// returns `VipsImage` - Output array of statistics
     pub fn measure(&self, h: i32, v: i32) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -8508,6 +9547,22 @@ impl VipsImage {
             )
         }
     }
+
+    /// Measure a set of patches on a color chart
+    ///
+    /// h: `i32` -> Number of patches across chart
+    ///
+    /// v: `i32` -> Number of patches down chart
+    ///
+    /// Optional arguments
+    ///
+    /// left: `i32`, area of image containing chart
+    ///
+    /// top: `i32`, area of image containing chart
+    ///
+    /// width: `i32`, area of image containing chart
+    ///
+    /// height: `i32`, area of image containing chart
     pub fn measure_with_opts(&self, h: i32, v: i32, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -8539,6 +9594,7 @@ impl VipsImage {
         )
     }
 
+    /// A convenience function equivalent to: vips_rank(in, out, size, size, (size * size) / 2);
     pub fn median(&self, size: i32) -> Result<VipsImage> {
         let inp_in: *mut bindings::VipsImage = self.ctx;
         let mut out_out: *mut bindings::VipsImage = null_mut();
@@ -8559,18 +9615,15 @@ impl VipsImage {
         )
     }
 
-    /// VipsMerge (merge), merge two images
-    /// refp: `&VipsImage` -> Reference image
+    /// Merge two images
+    ///
     /// sec: `&VipsImage` -> Secondary image
+    ///
     /// direction: `Direction` -> Horizontal or vertical merge
-    ///  `Horizontal` -> VIPS_DIRECTION_HORIZONTAL = 0 [DEFAULT]
-    ///  `Vertical` -> VIPS_DIRECTION_VERTICAL = 1
-    ///  `Last` -> VIPS_DIRECTION_LAST = 2
-    /// dx: `i32` -> Horizontal displacement from sec to ref
-    /// min: -100000000, max: 1000000000, default: 1
-    /// dy: `i32` -> Vertical displacement from sec to ref
-    /// min: -100000000, max: 1000000000, default: 1
-    /// returns `VipsImage` - Output image
+    ///
+    /// dx: `i32` -> Horizontal displacement from sec to image
+    ///
+    /// dy: `i32` -> Vertical displacement from sec to image
     pub fn merge(
         &self,
         sec: &VipsImage,
@@ -8607,6 +9660,19 @@ impl VipsImage {
         }
     }
 
+    /// Merge two images
+    ///
+    /// sec: `&VipsImage` -> Secondary image
+    ///
+    /// direction: `Direction` -> Horizontal or vertical merge
+    ///
+    /// dx: `i32` -> Horizontal displacement from sec to image
+    ///
+    /// dy: `i32` -> Vertical displacement from sec to image
+    ///
+    /// Optional arguments
+    ///
+    /// mblend: `i32`, maximum blend size
     pub fn merge_with_opts(
         &self,
         sec: &VipsImage,
@@ -8653,8 +9719,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsMin (min), find image minimum
-    /// returns `f64` - Output value
+    /// Find image minimum
     pub fn min(&self) -> Result<f64> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -8673,6 +9738,21 @@ impl VipsImage {
         }
     }
 
+    /// Find image minimum
+    ///
+    /// Optional arguments
+    ///
+    /// x: `i32`, output, horizontal position of minimum
+    ///
+    /// y: `i32`, output, vertical position of minimum
+    ///
+    /// size: `i32`, number of minima to find
+    ///
+    /// out_array: `&[f64]`, output, array of minimum values
+    ///
+    /// x_array: `&[i32]`, output, corresponding horizontal positions
+    ///
+    /// y_array: `&[i32]`, output, corresponding vertical positions
     pub fn min_with_opts(&self, option: VOption) -> Result<f64> {
         let mut out_out: f64 = 0.0;
 
@@ -8696,10 +9776,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsMinpair (minpair), minimum of a pair of images
-    /// left: `&VipsImage` -> Left-hand image argument
-    /// right: `&VipsImage` -> Right-hand image argument
-    /// returns `VipsImage` - Output image
+    /// Minimum of a pair of images
     pub fn minpair(&self, right: &VipsImage) -> Result<VipsImage> {
         unsafe {
             let left_in: *mut bindings::VipsImage = self.ctx;
@@ -8722,13 +9799,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsMorph (morph), morphology operation
-    /// mask: `&VipsImage` -> Input matrix image
-    /// morph: `OperationMorphology` -> Morphological operation to perform
-    ///  `Erode` -> VIPS_OPERATION_MORPHOLOGY_ERODE = 0 [DEFAULT]
-    ///  `Dilate` -> VIPS_OPERATION_MORPHOLOGY_DILATE = 1
-    ///  `Last` -> VIPS_OPERATION_MORPHOLOGY_LAST = 2
-    /// returns `VipsImage` - Output image
+    /// Morphology operation
     pub fn morph(&self, mask: &VipsImage, morph: OperationMorphology) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -8755,22 +9826,19 @@ impl VipsImage {
         }
     }
 
-    /// VipsMosaic (mosaic), mosaic two images
-    /// refp: `&VipsImage` -> Reference image
+    /// Mosaic two images
+    ///
     /// sec: `&VipsImage` -> Secondary image
+    ///
     /// direction: `Direction` -> Horizontal or vertical mosaic
-    ///  `Horizontal` -> VIPS_DIRECTION_HORIZONTAL = 0 [DEFAULT]
-    ///  `Vertical` -> VIPS_DIRECTION_VERTICAL = 1
-    ///  `Last` -> VIPS_DIRECTION_LAST = 2
-    /// xref: `i32` -> Position of reference tie-point
-    /// min: 0, max: 1000000000, default: 1
-    /// yref: `i32` -> Position of reference tie-point
-    /// min: 0, max: 1000000000, default: 1
-    /// xsec: `i32` -> Position of secondary tie-point
-    /// min: 0, max: 1000000000, default: 1
-    /// ysec: `i32` -> Position of secondary tie-point
-    /// min: 0, max: 1000000000, default: 1
-    /// returns `VipsImage` - Output image
+    ///
+    /// xref: `i32` -> Position of image tie-point
+    ///
+    /// yref: `i32` -> Position of image tie-point
+    ///
+    /// xsec: `i32` -> Position of secondary image tie-point
+    ///
+    /// ysec: `i32` -> Position of secondary image tie-point
     pub fn mosaic(
         &self,
         sec: &VipsImage,
@@ -8813,6 +9881,41 @@ impl VipsImage {
         }
     }
 
+    /// Mosaic two images
+    ///
+    /// sec: `&VipsImage` -> Secondary image
+    ///
+    /// direction: `Direction` -> Horizontal or vertical mosaic
+    ///
+    /// xref: `i32` -> Position of image tie-point
+    ///
+    /// yref: `i32` -> Position of image tie-point
+    ///
+    /// xsec: `i32` -> Position of secondary image tie-point
+    ///
+    /// ysec: `i32` -> Position of secondary image tie-point
+    ///
+    /// Optional arguments
+    ///
+    /// bandno: `i32`, band to search for features
+    ///
+    /// hwindow: `i32`, half window size
+    ///
+    /// harea: `i32`, half search size
+    ///
+    /// mblend: `i32`, maximum blend size
+    ///
+    /// dx0: `i32`, output, detected displacement
+    ///
+    /// dy0: `i32`, output, detected displacement
+    ///
+    /// scale1: `f64`, output, detected first order scale
+    ///
+    /// angle1: `f64`, output, detected first order rotation
+    ///
+    /// dx1: `f64`, output, detected first order displacement
+    ///
+    /// dy1: `f64`, output, detected first order displacement
     pub fn mosaic_with_opts(
         &self,
         sec: &VipsImage,
@@ -8869,30 +9972,27 @@ impl VipsImage {
         )
     }
 
-    /// VipsMosaic1 (mosaic1), first-order mosaic of two images
-    /// refp: `&VipsImage` -> Reference image
+    /// First-order mosaic of two images
+    ///
     /// sec: `&VipsImage` -> Secondary image
+    ///
     /// direction: `Direction` -> Horizontal or vertical mosaic
-    ///  `Horizontal` -> VIPS_DIRECTION_HORIZONTAL = 0 [DEFAULT]
-    ///  `Vertical` -> VIPS_DIRECTION_VERTICAL = 1
-    ///  `Last` -> VIPS_DIRECTION_LAST = 2
-    /// xr1: `i32` -> Position of first reference tie-point
-    /// min: -1000000000, max: 1000000000, default: 1
-    /// yr1: `i32` -> Position of first reference tie-point
-    /// min: -1000000000, max: 1000000000, default: 1
+    ///
+    /// xr1: `i32` -> Position of first image tie-point
+    ///
+    /// yr1: `i32` -> Position of first image tie-point
+    ///
     /// xs1: `i32` -> Position of first secondary tie-point
-    /// min: -1000000000, max: 1000000000, default: 1
+    ///
     /// ys1: `i32` -> Position of first secondary tie-point
-    /// min: -1000000000, max: 1000000000, default: 1
-    /// xr2: `i32` -> Position of second reference tie-point
-    /// min: -1000000000, max: 1000000000, default: 1
-    /// yr2: `i32` -> Position of second reference tie-point
-    /// min: -1000000000, max: 1000000000, default: 1
+    ///
+    /// xr2: `i32` -> Position of second image tie-point
+    ///
+    /// yr2: `i32` -> Position of second image tie-point
+    ///
     /// xs2: `i32` -> Position of second secondary tie-point
-    /// min: -1000000000, max: 1000000000, default: 1
+    ///
     /// ys2: `i32` -> Position of second secondary tie-point
-    /// min: -1000000000, max: 1000000000, default: 1
-    /// returns `VipsImage` - Output image
     pub fn mosaic1(
         &self,
         sec: &VipsImage,
@@ -8947,6 +10047,39 @@ impl VipsImage {
         }
     }
 
+    /// First-order mosaic of two images
+    ///
+    /// sec: `&VipsImage` -> Secondary image
+    ///
+    /// direction: `Direction` -> Horizontal or vertical mosaic
+    ///
+    /// xr1: `i32` -> Position of first image tie-point
+    ///
+    /// yr1: `i32` -> Position of first image tie-point
+    ///
+    /// xs1: `i32` -> Position of first secondary tie-point
+    ///
+    /// ys1: `i32` -> Position of first secondary tie-point
+    ///
+    /// xr2: `i32` -> Position of second image tie-point
+    ///
+    /// yr2: `i32` -> Position of second image tie-point
+    ///
+    /// xs2: `i32` -> Position of second secondary tie-point
+    ///
+    /// ys2: `i32` -> Position of second secondary tie-point
+    ///
+    /// Optional arguments
+    ///
+    /// search: `bool`, search to improve tie-points
+    ///
+    /// hwindow: `i32`, half window size
+    ///
+    /// harea: `i32`, half search size
+    ///
+    /// interpolate: `Interpolate`, interpolate pixels with this
+    ///
+    /// mblend: `i32`, maximum blend size
     pub fn mosaic1_with_opts(
         &self,
         sec: &VipsImage,
@@ -9023,8 +10156,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsMsb (msb), pick most-significant byte from an image
-    /// returns `VipsImage` - Output image
+    /// Pick most-significant byte from an image
     pub fn msb(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -9045,6 +10177,11 @@ impl VipsImage {
         }
     }
 
+    /// Pick most-significant byte from an image
+    ///
+    /// Optional arguments
+    ///
+    /// band: `i32`, msb just this band
     pub fn msb_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -9068,10 +10205,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsMultiply (multiply), multiply two images
-    /// left: `&VipsImage` -> Left-hand image argument
-    /// right: `&VipsImage` -> Right-hand image argument
-    /// returns `VipsImage` - Output image
+    /// Multiply two images
     pub fn multiply(&self, right: &VipsImage) -> Result<VipsImage> {
         unsafe {
             let left_in: *mut bindings::VipsImage = self.ctx;
@@ -9094,134 +10228,7 @@ impl VipsImage {
         }
     }
 
-    pub fn niftiload(filename: &str) -> Result<VipsImage> {
-        let mut out_out = VipsImage::from(null_mut());
-
-        let vips_op_response = call(
-            "niftiload",
-            VOption::new()
-                .with(
-                    "out",
-                    VipsValue::MutImage(&mut out_out),
-                )
-                .with(
-                    "filename",
-                    VipsValue::Str(filename),
-                ),
-        );
-        utils::result(
-            vips_op_response,
-            out_out,
-            Error::OperationError("niftiload failed"),
-        )
-    }
-
-    pub fn niftiload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out = VipsImage::from(null_mut());
-
-        let vips_op_response = call(
-            "niftiload",
-            option
-                .with(
-                    "out",
-                    VipsValue::MutImage(&mut out_out),
-                )
-                .with(
-                    "filename",
-                    VipsValue::Str(filename),
-                ),
-        );
-        utils::result(
-            vips_op_response,
-            out_out,
-            Error::OperationError("niftiload_with_opts failed"),
-        )
-    }
-
-    pub fn niftiload_source(source: &VipsSource) -> Result<VipsImage> {
-        let mut out_out = VipsImage::from(null_mut());
-
-        let vips_op_response = call(
-            "niftiload_source",
-            VOption::new()
-                .with(
-                    "out",
-                    VipsValue::MutImage(&mut out_out),
-                )
-                .with(
-                    "source",
-                    VipsValue::Source(source),
-                ),
-        );
-        utils::result(
-            vips_op_response,
-            out_out,
-            Error::OperationError("niftiload_source failed"),
-        )
-    }
-
-    pub fn niftiload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
-        let mut out_out = VipsImage::from(null_mut());
-
-        let vips_op_response = call(
-            "niftiload_source",
-            option
-                .with(
-                    "out",
-                    VipsValue::MutImage(&mut out_out),
-                )
-                .with(
-                    "source",
-                    VipsValue::Source(source),
-                ),
-        );
-        utils::result(
-            vips_op_response,
-            out_out,
-            Error::OperationError("niftiload_source_with_opts failed"),
-        )
-    }
-
-    pub fn niftisave(&self, filename: &str) -> Result<()> {
-        let vips_op_response = call(
-            "niftisave",
-            VOption::new()
-                .with(
-                    "in",
-                    VipsValue::Image(&VipsImage::from(self.ctx)),
-                )
-                .with(
-                    "filename",
-                    VipsValue::Str(filename),
-                ),
-        );
-        utils::result(
-            vips_op_response,
-            (),
-            Error::OperationError("niftisave failed"),
-        )
-    }
-
-    pub fn niftisave_with_opts(&self, filename: &str, option: VOption) -> Result<()> {
-        let vips_op_response = call(
-            "niftisave",
-            option
-                .with(
-                    "in",
-                    VipsValue::Image(&VipsImage::from(self.ctx)),
-                )
-                .with(
-                    "filename",
-                    VipsValue::Str(filename),
-                ),
-        );
-        utils::result(
-            vips_op_response,
-            (),
-            Error::OperationError("niftisave_with_opts failed"),
-        )
-    }
-
+    /// Read a OpenEXR file into a VIPS image.
     pub fn openexrload(filename: &str) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -9244,28 +10251,7 @@ impl VipsImage {
         )
     }
 
-    pub fn openexrload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out = VipsImage::from(null_mut());
-
-        let vips_op_response = call(
-            "openexrload",
-            option
-                .with(
-                    "out",
-                    VipsValue::MutImage(&mut out_out),
-                )
-                .with(
-                    "filename",
-                    VipsValue::Str(filename),
-                ),
-        );
-        utils::result(
-            vips_op_response,
-            out_out,
-            Error::OperationError("openexrload_with_opts failed"),
-        )
-    }
-
+    /// Read a virtual slide supported by the OpenSlide library into a VIPS image.
     pub fn openslideload(filename: &str) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -9288,6 +10274,19 @@ impl VipsImage {
         )
     }
 
+    /// Read a virtual slide supported by the OpenSlide library into a VIPS image.
+    ///
+    /// Optional arguments
+    ///
+    /// level: `i32`, load this level
+    ///
+    /// associated: `&str`, load this associated image
+    ///
+    /// attach_associated: `bool`, attach all associated images as metadata
+    ///
+    /// autocrop: `bool`, crop to image bounds
+    ///
+    /// rgb: `bool`, output RGB (not RGBA) pixels
     pub fn openslideload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -9310,6 +10309,7 @@ impl VipsImage {
         )
     }
 
+    /// Exactly as vips_openslideload(), but read from a source.
     pub fn openslideload_source(source: &VipsSource) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -9332,6 +10332,19 @@ impl VipsImage {
         )
     }
 
+    /// Exactly as vips_openslideload(), but read from a source.
+    ///
+    /// Optional arguments
+    ///
+    /// level: `i32`, load this level
+    ///
+    /// associated: `&str`, load this associated image
+    ///
+    /// attach_associated: `bool`, attach all associated images as metadata
+    ///
+    /// autocrop: `bool`, crop to image bounds
+    ///
+    /// rgb: `bool`, output RGB (not RGBA) pixels
     pub fn openslideload_source_with_opts(
         source: &VipsSource,
         option: VOption,
@@ -9357,6 +10370,7 @@ impl VipsImage {
         )
     }
 
+    /// Render a PDF file into a VIPS image.
     pub fn pdfload(filename: &str) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -9379,6 +10393,19 @@ impl VipsImage {
         )
     }
 
+    /// Render a PDF file into a VIPS image.
+    ///
+    /// Optional arguments
+    ///
+    /// page: `i32`, load this page, numbered from zero
+    ///
+    /// n: `i32`, load this many pages
+    ///
+    /// dpi: `f64`, render at this DPI
+    ///
+    /// scale: `f64`, scale render by this factor
+    ///
+    /// background: `&[f64]`, background colour
     pub fn pdfload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -9401,6 +10428,7 @@ impl VipsImage {
         )
     }
 
+    /// Read a PDF-formatted memory buffer into a VIPS image.
     pub fn pdfload_buffer(buffer: &[u8]) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -9424,6 +10452,19 @@ impl VipsImage {
         )
     }
 
+    /// Read a PDF-formatted memory buffer into a VIPS image.
+    ///
+    /// Optional arguments
+    ///
+    /// page: `i32`, load this page, numbered from zero
+    ///
+    /// n: `i32`, load this many pages
+    ///
+    /// dpi: `f64`, render at this DPI
+    ///
+    /// scale: `f64`, scale render by this factor
+    ///
+    /// background: `&[f64]`, background colour
     pub fn pdfload_buffer_with_opts(buffer: &[u8], option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -9446,6 +10487,7 @@ impl VipsImage {
         )
     }
 
+    /// Exactly as vips_pdfload(), but read from a source.
     pub fn pdfload_source(source: &VipsSource) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -9469,6 +10511,19 @@ impl VipsImage {
         )
     }
 
+    /// Exactly as vips_pdfload(), but read from a source.
+    ///
+    /// Optional arguments
+    ///
+    /// page: `i32`, load this page, numbered from zero
+    ///
+    /// n: `i32`, load this many pages
+    ///
+    /// dpi: `f64`, render at this DPI
+    ///
+    /// scale: `f64`, scale render by this factor
+    ///
+    /// background: `&[f64]`, background colour
     pub fn pdfload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -9491,10 +10546,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsPercent (percent), find threshold for percent of pixels
-    /// percent: `f64` -> Percent of pixels
-    /// min: 0, max: 100, default: 50
-    /// returns `i32` - Threshold above which lie percent of pixels
+    /// Find threshold for percent of pixels
     pub fn percent(&self, percent: f64) -> Result<i32> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -9515,12 +10567,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsPerlin (perlin), make a perlin noise image
-    /// width: `i32` -> Image width in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// height: `i32` -> Image height in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// returns `VipsImage` - Output image
+    /// Make a perlin noise image
     pub fn perlin(width: i32, height: i32) -> Result<VipsImage> {
         unsafe {
             let width_in: i32 = width;
@@ -9543,6 +10590,13 @@ impl VipsImage {
         }
     }
 
+    /// Make a perlin noise image
+    ///
+    /// Optional arguments
+    ///
+    /// cell_size: `i32`, size of Perlin cells
+    ///
+    /// uchar: `bool`, output a uchar image
     pub fn perlin_with_opts(width: i32, height: i32, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -9570,9 +10624,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsPhasecor (phasecor), calculate phase correlation
-    /// in2: `&VipsImage` -> Second input image
-    /// returns `VipsImage` - Output image
+    /// Calculate phase correlation
     pub fn phasecor(&self, in2: &VipsImage) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -9595,9 +10647,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsForeignLoadPngFile (pngload), load png from file (.png), priority=200, is_a, get_flags, get_flags_filename, header, load
-    /// filename: `&str` -> Filename to load from
-    /// returns `VipsImage` - Output image
+    /// Read a PNG file into a VIPS image.
     pub fn pngload(filename: &str) -> Result<VipsImage> {
         unsafe {
             let filename_in: CString = utils::new_c_string(filename)?;
@@ -9618,6 +10668,13 @@ impl VipsImage {
         }
     }
 
+    /// Read a PNG file into a VIPS image.
+    ///
+    /// Optional arguments
+    ///
+    /// fail_on: `FailOn`, types of read error to fail on
+    ///
+    /// unlimited: `bool`, Remove all denial of service limits
     pub fn pngload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -9641,9 +10698,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignLoadPngBuffer (pngload_buffer), load png from buffer, priority=200, is_a_buffer, get_flags, get_flags_filename, header, load
-    /// buffer: `&[u8]` -> Buffer to load from
-    /// returns `VipsImage` - Output image
+    /// Exactly as vips_pngload(), but read from a PNG-formatted memory block.
     pub fn pngload_buffer(buffer: &[u8]) -> Result<VipsImage> {
         unsafe {
             let buffer_in: *mut c_void = buffer.as_ptr() as *mut c_void;
@@ -9665,6 +10720,13 @@ impl VipsImage {
         }
     }
 
+    /// Exactly as vips_pngload(), but read from a PNG-formatted memory block.
+    ///
+    /// Optional arguments
+    ///
+    /// fail_on: `FailOn`, types of read error to fail on
+    ///
+    /// unlimited: `bool`, Remove all denial of service limits
     pub fn pngload_buffer_with_opts(buffer: &[u8], option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -9688,9 +10750,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignLoadPngSource (pngload_source), load png from source, priority=200, is_a_source, get_flags, get_flags_filename, header, load
-    /// source: `&VipsSource` -> Source to load from
-    /// returns `VipsImage` - Output image
+    /// Exactly as vips_pngload(), but read from a source.
     pub fn pngload_source(source: &VipsSource) -> Result<VipsImage> {
         unsafe {
             let source_in: *mut bindings::VipsSource = source.ctx;
@@ -9711,6 +10771,13 @@ impl VipsImage {
         }
     }
 
+    /// Exactly as vips_pngload(), but read from a source.
+    ///
+    /// Optional arguments
+    ///
+    /// fail_on: `FailOn`, types of read error to fail on
+    ///
+    /// unlimited: `bool`, Remove all denial of service limits
     pub fn pngload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -9734,9 +10801,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignSavePngFile (pngsave), save image to png file (.png), priority=0, rgba
-    /// inp: `&VipsImage` -> Image to save
-    /// filename: `&str` -> Filename to save to
+    /// Write a VIPS image to a file as PNG.
     pub fn pngsave(&self, filename: &str) -> Result<()> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -9755,6 +10820,25 @@ impl VipsImage {
         }
     }
 
+    /// Write a VIPS image to a file as PNG.
+    ///
+    /// Optional arguments
+    ///
+    /// compression: `i32`, compression level
+    ///
+    /// interlace: `bool`, interlace image
+    ///
+    /// filter: `ForeignPngFilter`, row filter flag(s)
+    ///
+    /// palette: `bool`, enable quantisation to 8bpp palette
+    ///
+    /// Q: `i32`, quality for 8bpp quantisation
+    ///
+    /// dither: `f64`, amount of dithering for 8bpp quantization
+    ///
+    /// bitdepth: `i32`, set write bit depth to 1, 2, 4, 8 or 16
+    ///
+    /// effort: `i32`, quantisation CPU effort
     pub fn pngsave_with_opts(&self, filename: &str, option: VOption) -> Result<()> {
         let vips_op_response = call(
             "pngsave",
@@ -9775,9 +10859,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignSavePngBuffer (pngsave_buffer), save image to png buffer (.png), priority=0, rgba
-    /// inp: `&VipsImage` -> Image to save
-    /// returns `Vec<u8>` - Buffer to save to
+    /// As vips_pngsave(), but save to a memory buffer.
     pub fn pngsave_buffer(&self) -> Result<Vec<u8>> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -9801,6 +10883,25 @@ impl VipsImage {
         }
     }
 
+    /// As vips_pngsave(), but save to a memory buffer.
+    ///
+    /// Optional arguments
+    ///
+    /// compression: `i32`, compression level
+    ///
+    /// interlace: `bool`, interlace image
+    ///
+    /// filter: `ForeignPngFilter`, row filter flag(s)
+    ///
+    /// palette: `bool`, enable quantisation to 8bpp palette
+    ///
+    /// Q: `i32`, quality for 8bpp quantisation
+    ///
+    /// dither: `f64`, amount of dithering for 8bpp quantization
+    ///
+    /// bitdepth: `i32`, set write bit depth to 1, 2, 4, 8 or 16
+    ///
+    /// effort: `i32`, quantisation CPU effort
     pub fn pngsave_buffer_with_opts(&self, option: VOption) -> Result<Vec<u8>> {
         let mut blob = VipsBlob::from(null_mut());
 
@@ -9824,9 +10925,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignSavePngTarget (pngsave_target), save image to target as PNG (.png), priority=0, rgba
-    /// inp: `&VipsImage` -> Image to save
-    /// target: `&VipsTarget` -> Target to save to
+    /// As vips_pngsave(), but save to a target.
     pub fn pngsave_target(&self, target: &VipsTarget) -> Result<()> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -9845,6 +10944,25 @@ impl VipsImage {
         }
     }
 
+    /// As vips_pngsave(), but save to a target.
+    ///
+    /// Optional arguments
+    ///
+    /// compression: `i32`, compression level
+    ///
+    /// interlace: `bool`, interlace image
+    ///
+    /// filter: `ForeignPngFilter`, row filter flag(s)
+    ///
+    /// palette: `bool`, enable quantisation to 8bpp palette
+    ///
+    /// Q: `i32`, quality for 8bpp quantisation
+    ///
+    /// dither: `f64`, amount of dithering for 8bpp quantization
+    ///
+    /// bitdepth: `i32`, set write bit depth to 1, 2, 4, 8 or 16
+    ///
+    /// effort: `i32`, quantisation CPU effort
     pub fn pngsave_target_with_opts(&self, target: &VipsTarget, option: VOption) -> Result<()> {
         let vips_op_response = call(
             "pngsave_target",
@@ -9865,9 +10983,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignLoadPpmFile (ppmload), load ppm from file (.pbm, .pgm, .ppm, .pfm, .pnm), priority=200, untrusted, is_a, get_flags, header, load
-    /// filename: `&str` -> Filename to load from
-    /// returns `VipsImage` - Output image
+    /// Read a PPM/PBM/PGM/PFM file into a VIPS image.
     pub fn ppmload(filename: &str) -> Result<VipsImage> {
         unsafe {
             let filename_in: CString = utils::new_c_string(filename)?;
@@ -9888,35 +11004,13 @@ impl VipsImage {
         }
     }
 
-    pub fn ppmload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out = VipsImage::from(null_mut());
-
-        let vips_op_response = call(
-            "ppmload",
-            option
-                .with(
-                    "out",
-                    VipsValue::MutImage(&mut out_out),
-                )
-                .with(
-                    "filename",
-                    VipsValue::Str(filename),
-                ),
-        );
-
-        utils::result(
-            vips_op_response,
-            out_out,
-            Error::OperationError("Ppmload failed"),
-        )
-    }
-
-    pub fn ppmload_buffer(buffer: &[u8], option: VOption) -> Result<VipsImage> {
+    /// Exactly as vips_ppmload(), but read from a memory source.
+    pub fn ppmload_buffer(buffer: &[u8]) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "ppmload_buffer",
-            option
+            VOption::new()
                 .with(
                     "out",
                     VipsValue::MutImage(&mut out_out),
@@ -9934,9 +11028,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignLoadPpmSource (ppmload_source), load ppm base class (.pbm, .pgm, .ppm, .pfm, .pnm), priority=200, untrusted, is_a_source, get_flags, header, load
-    /// source: `&VipsSource` -> Source to load from
-    /// returns `VipsImage` - Output image
+    /// Exactly as vips_ppmload(), but read from a source.
     pub fn ppmload_source(source: &VipsSource) -> Result<VipsImage> {
         unsafe {
             let source_in: *mut bindings::VipsSource = source.ctx;
@@ -9957,32 +11049,7 @@ impl VipsImage {
         }
     }
 
-    pub fn ppmload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
-        let mut out_out = VipsImage::from(null_mut());
-
-        let vips_op_response = call(
-            "ppmload_source",
-            option
-                .with(
-                    "out",
-                    VipsValue::MutImage(&mut out_out),
-                )
-                .with(
-                    "source",
-                    VipsValue::Source(source),
-                ),
-        );
-
-        utils::result(
-            vips_op_response,
-            out_out,
-            Error::OperationError("PpmloadSource failed"),
-        )
-    }
-
-    /// VipsForeignSavePpmFile (ppmsave), save image to ppm file (.pbm, .pgm, .ppm, .pfm, .pnm), priority=0, any
-    /// inp: `&VipsImage` -> Image to save
-    /// filename: `&str` -> Filename to save to
+    /// Write a VIPS image to a file as PPM.
     pub fn ppmsave(&self, filename: &str) -> Result<()> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -10001,6 +11068,15 @@ impl VipsImage {
         }
     }
 
+    /// Write a VIPS image to a file as PPM.
+    ///
+    /// Optional arguments
+    ///
+    /// format: `ForeignPpmFormat`, format to save in
+    ///
+    /// ascii: `bool`, save as ASCII rather than binary
+    ///
+    /// bitdepth: `i32`, bitdepth to save at
     pub fn ppmsave_with_opts(&self, filename: &str, option: VOption) -> Result<()> {
         let vips_op_response = call(
             "ppmsave",
@@ -10021,9 +11097,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignSavePpmTarget (ppmsave_target), save to ppm (.ppm), priority=0, any
-    /// inp: `&VipsImage` -> Image to save
-    /// target: `&VipsTarget` -> Target to save to
+    /// As vips_ppmsave(), but save to a target.
     pub fn ppmsave_target(&self, target: &VipsTarget) -> Result<()> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -10042,6 +11116,15 @@ impl VipsImage {
         }
     }
 
+    /// As vips_ppmsave(), but save to a target.
+    ///
+    /// Optional arguments
+    ///
+    /// format: `ForeignPpmFormat`, format to save in
+    ///
+    /// ascii: `bool`, save as ASCII rather than binary
+    ///
+    /// bitdepth: `i32`, bitdepth to save at
     pub fn ppmsave_target_with_opts(&self, target: &VipsTarget, option: VOption) -> Result<()> {
         let vips_op_response = call(
             "ppmsave_target",
@@ -10062,8 +11145,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsPremultiply (premultiply), premultiply image alpha
-    /// returns `VipsImage` - Output image
+    /// Premultiply image alpha
     pub fn premultiply(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -10084,6 +11166,11 @@ impl VipsImage {
         }
     }
 
+    /// Premultiply image alpha
+    ///
+    /// Optional arguments
+    ///
+    /// max_alpha: `f64`, maximum value for alpha
     pub fn premultiply_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -10107,8 +11194,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsPrewitt (prewitt), Prewitt edge detector
-    /// returns `VipsImage` - Output image
+    /// Prewitt edge detector
     pub fn prewitt(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -10129,10 +11215,14 @@ impl VipsImage {
         }
     }
 
-    /// VipsProfile (profile), find image profiles
+    /// Find image profiles
+    ///
     /// Tuple (
+    ///
     /// VipsImage - First non-zero pixel in column
+    ///
     /// VipsImage - First non-zero pixel in row
+    ///
     ///)
     pub fn profile(
         &self,
@@ -10166,9 +11256,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsProfileLoad (profile_load), load named ICC profile
-    /// name: `&str` -> Profile name
-    /// returns `Vec<u8>` - Loaded profile
+    /// Load named ICC profile
     pub fn profile_load(name: &str) -> Result<Vec<u8>> {
         unsafe {
             let name_in: CString = utils::new_c_string(name)?;
@@ -10190,10 +11278,14 @@ impl VipsImage {
         }
     }
 
-    /// VipsProject (project), find image projections
+    /// Find image projections
+    ///
     /// Tuple (
+    ///
     /// VipsImage - Sums of columns
+    ///
     /// VipsImage - Sums of rows
+    ///
     ///)
     pub fn project(
         &self,
@@ -10227,9 +11319,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsQuadratic (quadratic), resample an image with a quadratic transform
-    /// coeff: `&VipsImage` -> Coefficient matrix
-    /// returns `VipsImage` - Output image
+    /// Resample an image with a quadratic transform
     pub fn quadratic(&self, coeff: &VipsImage) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -10252,6 +11342,11 @@ impl VipsImage {
         }
     }
 
+    /// Resample an image with a quadratic transform
+    ///
+    /// Optional arguments
+    ///
+    /// interpolate: `Interpolate`, use this interpolator (default bilinear)
     pub fn quadratic_with_opts(&self, coeff: &VipsImage, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -10279,8 +11374,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsRad2float (rad2float), unpack Radiance coding to float RGB
-    /// returns `VipsImage` - Output image
+    /// Unpack Radiance coding to float RGB
     pub fn rad2float(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -10301,9 +11395,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsForeignLoadRadFile (radload), load a Radiance image from a file (.hdr), priority=-50, untrusted, is_a, get_flags, get_flags_filename, header, load
-    /// filename: `&str` -> Filename to load from
-    /// returns `VipsImage` - Output image
+    /// Read a Radiance (HDR) file into a VIPS image.
     pub fn radload(filename: &str) -> Result<VipsImage> {
         unsafe {
             let filename_in: CString = utils::new_c_string(filename)?;
@@ -10324,32 +11416,7 @@ impl VipsImage {
         }
     }
 
-    pub fn radload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out = VipsImage::from(null_mut());
-
-        let vips_op_response = call(
-            "radload",
-            option
-                .with(
-                    "out",
-                    VipsValue::MutImage(&mut out_out),
-                )
-                .with(
-                    "filename",
-                    VipsValue::Str(filename),
-                ),
-        );
-
-        utils::result(
-            vips_op_response,
-            out_out,
-            Error::OperationError("Radload failed"),
-        )
-    }
-
-    /// VipsForeignLoadRadBuffer (radload_buffer), load rad from buffer, priority=-50, untrusted, is_a_buffer, get_flags, get_flags_filename, header, load
-    /// buffer: `&[u8]` -> Buffer to load from
-    /// returns `VipsImage` - Output image
+    /// Exactly as vips_radload(), but read from a HDR-formatted memory block.
     pub fn radload_buffer(buffer: &[u8]) -> Result<VipsImage> {
         unsafe {
             let buffer_in: *mut c_void = buffer.as_ptr() as *mut c_void;
@@ -10371,32 +11438,7 @@ impl VipsImage {
         }
     }
 
-    pub fn radload_buffer_with_opts(buffer: &[u8], option: VOption) -> Result<VipsImage> {
-        let mut out_out = VipsImage::from(null_mut());
-
-        let vips_op_response = call(
-            "radload_buffer",
-            option
-                .with(
-                    "out",
-                    VipsValue::MutImage(&mut out_out),
-                )
-                .with(
-                    "buffer",
-                    VipsValue::Buffer(buffer),
-                ),
-        );
-
-        utils::result(
-            vips_op_response,
-            out_out,
-            Error::OperationError("RadloadBuffer failed"),
-        )
-    }
-
-    /// VipsForeignLoadRadSource (radload_source), load rad from source, priority=-50, untrusted, is_a_source, get_flags, get_flags_filename, header, load
-    /// source: `&VipsSource` -> Source to load from
-    /// returns `VipsImage` - Output image
+    /// Exactly as vips_radload(), but read from a source.
     pub fn radload_source(source: &VipsSource) -> Result<VipsImage> {
         unsafe {
             let source_in: *mut bindings::VipsSource = source.ctx;
@@ -10417,32 +11459,7 @@ impl VipsImage {
         }
     }
 
-    pub fn radload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
-        let mut out_out = VipsImage::from(null_mut());
-
-        let vips_op_response = call(
-            "radload_source",
-            option
-                .with(
-                    "out",
-                    VipsValue::MutImage(&mut out_out),
-                )
-                .with(
-                    "source",
-                    VipsValue::Source(source),
-                ),
-        );
-
-        utils::result(
-            vips_op_response,
-            out_out,
-            Error::OperationError("RadloadSource failed"),
-        )
-    }
-
-    /// VipsForeignSaveRadFile (radsave), save image to Radiance file (.hdr), priority=0, rgb
-    /// inp: `&VipsImage` -> Image to save
-    /// filename: `&str` -> Filename to save to
+    /// Write a VIPS image in Radiance (HDR) format.
     pub fn radsave(&self, filename: &str) -> Result<()> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -10461,29 +11478,7 @@ impl VipsImage {
         }
     }
 
-    pub fn radsave_with_opts(&self, filename: &str, option: VOption) -> Result<()> {
-        let vips_op_response = call(
-            "radsave",
-            option
-                .with(
-                    "in",
-                    VipsValue::Image(&VipsImage::from(self.ctx)),
-                )
-                .with(
-                    "filename",
-                    VipsValue::Str(filename),
-                ),
-        );
-        utils::result(
-            vips_op_response,
-            (),
-            Error::OperationError("Radsave failed"),
-        )
-    }
-
-    /// VipsForeignSaveRadBuffer (radsave_buffer), save image to Radiance buffer (.hdr), priority=0, rgb
-    /// inp: `&VipsImage` -> Image to save
-    /// returns `Vec<u8>` - Buffer to save to
+    /// As vips_radsave(), but save to a memory buffer.
     pub fn radsave_buffer(&self) -> Result<Vec<u8>> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -10507,32 +11502,7 @@ impl VipsImage {
         }
     }
 
-    pub fn radsave_buffer_with_opts(&self, option: VOption) -> Result<Vec<u8>> {
-        let mut blob = VipsBlob::from(null_mut());
-
-        let vips_op_response = call(
-            "radsave_buffer",
-            option
-                .with(
-                    "in",
-                    VipsValue::Image(&VipsImage::from(self.ctx)),
-                )
-                .with(
-                    "buffer",
-                    VipsValue::MutBlob(&mut blob),
-                ),
-        );
-
-        utils::result(
-            vips_op_response,
-            blob.into(),
-            Error::OperationError("RadsaveBuffer failed"),
-        )
-    }
-
-    /// VipsForeignSaveRadTarget (radsave_target), save image to Radiance target (.hdr), priority=0, rgb
-    /// inp: `&VipsImage` -> Image to save
-    /// target: `&VipsTarget` -> Target to save to
+    /// As vips_radsave(), but save to a target.
     pub fn radsave_target(&self, target: &VipsTarget) -> Result<()> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -10551,34 +11521,13 @@ impl VipsImage {
         }
     }
 
-    pub fn radsave_target_with_opts(&self, target: &VipsTarget, option: VOption) -> Result<()> {
-        let vips_op_response = call(
-            "radsave_target",
-            option
-                .with(
-                    "in",
-                    VipsValue::Image(&VipsImage::from(self.ctx)),
-                )
-                .with(
-                    "target",
-                    VipsValue::Target(target),
-                ),
-        );
-        utils::result(
-            vips_op_response,
-            (),
-            Error::OperationError("RadsaveTarget failed"),
-        )
-    }
-
-    /// VipsRank (rank), rank filter
+    /// Rank filter
+    ///
     /// width: `i32` -> Window width in pixels
-    /// min: 1, max: 100000, default: 11
+    ///
     /// height: `i32` -> Window height in pixels
-    /// min: 1, max: 100000, default: 11
+    ///
     /// index: `i32` -> Select pixel at index
-    /// min: 0, max: 100000000, default: 50
-    /// returns `VipsImage` - Output image
     pub fn rank(&self, width: i32, height: i32, index: i32) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -10605,15 +11554,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsForeignLoadRaw (rawload), load raw data from a file, priority=0, untrusted, get_flags, get_flags_filename, header
-    /// filename: `&str` -> Filename to load from
-    /// width: `i32` -> Image width in pixels
-    /// min: 0, max: 100000000, default: 0
-    /// height: `i32` -> Image height in pixels
-    /// min: 0, max: 100000000, default: 0
-    /// bands: `i32` -> Number of bands in image
-    /// min: 0, max: 100000000, default: 0
-    /// returns `VipsImage` - Output image
+    /// Mmaps the file, setting up out so that access to that image will read from the file.
     pub fn rawload(filename: &str, width: i32, height: i32, bands: i32) -> Result<VipsImage> {
         unsafe {
             let filename_in: CString = utils::new_c_string(filename)?;
@@ -10639,6 +11580,15 @@ impl VipsImage {
             )
         }
     }
+
+    /// Mmaps the file, setting up out so that access to that image will read from the file.
+    /// Optional arguments
+    ///
+    /// offset: `u64`, offset in bytes from start of file
+    ///
+    /// format: `BandFormat`, set image format
+    ///
+    /// interpretation: `Interpretation`, set image interpretation
     pub fn rawload_with_opts(
         filename: &str,
         width: i32,
@@ -10680,9 +11630,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignSaveRaw (rawsave), save image to raw file (.raw), priority=0, any
-    /// inp: `&VipsImage` -> Image to save
-    /// filename: `&str` -> Filename to save to
+    /// Writes the pixels in image to the file filename with no header or other metadata.
     pub fn rawsave(&self, filename: &str) -> Result<()> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -10700,29 +11648,8 @@ impl VipsImage {
             )
         }
     }
-    pub fn rawsave_with_opts(&self, filename: &str, option: VOption) -> Result<()> {
-        let vips_op_response = call(
-            "rawsave",
-            option
-                .with(
-                    "in",
-                    VipsValue::Image(&VipsImage::from(self.ctx)),
-                )
-                .with(
-                    "filename",
-                    VipsValue::Str(filename),
-                ),
-        );
-        utils::result(
-            vips_op_response,
-            (),
-            Error::OperationError("Rawsave failed"),
-        )
-    }
 
-    /// VipsForeignSaveRawBuffer (rawsave_buffer), write raw image to buffer (.raw), priority=0, any
-    /// inp: `&VipsImage` -> Image to save
-    /// returns `Vec<u8>` - Buffer to save to
+    /// As vips_rawsave(), but save to a memory buffer.
     pub fn rawsave_buffer(&self) -> Result<Vec<u8>> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -10746,32 +11673,7 @@ impl VipsImage {
         }
     }
 
-    pub fn rawsave_buffer_with_opts(&self, option: VOption) -> Result<Vec<u8>> {
-        let mut blob = VipsBlob::from(null_mut());
-
-        let vips_op_response = call(
-            "rawsave_buffer",
-            option
-                .with(
-                    "in",
-                    VipsValue::Image(&VipsImage::from(self.ctx)),
-                )
-                .with(
-                    "buffer",
-                    VipsValue::MutBlob(&mut blob),
-                ),
-        );
-
-        utils::result(
-            vips_op_response,
-            blob.into(),
-            Error::OperationError("RawsaveBuffer failed"),
-        )
-    }
-
-    /// VipsForeignSaveRawTarget (rawsave_target), write raw image to target (.raw), priority=0, any
-    /// inp: `&VipsImage` -> Image to save
-    /// target: `&VipsTarget` -> Target to save to
+    /// As vips_rawsave(), but save to a target.
     pub fn rawsave_target(&self, target: &VipsTarget) -> Result<()> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -10790,29 +11692,9 @@ impl VipsImage {
         }
     }
 
-    pub fn rawsave_target_with_opts(&self, target: &VipsTarget, option: VOption) -> Result<()> {
-        let vips_op_response = call(
-            "rawsave_target",
-            option
-                .with(
-                    "in",
-                    VipsValue::Image(&VipsImage::from(self.ctx)),
-                )
-                .with(
-                    "target",
-                    VipsValue::Target(target),
-                ),
-        );
-        utils::result(
-            vips_op_response,
-            (),
-            Error::OperationError("RawsaveTarget failed"),
-        )
-    }
-
-    /// VipsRecomb (recomb), linear recombination with matrix
+    /// Linear recombination with matrix
+    ///
     /// m: `&VipsImage` -> Matrix of coefficients
-    /// returns `VipsImage` - Output image
     pub fn recomb(&self, m: &VipsImage) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -10835,12 +11717,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsReduce (reduce), reduce an image
-    /// hshrink: `f64` -> Horizontal shrink factor
-    /// min: 1, max: 1000000, default: 1
-    /// vshrink: `f64` -> Vertical shrink factor
-    /// min: 1, max: 1000000, default: 1
-    /// returns `VipsImage` - Output image
+    /// Reduce an image
     pub fn reduce(&self, hshrink: f64, vshrink: f64) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -10865,6 +11742,13 @@ impl VipsImage {
         }
     }
 
+    /// Reduce an image
+    ///
+    /// Optional arguments
+    ///
+    /// kernel: `Kernel`, kernel to interpolate with (default: VIPS_KERNEL_LANCZOS3)
+    ///
+    /// gap: `f64`, reducing gap to use (default: 0.0)
     pub fn reduce_with_opts(
         &self,
         hshrink: f64,
@@ -10901,10 +11785,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsReduceh (reduceh), shrink an image horizontally
-    /// hshrink: `f64` -> Horizontal shrink factor
-    /// min: 1, max: 1000000, default: 1
-    /// returns `VipsImage` - Output image
+    /// Shrink an image horizontally
     pub fn reduceh(&self, hshrink: f64) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -10927,6 +11808,13 @@ impl VipsImage {
         }
     }
 
+    /// Shrink an image horizontally
+    ///
+    /// Optional arguments
+    ///
+    /// kernel: `Kernel`, kernel to interpolate with (default: VIPS_KERNEL_LANCZOS3)
+    ///
+    /// gap: `f64`, reducing gap to use (default: 0.0)
     pub fn reduceh_with_opts(&self, hshrink: f64, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -10954,10 +11842,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsReducev (reducev), shrink an image vertically
-    /// vshrink: `f64` -> Vertical shrink factor
-    /// min: 1, max: 1000000, default: 1
-    /// returns `VipsImage` - Output image
+    /// Shrink an image vertically
     pub fn reducev(&self, vshrink: f64) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -10980,6 +11865,13 @@ impl VipsImage {
         }
     }
 
+    /// Shrink an image vertically
+    ///
+    /// Optional arguments
+    ///
+    /// kernel: `Kernel`, kernel to interpolate with (default: VIPS_KERNEL_LANCZOS3)
+    ///
+    /// gap: `f64`, reducing gap to use (default: 0.0)
     pub fn reducev_with_opts(&self, vshrink: f64, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -11007,18 +11899,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsRelational (relational), relational operation on two images
-    /// left: `&VipsImage` -> Left-hand image argument
-    /// right: `&VipsImage` -> Right-hand image argument
-    /// relational: `OperationRelational` -> Relational to perform
-    ///  `Equal` -> VIPS_OPERATION_RELATIONAL_EQUAL = 0 [DEFAULT]
-    ///  `Noteq` -> VIPS_OPERATION_RELATIONAL_NOTEQ = 1
-    ///  `Less` -> VIPS_OPERATION_RELATIONAL_LESS = 2
-    ///  `Lesseq` -> VIPS_OPERATION_RELATIONAL_LESSEQ = 3
-    ///  `More` -> VIPS_OPERATION_RELATIONAL_MORE = 4
-    ///  `Moreeq` -> VIPS_OPERATION_RELATIONAL_MOREEQ = 5
-    ///  `Last` -> VIPS_OPERATION_RELATIONAL_LAST = 6
-    /// returns `VipsImage` - Output image
+    /// Relational operation on two images
     pub fn relational(
         &self,
         right: &VipsImage,
@@ -11049,17 +11930,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsRelationalConst (relational_const), relational operations against a constant
-    /// relational: `OperationRelational` -> Relational to perform
-    ///  `Equal` -> VIPS_OPERATION_RELATIONAL_EQUAL = 0 [DEFAULT]
-    ///  `Noteq` -> VIPS_OPERATION_RELATIONAL_NOTEQ = 1
-    ///  `Less` -> VIPS_OPERATION_RELATIONAL_LESS = 2
-    ///  `Lesseq` -> VIPS_OPERATION_RELATIONAL_LESSEQ = 3
-    ///  `More` -> VIPS_OPERATION_RELATIONAL_MORE = 4
-    ///  `Moreeq` -> VIPS_OPERATION_RELATIONAL_MOREEQ = 5
-    ///  `Last` -> VIPS_OPERATION_RELATIONAL_LAST = 6
-    /// c: `&[f64]` -> Array of constants
-    /// returns `VipsImage` - Output image
+    /// Relational operations against a constant
     pub fn relational_const(
         &self,
         relational: OperationRelational,
@@ -11091,10 +11962,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsRemainder (remainder), remainder after integer division of two images
-    /// left: `&VipsImage` -> Left-hand image argument
-    /// right: `&VipsImage` -> Right-hand image argument
-    /// returns `VipsImage` - Output image
+    /// Remainder after integer division of two images
     pub fn remainder(&self, right: &VipsImage) -> Result<VipsImage> {
         unsafe {
             let left_in: *mut bindings::VipsImage = self.ctx;
@@ -11117,9 +11985,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsRemainderConst (remainder_const), remainder after integer division of an image and a constant
-    /// c: `&[f64]` -> Array of constants
-    /// returns `VipsImage` - Output image
+    /// Remainder after integer division of an image and a constant
     pub fn remainder_const(&self, c: &[f64]) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -11143,12 +12009,17 @@ impl VipsImage {
         }
     }
 
-    pub fn remosaic(&self, old_str: &str, new_str: &str, option: VOption) -> Result<VipsImage> {
+    /// Takes apart the mosaiced image and rebuilds it, substituting images.
+    ///
+    /// old_str:&str, Gamma of source images.
+    ///
+    /// new_str:&str, Gamma of source images.
+    pub fn remosaic(&self, old_str: &str, new_str: &str) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "remosaic",
-            option
+            VOption::new()
                 .with(
                     "in",
                     VipsValue::Image(&VipsImage::from(self.ctx)),
@@ -11174,12 +12045,11 @@ impl VipsImage {
         )
     }
 
-    /// VipsReplicate (replicate), replicate an image
+    /// Replicate an image
+    ///
     /// across: `i32` -> Repeat this many times horizontally
-    /// min: 1, max: 1000000, default: 1
+    ///
     /// down: `i32` -> Repeat this many times vertically
-    /// min: 1, max: 1000000, default: 1
-    /// returns `VipsImage` - Output image
     pub fn replicate(&self, across: i32, down: i32) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -11204,10 +12074,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsResize (resize), resize an image
-    /// scale: `f64` -> Scale image by this factor
-    /// min: 0, max: 10000000, default: 0
-    /// returns `VipsImage` - Output image
+    /// Resize an image
     pub fn resize(&self, scale: f64) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -11230,6 +12097,15 @@ impl VipsImage {
         }
     }
 
+    /// Resize an image
+    ///
+    /// Optional arguments
+    ///
+    /// vscale: `f64`, vertical scale factor
+    ///
+    /// kernel: `Kernel`, kernel to reduce with (default: VIPS_KERNEL_LANCZOS3)
+    ///
+    /// gap: `f64`, reducing gap to use (default: 2.0)
     pub fn resize_with_opts(&self, scale: f64, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -11257,14 +12133,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsRot (rot), rotate an image
-    /// angle: `Angle` -> Angle to rotate image
-    ///  `D0` -> VIPS_ANGLE_D0 = 0
-    ///  `D90` -> VIPS_ANGLE_D90 = 1 [DEFAULT]
-    ///  `D180` -> VIPS_ANGLE_D180 = 2
-    ///  `D270` -> VIPS_ANGLE_D270 = 3
-    ///  `Last` -> VIPS_ANGLE_LAST = 4
-    /// returns `VipsImage` - Output image
+    /// Rotate an image
     pub fn rot(&self, angle: Angle) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -11289,8 +12158,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsRot45 (rot45), rotate an image
-    /// returns `VipsImage` - Output image
+    /// Rotate an image
     pub fn rot45(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -11311,6 +12179,11 @@ impl VipsImage {
         }
     }
 
+    /// Rotate an image
+    ///
+    /// Optional arguments
+    ///
+    /// angle: `Angle45`, rotation angle
     pub fn rot45_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -11334,10 +12207,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsRotate (rotate), rotate an image by a number of degrees
-    /// angle: `f64` -> Rotate clockwise by this many degrees
-    /// min: -10000000, max: 10000000, default: 0
-    /// returns `VipsImage` - Output image
+    /// Rotate an image by a number of degrees
     pub fn rotate(&self, angle: f64) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -11360,6 +12230,21 @@ impl VipsImage {
         }
     }
 
+    /// Rotate an image by a number of degrees
+    ///
+    /// Optional arguments
+    ///
+    /// interpolate: `Interpolate`, interpolate pixels with this
+    ///
+    /// background: `&[f64]`, colour for new pixels
+    ///
+    /// idx: `f64`, input horizontal offset
+    ///
+    /// idy: `f64`, input vertical offset
+    ///
+    /// odx: `f64`, output horizontal offset
+    ///
+    /// ody: `f64`, output vertical offset
     pub fn rotate_with_opts(&self, angle: f64, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -11387,13 +12272,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsRound (round), perform a round function on an image
-    /// round: `OperationRound` -> Rounding operation to perform
-    ///  `Rint` -> VIPS_OPERATION_ROUND_RINT = 0 [DEFAULT]
-    ///  `Ceil` -> VIPS_OPERATION_ROUND_CEIL = 1
-    ///  `Floor` -> VIPS_OPERATION_ROUND_FLOOR = 2
-    ///  `Last` -> VIPS_OPERATION_ROUND_LAST = 3
-    /// returns `VipsImage` - Output image
+    /// Perform a round function on an image
     pub fn round(&self, round: OperationRound) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -11418,8 +12297,7 @@ impl VipsImage {
         }
     }
 
-    /// VipssRGB2HSV (sRGB2HSV), transform sRGB to HSV
-    /// returns `VipsImage` - Output image
+    /// Transform sRGB to HSV
     pub fn sRGB2HSV(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -11440,6 +12318,7 @@ impl VipsImage {
         }
     }
 
+    /// Convert sRGB to scRGB.
     pub fn sRGB2scRGB(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -11460,8 +12339,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsscRGB2BW (scRGB2BW), convert scRGB to BW
-    /// returns `VipsImage` - Output image
+    /// Convert scRGB to BW
     pub fn scRGB2BW(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -11482,6 +12360,11 @@ impl VipsImage {
         }
     }
 
+    /// Convert scRGB to BW
+    ///
+    /// Optional arguments
+    ///
+    /// depth: `i32`, depth of output image in bits
     pub fn scRGB2BW_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -11505,8 +12388,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsscRGB2XYZ (scRGB2XYZ), transform scRGB to XYZ
-    /// returns `VipsImage` - Output image
+    /// Transform scRGB to XYZ
     pub fn scRGB2XYZ(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -11527,8 +12409,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsscRGB2sRGB (scRGB2sRGB), convert an scRGB image to sRGB
-    /// returns `VipsImage` - Output image
+    /// Convert scRGB to sRGB
     pub fn scRGB2sRGB(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -11549,6 +12430,11 @@ impl VipsImage {
         }
     }
 
+    /// Convert scRGB to sRGB
+    ///
+    /// Optional arguments
+    ///
+    /// depth: `i32`, depth of output image in bits
     pub fn scRGB2sRGB_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -11572,8 +12458,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsScale (scale), scale an image to uchar
-    /// returns `VipsImage` - Output image
+    /// Scale an image to uchar
     pub fn scale(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -11594,6 +12479,13 @@ impl VipsImage {
         }
     }
 
+    /// Scale an image to uchar
+    ///
+    /// Optional arguments
+    ///
+    /// log: `bool`, log scale pixels
+    ///
+    /// exp: `f64`, exponent for log scale
     pub fn scale_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -11617,8 +12509,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsScharr (scharr), Scharr edge detector
-    /// returns `VipsImage` - Output image
+    /// Scharr edge detector
     pub fn scharr(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -11639,18 +12530,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsSdf (sdf), create an SDF image
-    /// width: `i32` -> Image width in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// height: `i32` -> Image height in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// shape: `SdfShape` -> SDF shape to create
-    ///  `Circle` -> VIPS_SDF_SHAPE_CIRCLE = 0 [DEFAULT]
-    ///  `Box` -> VIPS_SDF_SHAPE_BOX = 1
-    ///  `RoundedBox` -> VIPS_SDF_SHAPE_ROUNDED_BOX = 2
-    ///  `Line` -> VIPS_SDF_SHAPE_LINE = 3
-    ///  `Last` -> VIPS_SDF_SHAPE_LAST = 4
-    /// returns `VipsImage` - Output image
+    /// Create an SDF image
     pub fn sdf(width: i32, height: i32, shape: SdfShape) -> Result<VipsImage> {
         unsafe {
             let width_in: i32 = width;
@@ -11677,6 +12557,17 @@ impl VipsImage {
         }
     }
 
+    /// Create an SDF image
+    ///
+    /// Optional arguments
+    ///
+    /// a: `&[f64]`, first point
+    ///
+    /// b: `&[f64]`, second point
+    ///
+    /// r: `f64`, radius
+    ///
+    /// corners: `&[f64]`, corner radii
     pub fn sdf_with_opts(
         width: i32,
         height: i32,
@@ -11713,8 +12604,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsSequential (sequential), check sequential access
-    /// returns `VipsImage` - Output image
+    /// Check sequential access
     pub fn sequential(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -11734,6 +12624,12 @@ impl VipsImage {
             )
         }
     }
+
+    /// Check sequential access
+    ///
+    /// Optional arguments
+    ///
+    /// tile_height: `i32`, height of cache strips
     pub fn sequential_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -11757,8 +12653,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsSharpen (sharpen), unsharp masking for print
-    /// returns `VipsImage` - Output image
+    /// Unsharp masking for print
     pub fn sharpen(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -11779,6 +12674,21 @@ impl VipsImage {
         }
     }
 
+    /// Unsharp masking for print
+    ///
+    /// Optional arguments
+    ///
+    /// sigma: `f64`, sigma of gaussian
+    ///
+    /// x1: `f64`, flat/jaggy threshold
+    ///
+    /// y2: `f64`, maximum amount of brightening
+    ///
+    /// y3: `f64`, maximum amount of darkening
+    ///
+    /// m1: `f64`, slope for flat areas
+    ///
+    /// m2: `f64`, slope for jaggy areas
     pub fn sharpen_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -11802,12 +12712,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsShrink (shrink), shrink an image
-    /// hshrink: `f64` -> Horizontal shrink factor
-    /// min: 1, max: 1000000, default: 1
-    /// vshrink: `f64` -> Vertical shrink factor
-    /// min: 1, max: 1000000, default: 1
-    /// returns `VipsImage` - Output image
+    /// Shrink an image
     pub fn shrink(&self, hshrink: f64, vshrink: f64) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -11832,6 +12737,11 @@ impl VipsImage {
         }
     }
 
+    /// Shrink an image
+    ///
+    /// Optional arguments
+    ///
+    /// ceil: `bool`, round-up output dimensions
     pub fn shrink_with_opts(
         &self,
         hshrink: f64,
@@ -11868,10 +12778,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsShrinkh (shrinkh), shrink an image horizontally
-    /// hshrink: `i32` -> Horizontal shrink factor
-    /// min: 1, max: 1000000, default: 1
-    /// returns `VipsImage` - Output image
+    /// Shrink an image horizontally
     pub fn shrinkh(&self, hshrink: i32) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -11894,6 +12801,11 @@ impl VipsImage {
         }
     }
 
+    /// Shrink an image horizontally
+    ///
+    /// Optional arguments
+    ///
+    /// ceil: `bool`, round-up output dimensions
     pub fn shrinkh_with_opts(&self, hshrink: i32, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -11921,10 +12833,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsShrinkv (shrinkv), shrink an image vertically
-    /// vshrink: `i32` -> Vertical shrink factor
-    /// min: 1, max: 1000000, default: 1
-    /// returns `VipsImage` - Output image
+    /// Shrink an image vertically
     pub fn shrinkv(&self, vshrink: i32) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -11947,6 +12856,11 @@ impl VipsImage {
         }
     }
 
+    /// Shrink an image vertically
+    ///
+    /// Optional arguments
+    ///
+    /// ceil: `bool`, round-up output dimensions
     pub fn shrinkv_with_opts(&self, vshrink: i32, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -11974,8 +12888,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsSign (sign), unit vector of pixel
-    /// returns `VipsImage` - Output image
+    /// Unit vector of pixel
     pub fn sign(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -11996,8 +12909,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsSimilarity (similarity), similarity transform of an image
-    /// returns `VipsImage` - Output image
+    /// Similarity transform of an image
     pub fn similarity(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -12018,6 +12930,25 @@ impl VipsImage {
         }
     }
 
+    /// Similarity transform of an image
+    ///
+    /// Optional arguments
+    ///
+    /// scale: `f64`, scale by this factor
+    ///
+    /// angle: `f64`, rotate by this many degrees clockwise
+    ///
+    /// interpolate: `Interpolate`, interpolate pixels with this
+    ///
+    /// background: `&[f64]`, colour for new pixels
+    ///
+    /// idx: `f64`, input horizontal offset
+    ///
+    /// idy: `f64`, input vertical offset
+    ///
+    /// odx: `f64`, output horizontal offset
+    ///
+    /// ody: `f64`, output vertical offset
     pub fn similarity_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -12041,12 +12972,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsSines (sines), make a 2D sine wave
-    /// width: `i32` -> Image width in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// height: `i32` -> Image height in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// returns `VipsImage` - Output image
+    /// Make a 2D sine wave
     pub fn sines(width: i32, height: i32) -> Result<VipsImage> {
         unsafe {
             let width_in: i32 = width;
@@ -12069,6 +12995,15 @@ impl VipsImage {
         }
     }
 
+    /// Make a 2D sine wave
+    ///
+    /// Optional arguments
+    ///
+    /// hfreq: `f64`, horizontal frequency
+    ///
+    /// vreq: `f64`, vertical frequency
+    ///
+    /// uchar: `bool`, output a uchar image
     pub fn sines_with_opts(width: i32, height: i32, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -12096,13 +13031,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsSmartcrop (smartcrop), extract an area from an image
-    /// input: `&VipsImage` -> Input image
-    /// width: `i32` -> Width of extract area
-    /// min: 1, max: 100000000, default: 1
-    /// height: `i32` -> Height of extract area
-    /// min: 1, max: 100000000, default: 1
-    /// returns `VipsImage` - Output image
+    /// Extract an area from an image
     pub fn smartcrop(&self, width: i32, height: i32) -> Result<VipsImage> {
         unsafe {
             let input_in: *mut bindings::VipsImage = self.ctx;
@@ -12127,6 +13056,17 @@ impl VipsImage {
         }
     }
 
+    /// Extract an area from an image
+    ///
+    /// Optional arguments
+    ///
+    /// interesting: `Interesting` to use to find interesting areas (default: VIPS_INTERESTING_ATTENTION)
+    ///
+    /// premultiplied: `bool`, input image already has premultiplied alpha
+    ///
+    /// attention_x: `i32`, output, horizontal position of attention centre when using attention based cropping
+    ///
+    /// attention_y: `i32`, output, vertical position of attention centre when using attention based cropping
     pub fn smartcrop_with_opts(
         &self,
         width: i32,
@@ -12163,8 +13103,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsSobel (sobel), Sobel edge detector
-    /// returns `VipsImage` - Output image
+    /// Sobel edge detector
     pub fn sobel(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -12185,9 +13124,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsSpcor (spcor), spatial correlation
-    /// refp: `&VipsImage` -> Input reference image
-    /// returns `VipsImage` - Output image
+    /// Spatial correlation
     pub fn spcor(&self, refp: &VipsImage) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -12210,8 +13147,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsSpectrum (spectrum), make displayable power spectrum
-    /// returns `VipsImage` - Output image
+    /// Make displayable power spectrum
     pub fn spectrum(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -12232,8 +13168,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsStats (stats), find many image stats
-    /// returns `VipsImage` - Output array of statistics
+    /// Find many image stats
     pub fn stats(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -12254,12 +13189,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsStdif (stdif), statistical difference
-    /// width: `i32` -> Window width in pixels
-    /// min: 1, max: 256, default: 11
-    /// height: `i32` -> Window height in pixels
-    /// min: 1, max: 256, default: 11
-    /// returns `VipsImage` - Output image
+    /// Statistical difference
     pub fn stdif(&self, width: i32, height: i32) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -12284,6 +13214,17 @@ impl VipsImage {
         }
     }
 
+    /// Statistical difference
+    ///
+    /// Optional arguments
+    ///
+    /// a: `f64`, weight of new mean
+    ///
+    /// m0: `f64`, target mean
+    ///
+    /// b: `f64`, weight of new deviation
+    ///
+    /// s0: `f64`, target deviation
     pub fn stdif_with_opts(&self, width: i32, height: i32, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -12315,13 +13256,11 @@ impl VipsImage {
         )
     }
 
-    /// VipsSubsample (subsample), subsample an image
-    /// input: `&VipsImage` -> Input image
+    /// Subsample an image
+    ///
     /// xfac: `i32` -> Horizontal subsample factor
-    /// min: 1, max: 100000000, default: 1
+    ///
     /// yfac: `i32` -> Vertical subsample factor
-    /// min: 1, max: 100000000, default: 1
-    /// returns `VipsImage` - Output image
     pub fn subsample(&self, xfac: i32, yfac: i32) -> Result<VipsImage> {
         unsafe {
             let input_in: *mut bindings::VipsImage = self.ctx;
@@ -12346,6 +13285,15 @@ impl VipsImage {
         }
     }
 
+    /// Subsample an image
+    ///
+    /// xfac: `i32` -> Horizontal subsample factor
+    ///
+    /// yfac: `i32` -> Vertical subsample factor
+    ///
+    /// Optional arguments
+    ///
+    /// point: `bool`, turn on point sample mode
     pub fn subsample_with_opts(&self, xfac: i32, yfac: i32, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -12377,10 +13325,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsSubtract (subtract), subtract two images
-    /// left: `&VipsImage` -> Left-hand image argument
-    /// right: `&VipsImage` -> Right-hand image argument
-    /// returns `VipsImage` - Output image
+    /// Subtract two images
     pub fn subtract(&self, right: &VipsImage) -> Result<VipsImage> {
         unsafe {
             let left_in: *mut bindings::VipsImage = self.ctx;
@@ -12403,9 +13348,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsSum (sum), sum an array of images
-    /// inp: `&[VipsImage]` -> Array of input images
-    /// returns `VipsImage` - Output image
+    /// Sum an array of images
     pub fn sum(inp: &[VipsImage]) -> Result<VipsImage> {
         unsafe {
             let (inp_len, mut inp_in) = {
@@ -12437,9 +13380,7 @@ impl VipsImage {
         }
     }
 
-    /// VipsForeignLoadSvgFile (svgload), load SVG with rsvg (.svg, .svgz, .svg.gz), priority=-5, untrusted, is_a, get_flags, get_flags_filename, header, load
-    /// filename: `&str` -> Filename to load from
-    /// returns `VipsImage` - Output image
+    /// Render a SVG file into a VIPS image.
     pub fn svgload(filename: &str) -> Result<VipsImage> {
         unsafe {
             let filename_in: CString = utils::new_c_string(filename)?;
@@ -12460,6 +13401,19 @@ impl VipsImage {
         }
     }
 
+    /// Render a SVG file into a VIPS image.
+    ///
+    /// Optional arguments
+    ///
+    /// dpi: `f64`, render at this DPI
+    ///
+    /// scale: `f64`, scale render by this factor
+    ///
+    /// unlimited: `bool`, allow SVGs of any size
+    ///
+    /// stylesheet: `&str`, custom CSS
+    ///
+    /// high_bitdepth: `bool`, enable scRGB 128-bit output
     pub fn svgload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -12483,9 +13437,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignLoadSvgBuffer (svgload_buffer), load SVG with rsvg, priority=-5, untrusted, is_a_buffer, get_flags, get_flags_filename, header, load
-    /// buffer: `&[u8]` -> Buffer to load from
-    /// returns `VipsImage` - Output image
+    /// Read a SVG-formatted memory block into a VIPS image.
     pub fn svgload_buffer(buffer: &[u8]) -> Result<VipsImage> {
         unsafe {
             let buffer_in: *mut c_void = buffer.as_ptr() as *mut c_void;
@@ -12507,6 +13459,19 @@ impl VipsImage {
         }
     }
 
+    /// Read a SVG-formatted memory block into a VIPS image.
+    ///
+    /// Optional arguments
+    ///
+    /// dpi: `f64`, render at this DPI
+    ///
+    /// scale: `f64`, scale render by this factor
+    ///
+    /// unlimited: `bool`, allow SVGs of any size
+    ///
+    /// stylesheet: `&str`, custom CSS
+    ///
+    /// high_bitdepth: `bool`, enable scRGB 128-bit output
     pub fn svgload_buffer_with_opts(buffer: &[u8], option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -12530,6 +13495,7 @@ impl VipsImage {
         )
     }
 
+    /// Exactly as vips_svgload(), but read from a source.
     pub fn svgload_source(source: &VipsSource, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -12553,12 +13519,13 @@ impl VipsImage {
         )
     }
 
-    pub fn switch_image(tests: &[VipsImage], option: VOption) -> Result<VipsImage> {
+    /// The tests images are evaluated and at each point the index of the first non-zero value is written to out
+    pub fn switch(tests: &[VipsImage]) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
             "switch",
-            option
+            VOption::new()
                 .with(
                     "out",
                     VipsValue::MutImage(&mut out_out),
@@ -12576,7 +13543,8 @@ impl VipsImage {
         )
     }
 
-    /// VipsSystem (system), run an external command
+    /// Run an external command
+    ///
     /// cmd_format: `&str` -> Command to run
     pub fn system(cmd_format: &str) -> Result<()> {
         unsafe {
@@ -12594,6 +13562,21 @@ impl VipsImage {
         }
     }
 
+    /// Run an external command
+    ///
+    /// cmd_format: `&str` -> Command to run
+    ///
+    /// Optional arguments
+    ///
+    /// in: `&[f64]`, array of input images
+    ///
+    /// out: `&mut VipsImage`, output, image
+    ///
+    /// in_format: `&str`, write input files like this
+    ///
+    /// out_format: `&str`, write output filename like this
+    ///
+    /// log: `&str`, output, stdout of command is returned here.
     pub fn system_with_opts(cmd_format: &str, option: VOption) -> Result<()> {
         let vips_op_response = call(
             "system",
@@ -12609,9 +13592,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsText (text), make a text image
-    /// text: `&str` -> Text to render
-    /// returns `VipsImage` - Output image
+    /// Make a text image
     pub fn text(text: &str) -> Result<VipsImage> {
         unsafe {
             let text_in: CString = utils::new_c_string(text)?;
@@ -12632,6 +13613,31 @@ impl VipsImage {
         }
     }
 
+    /// Make a text image
+    ///
+    /// Optional arguments
+    ///
+    /// font: `&str`, font to render with
+    ///
+    /// fontfile: `&str`, load this font file
+    ///
+    /// width: `i32`, image should be no wider than this many pixels
+    ///
+    /// height: `i32`, image should be no higher than this many pixels
+    ///
+    /// align: `Align`, set justification alignment
+    ///
+    /// justify: `bool`, justify lines
+    ///
+    /// dpi: `i32`, render at this resolution
+    ///
+    /// autofit_dpi: `&mut i32`, output, auto-fitted DPI
+    ///
+    /// rgba: `bool`, enable RGBA output
+    ///
+    /// spacing: `i32`, space lines by this in points
+    ///
+    /// wrap: `TextWrap`, wrap lines on characters or words
     pub fn text_with_opts(text: &str, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -12655,11 +13661,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsThumbnailFile (thumbnail), generate thumbnail from file
-    /// filename: `&str` -> Filename to read from
-    /// width: `i32` -> Size to this width
-    /// min: 1, max: 100000000, default: 1
-    /// returns `VipsImage` - Output image
+    /// Generate thumbnail from file
     pub fn thumbnail(filename: &str, width: i32) -> Result<VipsImage> {
         unsafe {
             let filename_in: CString = utils::new_c_string(filename)?;
@@ -12682,6 +13684,27 @@ impl VipsImage {
         }
     }
 
+    /// Generate thumbnail from file
+    ///
+    /// Optional arguments
+    ///
+    /// height: `i32`, target height in pixels
+    ///
+    /// size: `Size`, upsize, downsize, both or force
+    ///
+    /// no_rotate: `bool`, don’t rotate upright using orientation tag
+    ///
+    /// crop: `Interesting`, shrink and crop to fill target
+    ///
+    /// linear: `bool`, perform shrink in linear light
+    ///
+    /// input_profile: `&str`, fallback input ICC profile
+    ///
+    /// output_profile: `&str`, output ICC profile
+    ///
+    /// intent: `Intent`, rendering intent
+    ///
+    /// fail_on: `FailOn`, load error types to fail on
     pub fn thumbnail_with_opts(filename: &str, width: i32, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -12709,11 +13732,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsThumbnailBuffer (thumbnail_buffer), generate thumbnail from buffer
-    /// buffer: `&[u8]` -> Buffer to load from
-    /// width: `i32` -> Size to this width
-    /// min: 1, max: 100000000, default: 1
-    /// returns `VipsImage` - Output image
+    /// Generate thumbnail from buffer
     pub fn thumbnail_buffer(buffer: &[u8], width: i32) -> Result<VipsImage> {
         unsafe {
             let buffer_in: *mut c_void = buffer.as_ptr() as *mut c_void;
@@ -12737,6 +13756,29 @@ impl VipsImage {
         }
     }
 
+    /// Generate thumbnail from buffer
+    ///
+    /// Optional arguments
+    ///
+    /// height: `i32`, target height in pixels
+    ///
+    /// size: `Size`, upsize, downsize, both or force
+    ///
+    /// no_rotate: `bool`, don’t rotate upright using orientation tag
+    ///
+    /// crop: `Interesting`, shrink and crop to fill target
+    ///
+    /// linear: `bool`, perform shrink in linear light
+    ///
+    /// input_profile: `&str`, fallback input ICC profile
+    ///
+    /// output_profile: `&str`, output ICC profile
+    ///
+    /// intent: `Intent`, rendering intent
+    ///
+    /// fail_on: `FailOn`, load error types to fail on
+    ///
+    /// option_string: `&str`, extra loader options
     pub fn thumbnail_buffer_with_opts(
         buffer: &[u8],
         width: i32,
@@ -12768,10 +13810,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsThumbnailImage (thumbnail_image), generate thumbnail from image
-    /// width: `i32` -> Size to this width
-    /// min: 1, max: 100000000, default: 1
-    /// returns `VipsImage` - Output image
+    /// Generate thumbnail from image
     pub fn thumbnail_image(&self, width: i32) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -12794,6 +13833,27 @@ impl VipsImage {
         }
     }
 
+    /// Generate thumbnail from image
+    ///
+    /// Optional arguments
+    ///
+    /// height: `i32`, target height in pixels
+    ///
+    /// size: `Size`, upsize, downsize, both or force
+    ///
+    /// no_rotate: `bool`, don’t rotate upright using orientation tag
+    ///
+    /// crop: `Interesting`, shrink and crop to fill target
+    ///
+    /// linear: `bool`, perform shrink in linear light
+    ///
+    /// input_profile: `&str`, fallback input ICC profile
+    ///
+    /// output_profile: `&str`, output ICC profile
+    ///
+    /// intent: `Intent`, rendering intent
+    ///
+    /// fail_on: `FailOn`, load error types to fail on
     pub fn thumbnail_image_with_opts(&self, width: i32, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -12821,11 +13881,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsThumbnailSource (thumbnail_source), generate thumbnail from source
-    /// source: `&VipsSource` -> Source to load from
-    /// width: `i32` -> Size to this width
-    /// min: 1, max: 100000000, default: 1
-    /// returns `VipsImage` - Output image
+    /// Generate thumbnail from source
     pub fn thumbnail_source(source: &VipsSource, width: i32) -> Result<VipsImage> {
         unsafe {
             let source_in: *mut bindings::VipsSource = source.ctx;
@@ -12848,6 +13904,29 @@ impl VipsImage {
         }
     }
 
+    /// Generate thumbnail from source
+    ///
+    /// Optional arguments
+    ///
+    /// height: `i32`, target height in pixels
+    ///
+    /// size: `Size`, upsize, downsize, both or force
+    ///
+    /// no_rotate: `bool`, don’t rotate upright using orientation tag
+    ///
+    /// crop: `Interesting`, shrink and crop to fill target
+    ///
+    /// linear: `bool`, perform shrink in linear light
+    ///
+    /// input_profile: `&str`, fallback input ICC profile
+    ///
+    /// output_profile: `&str`, output ICC profile
+    ///
+    /// intent: `Intent`, rendering intent
+    ///
+    /// fail_on: `FailOn`, load error types to fail on
+    ///
+    /// option_string: `&str`, extra loader options
     pub fn thumbnail_source_with_opts(
         source: &VipsSource,
         width: i32,
@@ -12879,9 +13958,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignLoadTiffFile (tiffload), load tiff from file (.tif, .tiff), priority=50, is_a, get_flags, get_flags_filename, header, load
-    /// filename: `&str` -> Filename to load from
-    /// returns `VipsImage` - Output image
+    /// Read a TIFF file into a VIPS image.
     pub fn tiffload(filename: &str) -> Result<VipsImage> {
         unsafe {
             let filename_in: CString = utils::new_c_string(filename)?;
@@ -12902,6 +13979,21 @@ impl VipsImage {
         }
     }
 
+    /// Read a TIFF file into a VIPS image.
+    ///
+    /// Optional arguments
+    ///
+    /// page: `i32`, load this page
+    ///
+    /// n: `i32`, load this many pages
+    ///
+    /// autorotate: `bool`, use orientation tag to rotate the image during load
+    ///
+    /// subifd: `i32`, select this subifd index
+    ///
+    /// fail_on: `FailOn`, types of read error to fail on
+    ///
+    /// unlimited: `bool`, remove all denial of service limits
     pub fn tiffload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -12925,9 +14017,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignLoadTiffBuffer (tiffload_buffer), load tiff from buffer, priority=50, is_a_buffer, get_flags, get_flags_filename, header, load
-    /// buffer: `&[u8]` -> Buffer to load from
-    /// returns `VipsImage` - Output image
+    /// Read a TIFF-formatted memory block into a VIPS image.
     pub fn tiffload_buffer(buffer: &[u8]) -> Result<VipsImage> {
         unsafe {
             let buffer_in: *mut c_void = buffer.as_ptr() as *mut c_void;
@@ -12949,6 +14039,21 @@ impl VipsImage {
         }
     }
 
+    /// Read a TIFF-formatted memory block into a VIPS image.
+    ///
+    /// Optional arguments
+    ///
+    /// page: `i32`, load this page
+    ///
+    /// n: `i32`, load this many pages
+    ///
+    /// autorotate: `bool`, use orientation tag to rotate the image during load
+    ///
+    /// subifd: `i32`, select this subifd index
+    ///
+    /// fail_on: `FailOn`, types of read error to fail on
+    ///
+    /// unlimited: `bool`, remove all denial of service limits
     pub fn tiffload_buffer_with_opts(buffer: &[u8], option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -12972,9 +14077,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignLoadTiffSource (tiffload_source), load tiff from source, priority=50, is_a_source, get_flags, get_flags_filename, header, load
-    /// source: `&VipsSource` -> Source to load from
-    /// returns `VipsImage` - Output image
+    /// Exactly as vips_tiffload(), but read from a source.
     pub fn tiffload_source(source: &VipsSource) -> Result<VipsImage> {
         unsafe {
             let source_in: *mut bindings::VipsSource = source.ctx;
@@ -12995,6 +14098,21 @@ impl VipsImage {
         }
     }
 
+    /// Exactly as vips_tiffload(), but read from a source.
+    ///
+    /// Optional arguments
+    ///
+    /// page: `i32`, load this page
+    ///
+    /// n: `i32`, load this many pages
+    ///
+    /// autorotate: `bool`, use orientation tag to rotate the image during load
+    ///
+    /// subifd: `i32`, select this subifd index
+    ///
+    /// fail_on: `FailOn`, types of read error to fail on
+    ///
+    /// unlimited: `bool`, remove all denial of service limits
     pub fn tiffload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -13018,9 +14136,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignSaveTiffFile (tiffsave), save image to tiff file (.tif, .tiff), priority=0, any
-    /// inp: `&VipsImage` -> Image to save
-    /// filename: `&str` -> Filename to save to
+    /// Write a VIPS image to a file as TIFF.
     pub fn tiffsave(&self, filename: &str) -> Result<()> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -13039,6 +14155,49 @@ impl VipsImage {
         }
     }
 
+    /// Write a VIPS image to a file as TIFF.
+    ///
+    /// Optional arguments
+    ///
+    /// compression: `ForeignTiffCompression`, write with this compression
+    ///
+    /// Q: `i32`, quality factor
+    ///
+    /// predictor: `ForeignTiffPredictor`, use this predictor
+    ///
+    /// tile: `bool`, set TRUE to write a tiled tiff
+    ///
+    /// tile_width: `i32`, for tile size
+    ///
+    /// tile_height: `i32`, for tile size
+    ///
+    /// pyramid: `bool`, write an image pyramid
+    ///
+    /// bitdepth: `i32`, change bit depth to 1,2, or 4 bit
+    ///
+    /// miniswhite: `bool`, write 1-bit images as MINISWHITE
+    ///
+    /// resunit: `ForeignTiffResunit` for resolution unit
+    ///
+    /// xres: `f64`, horizontal resolution in pixels/mm
+    ///
+    /// yres: `f64`, vertical resolution in pixels/mm
+    ///
+    /// bigtiff: `bool`, write a BigTiff file
+    ///
+    /// properties: `bool`, set TRUE to write an IMAGEDESCRIPTION tag
+    ///
+    /// region_shrink: `RegionShrink` How to shrink each 2x2 region.
+    ///
+    /// level: `i32`, Zstd or Deflate (zlib) compression level
+    ///
+    /// lossless: `bool`, WebP lossless mode
+    ///
+    /// depth: `ForeignDzDepth` how deep to make the pyramid
+    ///
+    /// subifd: `bool`, write pyr layers as sub-ifds
+    ///
+    /// premultiply: `bool`, write premultiplied alpha
     pub fn tiffsave_with_opts(&self, filename: &str, option: VOption) -> Result<()> {
         let vips_op_response = call(
             "tiffsave",
@@ -13059,9 +14218,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignSaveTiffBuffer (tiffsave_buffer), save image to tiff buffer (.tif, .tiff), priority=0, any
-    /// inp: `&VipsImage` -> Image to save
-    /// returns `Vec<u8>` - Buffer to save to
+    /// As vips_tiffsave(), but save to a memory buffer.
     pub fn tiffsave_buffer(&self) -> Result<Vec<u8>> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -13085,6 +14242,49 @@ impl VipsImage {
         }
     }
 
+    /// As vips_tiffsave(), but save to a memory buffer.
+    ///
+    /// Optional arguments
+    ///
+    /// compression: `ForeignTiffCompression`, write with this compression
+    ///
+    /// Q: `i32`, quality factor
+    ///
+    /// predictor: `ForeignTiffPredictor`, use this predictor
+    ///
+    /// tile: `bool`, set TRUE to write a tiled tiff
+    ///
+    /// tile_width: `i32`, for tile size
+    ///
+    /// tile_height: `i32`, for tile size
+    ///
+    /// pyramid: `bool`, write an image pyramid
+    ///
+    /// bitdepth: `i32`, change bit depth to 1,2, or 4 bit
+    ///
+    /// miniswhite: `bool`, write 1-bit images as MINISWHITE
+    ///
+    /// resunit: `ForeignTiffResunit` for resolution unit
+    ///
+    /// xres: `f64`, horizontal resolution in pixels/mm
+    ///
+    /// yres: `f64`, vertical resolution in pixels/mm
+    ///
+    /// bigtiff: `bool`, write a BigTiff file
+    ///
+    /// properties: `bool`, set TRUE to write an IMAGEDESCRIPTION tag
+    ///
+    /// region_shrink: `RegionShrink` How to shrink each 2x2 region.
+    ///
+    /// level: `i32`, Zstd or Deflate (zlib) compression level
+    ///
+    /// lossless: `bool`, WebP lossless mode
+    ///
+    /// depth: `ForeignDzDepth` how deep to make the pyramid
+    ///
+    /// subifd: `bool`, write pyr layers as sub-ifds
+    ///
+    /// premultiply: `bool`, write premultiplied alpha
     pub fn tiffsave_buffer_with_opts(&self, option: VOption) -> Result<Vec<u8>> {
         let mut blob = VipsBlob::from(null_mut());
 
@@ -13108,9 +14308,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignSaveTiffTarget (tiffsave_target), save image to tiff target (.tif, .tiff), priority=0, any
-    /// inp: `&VipsImage` -> Image to save
-    /// target: `&VipsTarget` -> Target to save to
+    /// As vips_tiffsave(), but save to a target.
     pub fn tiffsave_target(&self, target: &VipsTarget) -> Result<()> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -13128,6 +14326,50 @@ impl VipsImage {
             )
         }
     }
+
+    /// As vips_tiffsave(), but save to a target.
+    ///
+    /// Optional arguments
+    ///
+    /// compression: `ForeignTiffCompression`, write with this compression
+    ///
+    /// Q: `i32`, quality factor
+    ///
+    /// predictor: `ForeignTiffPredictor`, use this predictor
+    ///
+    /// tile: `bool`, set TRUE to write a tiled tiff
+    ///
+    /// tile_width: `i32`, for tile size
+    ///
+    /// tile_height: `i32`, for tile size
+    ///
+    /// pyramid: `bool`, write an image pyramid
+    ///
+    /// bitdepth: `i32`, change bit depth to 1,2, or 4 bit
+    ///
+    /// miniswhite: `bool`, write 1-bit images as MINISWHITE
+    ///
+    /// resunit: `ForeignTiffResunit` for resolution unit
+    ///
+    /// xres: `f64`, horizontal resolution in pixels/mm
+    ///
+    /// yres: `f64`, vertical resolution in pixels/mm
+    ///
+    /// bigtiff: `bool`, write a BigTiff file
+    ///
+    /// properties: `bool`, set TRUE to write an IMAGEDESCRIPTION tag
+    ///
+    /// region_shrink: `RegionShrink` How to shrink each 2x2 region.
+    ///
+    /// level: `i32`, Zstd or Deflate (zlib) compression level
+    ///
+    /// lossless: `bool`, WebP lossless mode
+    ///
+    /// depth: `ForeignDzDepth` how deep to make the pyramid
+    ///
+    /// subifd: `bool`, write pyr layers as sub-ifds
+    ///
+    /// premultiply: `bool`, write premultiplied alpha
     pub fn tiffsave_target_with_opts(&self, target: &VipsTarget, option: VOption) -> Result<()> {
         let vips_op_response = call(
             "tiffsave_target",
@@ -13148,8 +14390,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsTileCache (tilecache), cache an image as a set of tiles
-    /// returns `VipsImage` - Output image
+    /// Cache an image as a set of tiles
     pub fn tilecache(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -13170,6 +14411,21 @@ impl VipsImage {
         }
     }
 
+    /// Cache an image as a set of tiles
+    ///
+    /// Optional arguments
+    ///
+    /// tile_width: `i32`, width of tiles in cache
+    ///
+    /// tile_height: `i32`, height of tiles in cache
+    ///
+    /// max_tiles: `i32`, maximum number of tiles to cache
+    ///
+    /// access: `Access`, hint expected access pattern
+    ///
+    /// threaded: `bool`, allow many threads
+    ///
+    /// persistent: `bool`, don’t drop cache at end of computation
     pub fn tilecache_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -13193,8 +14449,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsTonelut (tonelut), build a look-up table
-    /// returns `VipsImage` - Output image
+    /// Build a look-up table
     pub fn tonelut() -> Result<VipsImage> {
         unsafe {
             let mut out_out: *mut bindings::VipsImage = null_mut();
@@ -13213,6 +14468,29 @@ impl VipsImage {
         }
     }
 
+    /// Build a look-up table
+    ///
+    /// Optional arguments
+    ///
+    /// in_max: `i32`, input range
+    ///
+    /// out_max: `i32`, output range
+    ///
+    /// Lb: `f64`, black-point [0-100]
+    ///
+    /// Lw: `f64`, white-point [0-100]
+    ///
+    /// Ps: `f64`, shadow point (eg. 0.2)
+    ///
+    /// Pm: `f64`, mid-tone point (eg. 0.5)
+    ///
+    /// Ph: `f64`, highlight point (eg. 0.8)
+    ///
+    /// S: `f64`, shadow adjustment (+/- 30)
+    ///
+    /// M: `f64`, mid-tone adjustment (+/- 30)
+    ///
+    /// H: `f64`, highlight adjustment (+/- 30).
     pub fn tonelut_with_opts(option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -13231,8 +14509,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsTranspose3d (transpose3d), transpose3d an image
-    /// returns `VipsImage` - Output image
+    /// Transpose3d an image
     pub fn transpose3d(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -13253,6 +14530,11 @@ impl VipsImage {
         }
     }
 
+    /// Transpose3d an image
+    ///
+    /// Optional arguments
+    ///
+    /// page_height: `i32`, size of each input page
     pub fn transpose3d_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -13276,8 +14558,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsUnpremultiply (unpremultiply), unpremultiply image alpha
-    /// returns `VipsImage` - Output image
+    /// Unpremultiply image alpha
     pub fn unpremultiply(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -13298,6 +14579,13 @@ impl VipsImage {
         }
     }
 
+    /// Unpremultiply image alpha
+    ///
+    /// Optional arguments
+    ///
+    /// max_alpha: `f64`, maximum value for alpha
+    ///
+    /// alpha_band: `i32`, band containing alpha data
     pub fn unpremultiply_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -13321,9 +14609,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignLoadVipsFile (vipsload), load vips from file (.v, .vips), priority=200, untrusted, is_a, get_flags, get_flags_filename, header
-    /// filename: `&str` -> Filename to load from
-    /// returns `VipsImage` - Output image
+    /// Read in a vips image.
     pub fn vipsload(filename: &str) -> Result<VipsImage> {
         unsafe {
             let filename_in: CString = utils::new_c_string(filename)?;
@@ -13344,32 +14630,7 @@ impl VipsImage {
         }
     }
 
-    pub fn vipsload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
-        let mut out_out = VipsImage::from(null_mut());
-
-        let vips_op_response = call(
-            "vipsload",
-            option
-                .with(
-                    "out",
-                    VipsValue::MutImage(&mut out_out),
-                )
-                .with(
-                    "filename",
-                    VipsValue::Str(filename),
-                ),
-        );
-
-        utils::result(
-            vips_op_response,
-            out_out,
-            Error::OperationError("Vipsload failed"),
-        )
-    }
-
-    /// VipsForeignLoadVipsSource (vipsload_source), load vips from source, priority=200, untrusted, is_a_source, get_flags, get_flags_filename, header
-    /// source: `&VipsSource` -> Source to load from
-    /// returns `VipsImage` - Output image
+    /// Exactly as vips_vipsload(), but read from a source.
     pub fn vipsload_source(source: &VipsSource) -> Result<VipsImage> {
         unsafe {
             let source_in: *mut bindings::VipsSource = source.ctx;
@@ -13390,32 +14651,7 @@ impl VipsImage {
         }
     }
 
-    pub fn vipsload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
-        let mut out_out = VipsImage::from(null_mut());
-
-        let vips_op_response = call(
-            "vipsload_source",
-            option
-                .with(
-                    "out",
-                    VipsValue::MutImage(&mut out_out),
-                )
-                .with(
-                    "source",
-                    VipsValue::Source(source),
-                ),
-        );
-
-        utils::result(
-            vips_op_response,
-            out_out,
-            Error::OperationError("VipsloadSource failed"),
-        )
-    }
-
-    /// VipsForeignSaveVipsFile (vipssave), save image to file in vips format (.v, .vips), priority=0, any
-    /// inp: `&VipsImage` -> Image to save
-    /// filename: `&str` -> Filename to save to
+    /// Write image to filename in VIPS format.
     pub fn vipssave(&self, filename: &str) -> Result<()> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -13434,29 +14670,7 @@ impl VipsImage {
         }
     }
 
-    pub fn vipssave_with_opts(&self, filename: &str, option: VOption) -> Result<()> {
-        let vips_op_response = call(
-            "vipssave",
-            option
-                .with(
-                    "in",
-                    VipsValue::Image(&VipsImage::from(self.ctx)),
-                )
-                .with(
-                    "filename",
-                    VipsValue::Str(filename),
-                ),
-        );
-        utils::result(
-            vips_op_response,
-            (),
-            Error::OperationError("Vipssave failed"),
-        )
-    }
-
-    /// VipsForeignSaveVipsTarget (vipssave_target), save image to target in vips format (.v, .vips), priority=0, any
-    /// inp: `&VipsImage` -> Image to save
-    /// target: `&VipsTarget` -> Target to save to
+    /// As vips_vipssave(), but save to a target.
     pub fn vipssave_target(&self, target: &VipsTarget) -> Result<()> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -13475,29 +14689,7 @@ impl VipsImage {
         }
     }
 
-    pub fn vipssave_target_with_opts(&self, target: &VipsTarget, option: VOption) -> Result<()> {
-        let vips_op_response = call(
-            "vipssave_target",
-            option
-                .with(
-                    "in",
-                    VipsValue::Image(&VipsImage::from(self.ctx)),
-                )
-                .with(
-                    "target",
-                    VipsValue::Target(target),
-                ),
-        );
-        utils::result(
-            vips_op_response,
-            (),
-            Error::OperationError("VipssaveTarget failed"),
-        )
-    }
-
-    /// VipsForeignLoadWebpFile (webpload), load webp from file (.webp), priority=200, is_a, get_flags, get_flags_filename, header, load
-    /// filename: `&str` -> Filename to load from
-    /// returns `VipsImage` - Output image
+    /// Read a WebP file into a VIPS image.
     pub fn webpload(filename: &str) -> Result<VipsImage> {
         unsafe {
             let filename_in: CString = utils::new_c_string(filename)?;
@@ -13517,6 +14709,16 @@ impl VipsImage {
             )
         }
     }
+
+    /// Read a WebP file into a VIPS image.
+    ///
+    /// Optional arguments
+    ///
+    /// page: `i32`, page (frame) to read
+    ///
+    /// n: `i32`, load this many pages
+    ///
+    /// scale: `bool`, scale by this much on load
     pub fn webpload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -13540,9 +14742,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignLoadWebpBuffer (webpload_buffer), load webp from buffer, priority=200, is_a_buffer, get_flags, get_flags_filename, header, load
-    /// buffer: `&[u8]` -> Buffer to load from
-    /// returns `VipsImage` - Output image
+    /// Read a WebP-formatted memory block into a VIPS image.
     pub fn webpload_buffer(buffer: &[u8]) -> Result<VipsImage> {
         unsafe {
             let buffer_in: *mut c_void = buffer.as_ptr() as *mut c_void;
@@ -13564,6 +14764,15 @@ impl VipsImage {
         }
     }
 
+    /// Read a WebP-formatted memory block into a VIPS image.
+    ///
+    /// Optional arguments
+    ///
+    /// page: `i32`, page (frame) to read
+    ///
+    /// n: `i32`, load this many pages
+    ///
+    /// scale: `bool`, scale by this much on load
     pub fn webpload_buffer_with_opts(buffer: &[u8], option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -13587,9 +14796,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignLoadWebpSource (webpload_source), load webp from source, priority=200, is_a_source, get_flags, get_flags_filename, header, load
-    /// source: `&VipsSource` -> Source to load from
-    /// returns `VipsImage` - Output image
+    /// Exactly as vips_webpload(), but read from a source.
     pub fn webpload_source(source: &VipsSource) -> Result<VipsImage> {
         unsafe {
             let source_in: *mut bindings::VipsSource = source.ctx;
@@ -13610,6 +14817,15 @@ impl VipsImage {
         }
     }
 
+    /// Exactly as vips_webpload(), but read from a source.
+    ///
+    /// Optional arguments
+    ///
+    /// page: `i32`, page (frame) to read
+    ///
+    /// n: `i32`, load this many pages
+    ///
+    /// scale: `bool`, scale by this much on load
     pub fn webpload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -13633,9 +14849,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignSaveWebpFile (webpsave), save as WebP (.webp), priority=0, rgba-only
-    /// inp: `&VipsImage` -> Image to save
-    /// filename: `&str` -> Filename to save to
+    /// Write an image to a file in WebP format.
     pub fn webpsave(&self, filename: &str) -> Result<()> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -13654,6 +14868,37 @@ impl VipsImage {
         }
     }
 
+    /// Write an image to a file in WebP format.
+    ///
+    /// Optional arguments
+    ///
+    /// Q: `i32`, quality factor
+    ///
+    /// lossless: `bool`, enables lossless compression
+    ///
+    /// preset: `ForeignWebpPreset`, choose lossy compression preset
+    ///
+    /// smart_subsample: `bool`, enables high quality chroma subsampling
+    ///
+    /// smart_deblock: `bool`, enables auto-adjusting of the deblocking filter
+    ///
+    /// near_lossless: `bool`, preprocess in lossless mode (controlled by Q)
+    ///
+    /// alpha_q: `i32`, set alpha quality in lossless mode
+    ///
+    /// effort: `i32`, level of CPU effort to reduce file size
+    ///
+    /// target_size: `i32`, desired target size in bytes
+    ///
+    /// passes: `i32`, number of entropy-analysis passes
+    ///
+    /// min_size: `bool`, minimise size
+    ///
+    /// mixed: `bool`, allow both lossy and lossless encoding
+    ///
+    /// kmin: `i32`, minimum number of frames between keyframes
+    ///
+    /// kmax: `i32`, maximum number of frames between keyframes
     pub fn webpsave_with_opts(&self, filename: &str, option: VOption) -> Result<()> {
         let vips_op_response = call(
             "webpsave",
@@ -13674,9 +14919,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignSaveWebpBuffer (webpsave_buffer), save as WebP (.webp), priority=0, rgba-only
-    /// inp: `&VipsImage` -> Image to save
-    /// returns `Vec<u8>` - Buffer to save to
+    /// As vips_webpsave(), but save to a memory buffer.
     pub fn webpsave_buffer(&self) -> Result<Vec<u8>> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -13700,6 +14943,37 @@ impl VipsImage {
         }
     }
 
+    /// As vips_webpsave(), but save to a memory buffer.
+    ///
+    /// Optional arguments
+    ///
+    /// Q: `i32`, quality factor
+    ///
+    /// lossless: `bool`, enables lossless compression
+    ///
+    /// preset: `ForeignWebpPreset`, choose lossy compression preset
+    ///
+    /// smart_subsample: `bool`, enables high quality chroma subsampling
+    ///
+    /// smart_deblock: `bool`, enables auto-adjusting of the deblocking filter
+    ///
+    /// near_lossless: `bool`, preprocess in lossless mode (controlled by Q)
+    ///
+    /// alpha_q: `i32`, set alpha quality in lossless mode
+    ///
+    /// effort: `i32`, level of CPU effort to reduce file size
+    ///
+    /// target_size: `i32`, desired target size in bytes
+    ///
+    /// passes: `i32`, number of entropy-analysis passes
+    ///
+    /// min_size: `bool`, minimise size
+    ///
+    /// mixed: `bool`, allow both lossy and lossless encoding
+    ///
+    /// kmin: `i32`, minimum number of frames between keyframes
+    ///
+    /// kmax: `i32`, maximum number of frames between keyframes
     pub fn webpsave_buffer_with_opts(&self, option: VOption) -> Result<Vec<u8>> {
         let mut blob = VipsBlob::from(null_mut());
 
@@ -13723,8 +14997,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignSaveWebpMime (webpsave_mime), save image to webp mime (.webp), priority=0, rgba-only
-    /// inp: `&VipsImage` -> Image to save
+    /// As vips_webpsave(), but save as a mime webp on stdout.
     pub fn webpsave_mime(&self) -> Result<()> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -13741,6 +15014,37 @@ impl VipsImage {
         }
     }
 
+    /// As vips_webpsave(), but save as a mime webp on stdout.
+    ///
+    /// Optional arguments
+    ///
+    /// Q: `i32`, quality factor
+    ///
+    /// lossless: `bool`, enables lossless compression
+    ///
+    /// preset: `ForeignWebpPreset`, choose lossy compression preset
+    ///
+    /// smart_subsample: `bool`, enables high quality chroma subsampling
+    ///
+    /// smart_deblock: `bool`, enables auto-adjusting of the deblocking filter
+    ///
+    /// near_lossless: `bool`, preprocess in lossless mode (controlled by Q)
+    ///
+    /// alpha_q: `i32`, set alpha quality in lossless mode
+    ///
+    /// effort: `i32`, level of CPU effort to reduce file size
+    ///
+    /// target_size: `i32`, desired target size in bytes
+    ///
+    /// passes: `i32`, number of entropy-analysis passes
+    ///
+    /// min_size: `bool`, minimise size
+    ///
+    /// mixed: `bool`, allow both lossy and lossless encoding
+    ///
+    /// kmin: `i32`, minimum number of frames between keyframes
+    ///
+    /// kmax: `i32`, maximum number of frames between keyframes
     pub fn webpsave_mime_with_opts(&self, option: VOption) -> Result<()> {
         let vips_op_response = call(
             "webpsave_mime",
@@ -13757,9 +15061,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsForeignSaveWebpTarget (webpsave_target), save as WebP (.webp), priority=0, rgba-only
-    /// inp: `&VipsImage` -> Image to save
-    /// target: `&VipsTarget` -> Target to save to
+    /// As vips_webpsave(), but save to a target.
     pub fn webpsave_target(&self, target: &VipsTarget) -> Result<()> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -13778,6 +15080,37 @@ impl VipsImage {
         }
     }
 
+    /// As vips_webpsave(), but save to a target.
+    ///
+    /// Optional arguments
+    ///
+    /// Q: `i32`, quality factor
+    ///
+    /// lossless: `bool`, enables lossless compression
+    ///
+    /// preset: `ForeignWebpPreset`, choose lossy compression preset
+    ///
+    /// smart_subsample: `bool`, enables high quality chroma subsampling
+    ///
+    /// smart_deblock: `bool`, enables auto-adjusting of the deblocking filter
+    ///
+    /// near_lossless: `bool`, preprocess in lossless mode (controlled by Q)
+    ///
+    /// alpha_q: `i32`, set alpha quality in lossless mode
+    ///
+    /// effort: `i32`, level of CPU effort to reduce file size
+    ///
+    /// target_size: `i32`, desired target size in bytes
+    ///
+    /// passes: `i32`, number of entropy-analysis passes
+    ///
+    /// min_size: `bool`, minimise size
+    ///
+    /// mixed: `bool`, allow both lossy and lossless encoding
+    ///
+    /// kmin: `i32`, minimum number of frames between keyframes
+    ///
+    /// kmax: `i32`, maximum number of frames between keyframes
     pub fn webpsave_target_with_opts(&self, target: &VipsTarget, option: VOption) -> Result<()> {
         let vips_op_response = call(
             "webpsave_target",
@@ -13798,12 +15131,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsWorley (worley), make a worley noise image
-    /// width: `i32` -> Image width in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// height: `i32` -> Image height in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// returns `VipsImage` - Output image
+    /// Make a worley noise image
     pub fn worley(width: i32, height: i32) -> Result<VipsImage> {
         unsafe {
             let width_in: i32 = width;
@@ -13826,6 +15154,11 @@ impl VipsImage {
         }
     }
 
+    /// Make a worley noise image
+    ///
+    /// Optional arguments
+    ///
+    /// cell_size: `i32`, size of Worley cells
     pub fn worley_with_opts(width: i32, height: i32, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -13853,8 +15186,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsWrap (wrap), wrap image origin
-    /// returns `VipsImage` - Output image
+    /// Wrap image origin
     pub fn wrap(&self) -> Result<VipsImage> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
@@ -13875,6 +15207,13 @@ impl VipsImage {
         }
     }
 
+    /// Wrap image origin
+    ///
+    /// Optional arguments
+    ///
+    /// x: `i32`, horizontal displacement
+    ///
+    /// y: `i32`, vertical displacement
     pub fn wrap_with_opts(&self, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -13898,12 +15237,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsXyz (xyz), make an image where pixel values are coordinates
-    /// width: `i32` -> Image width in pixels
-    /// min: 1, max: 100000000, default: 64
-    /// height: `i32` -> Image height in pixels
-    /// min: 1, max: 100000000, default: 64
-    /// returns `VipsImage` - Output image
+    /// Make an image where pixel values are coordinates
     pub fn xyz(width: i32, height: i32) -> Result<VipsImage> {
         unsafe {
             let width_in: i32 = width;
@@ -13926,6 +15260,15 @@ impl VipsImage {
         }
     }
 
+    /// Make an image where pixel values are coordinates
+    ///
+    /// Optional arguments
+    ///
+    /// csize: `i32`, size for third dimension
+    ///
+    /// dsize: `i32`, size for fourth dimension
+    ///
+    /// esize: `i32`, size for fifth dimension
     pub fn xyz_with_opts(width: i32, height: i32, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -13953,12 +15296,7 @@ impl VipsImage {
         )
     }
 
-    /// VipsZone (zone), make a zone plate
-    /// width: `i32` -> Image width in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// height: `i32` -> Image height in pixels
-    /// min: 1, max: 100000000, default: 1
-    /// returns `VipsImage` - Output image
+    /// Make a zone plate
     pub fn zone(width: i32, height: i32) -> Result<VipsImage> {
         unsafe {
             let width_in: i32 = width;
@@ -13981,6 +15319,11 @@ impl VipsImage {
         }
     }
 
+    /// Make a zone plate
+    ///
+    /// Optional arguments
+    ///
+    /// uchar: `bool`, output a uchar image
     pub fn zone_with_opts(width: i32, height: i32, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
@@ -14008,13 +15351,11 @@ impl VipsImage {
         )
     }
 
-    /// VipsZoom (zoom), zoom an image
-    /// input: `&VipsImage` -> Input image
+    /// Zoom an image
+    ///
     /// xfac: `i32` -> Horizontal zoom factor
-    /// min: 1, max: 100000000, default: 1
+    ///
     /// yfac: `i32` -> Vertical zoom factor
-    /// min: 1, max: 100000000, default: 1
-    /// returns `VipsImage` - Output image
     pub fn zoom(&self, xfac: i32, yfac: i32) -> Result<VipsImage> {
         unsafe {
             let input_in: *mut bindings::VipsImage = self.ctx;

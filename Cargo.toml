@@ -1,7 +1,7 @@
 [package]
 name = "libvips"
 description = "Safe bindings for libvips"
-version = "1.7.0"
+version = "0.1.0"
 repository = "https://github.com/olxgroup-oss/libvips-rust-bindings"
 readme = "README.md"
 license = "MIT"

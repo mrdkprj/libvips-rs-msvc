@@ -7,6 +7,7 @@ use crate::{
 };
 use std::{mem::MaybeUninit, os::raw::c_void};
 
+/// Runs the vips operation with options
 pub fn call(operation: &str, option: VOption) -> std::os::raw::c_int {
     unsafe {
         let operation_name = new_c_string(operation).unwrap();
