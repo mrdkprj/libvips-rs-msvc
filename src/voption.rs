@@ -1,5 +1,20 @@
 use crate::{
-    bindings::*,
+    bindings::{
+        g_log, g_object_get_property, g_object_ref, g_object_set_property, g_object_unref,
+        g_type_check_instance_is_a, g_value_dup_boxed, g_value_get_boolean, g_value_get_double,
+        g_value_get_int, g_value_get_object, g_value_get_string, g_value_init, g_value_set_boolean,
+        g_value_set_boxed, g_value_set_double, g_value_set_enum, g_value_set_int,
+        g_value_set_object, g_value_set_string, g_value_set_uint64, g_value_unset,
+        vips_array_double_get_type, vips_array_image_get_type, vips_array_int_get_type,
+        vips_blob_get_type, vips_blob_new, vips_cache_operation_buildp, vips_enum_from_nick,
+        vips_error_buffer, vips_error_clear, vips_image_get_type, vips_interpolate_get_type,
+        vips_object_get_argument, vips_object_unref_outputs, vips_operation_new,
+        vips_source_get_type, vips_target_get_type, vips_value_get_array_double,
+        vips_value_get_array_image, vips_value_set_array_double, vips_value_set_array_image,
+        vips_value_set_array_int, GLogLevelFlags_G_LOG_LEVEL_WARNING, GParamSpec, GTypeInstance,
+        GValue, VipsArgumentClass, VipsArgumentInstance, VipsBlob, VipsImage, VipsObject,
+        VipsOperation,
+    },
     utils::{
         get_g_type, new_c_string, G_TYPE_BOOLEAN, G_TYPE_DOUBLE, G_TYPE_INT, G_TYPE_STRING,
         G_TYPE_UINT64,
@@ -39,7 +54,7 @@ pub fn call(operation: &str, option: VOption) -> std::os::raw::c_int {
 #[macro_export]
 macro_rules! v_value {
     ($value:expr) => {
-        V_Value::value($value)
+        $crate::voption::V_Value::value($value)
     };
 }
 
