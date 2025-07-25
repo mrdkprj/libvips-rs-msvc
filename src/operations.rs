@@ -1253,7 +1253,7 @@ impl VipsImage {
         utils::result(
             vips_op_response,
             out_out,
-            Error::OperationError("Ab failed"),
+            Error::OperationError("Abs failed"),
         )
     }
 
@@ -1403,6 +1403,29 @@ impl VipsImage {
                 Error::OperationError("Analyzeload failed"),
             )
         }
+    }
+
+    /// Load an Analyze 6.0 file.
+    pub fn analyzeload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
+        let mut out_out = VipsImage::from(null_mut());
+
+        let vips_op_response = call(
+            "analyzeload",
+            option
+                .with(
+                    "filename",
+                    VipsValue::Str(filename),
+                )
+                .with(
+                    "out",
+                    VipsValue::MutImage(&mut out_out),
+                ),
+        );
+        utils::result(
+            vips_op_response,
+            out_out,
+            Error::OperationError("Analyzeload failed"),
+        )
     }
 
     /// Join an array of images
@@ -3252,7 +3275,7 @@ impl VipsImage {
 
     /// Draw a circle on an image
     ///
-    /// ink: `&mut [f64]` -> Color for pixels
+    /// ink: `&[f64]` -> Color for pixels
     ///
     /// cx: `i32` -> Centre of draw_circle
     ///
@@ -3286,7 +3309,7 @@ impl VipsImage {
 
     /// Draw a circle on an image
     ///
-    /// ink: `&mut [f64]` -> Color for pixels
+    /// ink: `&[f64]` -> Color for pixels
     ///
     /// cx: `i32` -> Centre of draw_circle
     ///
@@ -3338,7 +3361,7 @@ impl VipsImage {
 
     /// Flood-fill an area
     ///
-    /// ink: `&mut [f64]` -> Color for pixels
+    /// ink: `&[f64]` -> Color for pixels
     ///
     /// x: `i32` -> DrawFlood start point
     ///
@@ -3368,7 +3391,7 @@ impl VipsImage {
 
     /// Flood-fill an area
     ///
-    /// ink: `&mut [f64]` -> Color for pixels
+    /// ink: `&[f64]` -> Color for pixels
     ///
     /// x: `i32` -> DrawFlood start point
     ///
@@ -3491,7 +3514,7 @@ impl VipsImage {
 
     /// Draw a line on an image
     ///
-    /// ink: `&mut [f64]` -> Color for pixels
+    /// ink: `&[f64]` -> Color for pixels
     ///
     /// x1: `i32` -> Start of draw_line
     ///
@@ -3529,7 +3552,7 @@ impl VipsImage {
 
     /// Draw a mask on an image
     ///
-    /// ink: `&mut [f64]` -> Color for pixels
+    /// ink: `&[f64]` -> Color for pixels
     ///
     /// mask: `&VipsImage` -> Mask of pixels to draw
     ///
@@ -3563,7 +3586,7 @@ impl VipsImage {
 
     /// Paint a rectangle on an image
     ///
-    /// ink: `&mut [f64]` -> Color for pixels
+    /// ink: `&[f64]` -> Color for pixels
     ///
     /// left: `i32` -> Rect to fill
     ///
@@ -3608,7 +3631,7 @@ impl VipsImage {
 
     /// Paint a rectangle on an image
     ///
-    /// ink: `&mut [f64]` -> Color for pixels
+    /// ink: `&[f64]` -> Color for pixels
     ///
     /// left: `i32` -> Rect to fill
     ///
@@ -4275,10 +4298,10 @@ impl VipsImage {
     )> {
         unsafe {
             let inp_in: *mut bindings::VipsImage = self.ctx;
-            let mut left_out: i32 = 1;
+            let mut left_out: i32 = 0;
             let mut top_out: i32 = 0;
-            let mut width_out: i32 = 1;
-            let mut height_out: i32 = 1;
+            let mut width_out: i32 = 0;
+            let mut height_out: i32 = 0;
 
             let vips_op_response = bindings::vips_find_trim(
                 inp_in,
@@ -4331,10 +4354,10 @@ impl VipsImage {
         i32,
         i32,
     )> {
-        let mut left: i32 = 1;
+        let mut left: i32 = 0;
         let mut top: i32 = 0;
-        let mut width: i32 = 1;
-        let mut height: i32 = 1;
+        let mut width: i32 = 0;
+        let mut height: i32 = 0;
 
         let vips_op_response = call(
             "find_trim",
@@ -4396,6 +4419,29 @@ impl VipsImage {
         )
     }
 
+    /// Read a FITS image file into a VIPS image.
+    pub fn fitsload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
+        let mut out_out = VipsImage::from(null_mut());
+
+        let vips_op_response = call(
+            "fitsload",
+            option
+                .with(
+                    "out",
+                    VipsValue::MutImage(&mut out_out),
+                )
+                .with(
+                    "filename",
+                    VipsValue::Str(filename),
+                ),
+        );
+        utils::result(
+            vips_op_response,
+            out_out,
+            Error::OperationError("fitsloade failed"),
+        )
+    }
+
     /// Exactly as vips_fitsload(), but read from a source.
     pub fn fitsload_source(source: &VipsSource) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
@@ -4419,11 +4465,55 @@ impl VipsImage {
         )
     }
 
+    /// Exactly as vips_fitsload(), but read from a source.
+    pub fn fitsload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
+        let mut out_out = VipsImage::from(null_mut());
+
+        let vips_op_response = call(
+            "fitsload_source",
+            option
+                .with(
+                    "out",
+                    VipsValue::MutImage(&mut out_out),
+                )
+                .with(
+                    "source",
+                    VipsValue::Source(source),
+                ),
+        );
+        utils::result(
+            vips_op_response,
+            out_out,
+            Error::OperationError("fitsload_source failed"),
+        )
+    }
+
     /// Write a VIPS image to a file in FITS format.
     pub fn fitssave(&self, filename: &str) -> Result<()> {
         let vips_op_response = call(
             "fitssave",
             VOption::new()
+                .with(
+                    "in",
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
+                )
+                .with(
+                    "filename",
+                    VipsValue::Str(filename),
+                ),
+        );
+        utils::result(
+            vips_op_response,
+            (),
+            Error::OperationError("fitssave failed"),
+        )
+    }
+
+    /// Write a VIPS image to a file in FITS format.
+    pub fn fitssave_with_opts(&self, filename: &str, option: VOption) -> Result<()> {
+        let vips_op_response = call(
+            "fitssave",
+            option
                 .with(
                     "in",
                     VipsValue::Image(&VipsImage::from(self.ctx)),
@@ -5518,7 +5608,6 @@ impl VipsImage {
     }
 
     /// Exactly as vips_heifload(), but read from a source.
-    /// source: `&VipsSource` -> Source to load from
     pub fn heifload_source(source: &VipsSource) -> Result<VipsImage> {
         unsafe {
             let source_in: *mut bindings::VipsSource = source.ctx;
@@ -7042,7 +7131,7 @@ impl VipsImage {
         utils::result(
             vips_op_response,
             (),
-            Error::OperationError("jp2ksave_with_opts failed"),
+            Error::OperationError("jp2ksave failed"),
         )
     }
 
@@ -7100,7 +7189,7 @@ impl VipsImage {
         utils::result(
             vips_op_response,
             blob.into(),
-            Error::OperationError("jp2ksave_buffer_with_opts failed"),
+            Error::OperationError("jp2ksave_buffer failed"),
         )
     }
 
@@ -7154,7 +7243,7 @@ impl VipsImage {
         utils::result(
             vips_op_response,
             (),
-            Error::OperationError("jp2ksave_target_with_opts failed"),
+            Error::OperationError("jp2ksave_target failed"),
         )
     }
 
@@ -7584,6 +7673,29 @@ impl VipsImage {
         )
     }
 
+    /// Load jxl from file
+    pub fn jxlload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
+        let mut out_out = VipsImage::from(null_mut());
+
+        let vips_op_response = call(
+            "jxlload",
+            option
+                .with(
+                    "out",
+                    VipsValue::MutImage(&mut out_out),
+                )
+                .with(
+                    "filename",
+                    VipsValue::Str(filename),
+                ),
+        );
+        utils::result(
+            vips_op_response,
+            out_out,
+            Error::OperationError("jxlload failed"),
+        )
+    }
+
     /// Load jxl from buffer
     pub fn jxlload_buffer(buffer: &[u8]) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
@@ -7591,6 +7703,29 @@ impl VipsImage {
         let vips_op_response = call(
             "jxlload_buffer",
             VOption::new()
+                .with(
+                    "out",
+                    VipsValue::MutImage(&mut out_out),
+                )
+                .with(
+                    "buffer",
+                    VipsValue::Buffer(buffer),
+                ),
+        );
+        utils::result(
+            vips_op_response,
+            out_out,
+            Error::OperationError("jxlload_buffer failed"),
+        )
+    }
+
+    /// Load jxl from buffer
+    pub fn jxlload_buffer_with_opts(buffer: &[u8], option: VOption) -> Result<VipsImage> {
+        let mut out_out = VipsImage::from(null_mut());
+
+        let vips_op_response = call(
+            "jxlload_buffer",
+            option
                 .with(
                     "out",
                     VipsValue::MutImage(&mut out_out),
@@ -7630,7 +7765,30 @@ impl VipsImage {
         )
     }
 
-    /// Save image to jxl file
+    /// Load jxl from source
+    pub fn jxlload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
+        let mut out_out = VipsImage::from(null_mut());
+
+        let vips_op_response = call(
+            "jxlload_source",
+            option
+                .with(
+                    "out",
+                    VipsValue::MutImage(&mut out_out),
+                )
+                .with(
+                    "source",
+                    VipsValue::Source(source),
+                ),
+        );
+        utils::result(
+            vips_op_response,
+            out_out,
+            Error::OperationError("jxlload_source failed"),
+        )
+    }
+
+    /// Save jxl image to file
     pub fn jxlsave(&self, filename: &str) -> Result<()> {
         let vips_op_response = call(
             "jxlsave",
@@ -7651,7 +7809,7 @@ impl VipsImage {
         )
     }
 
-    /// Save image to jxl file
+    /// Save jxl image to file
     ///
     /// Optional arguments
     ///
@@ -7738,7 +7896,7 @@ impl VipsImage {
         utils::result(
             vips_op_response,
             blob.into(),
-            Error::OperationError("jxlsave_buffer_with_opts failed"),
+            Error::OperationError("jxlsave_buffer failed"),
         )
     }
 
@@ -7792,7 +7950,7 @@ impl VipsImage {
         utils::result(
             vips_op_response,
             (),
-            Error::OperationError("jxlsave_target_with_opts failed"),
+            Error::OperationError("jxlsave_target failed"),
         )
     }
 
@@ -7841,7 +7999,7 @@ impl VipsImage {
         utils::result(
             vips_op_response,
             out_out,
-            Error::OperationError("labelregions_with_opts failed"),
+            Error::OperationError("Labelregion failed"),
         )
     }
 
@@ -9308,6 +9466,29 @@ impl VipsImage {
         }
     }
 
+    /// Reads a matrix from a file.
+    pub fn matrixload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
+        let mut out_out = VipsImage::from(null_mut());
+
+        let vips_op_response = call(
+            "matrixload",
+            option
+                .with(
+                    "out",
+                    VipsValue::MutImage(&mut out_out),
+                )
+                .with(
+                    "filename",
+                    VipsValue::Str(filename),
+                ),
+        );
+        utils::result(
+            vips_op_response,
+            out_out,
+            Error::OperationError("Matrixload failed"),
+        )
+    }
+
     /// Exactly as vips_matrixload(), but read from a source.
     pub fn matrixload_source(source: &VipsSource) -> Result<VipsImage> {
         unsafe {
@@ -9327,6 +9508,29 @@ impl VipsImage {
                 Error::OperationError("MatrixloadSource failed"),
             )
         }
+    }
+
+    /// Exactly as vips_matrixload(), but read from a source.
+    pub fn matrixload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
+        let mut out_out = VipsImage::from(null_mut());
+
+        let vips_op_response = call(
+            "matrixload_source",
+            option
+                .with(
+                    "out",
+                    VipsValue::MutImage(&mut out_out),
+                )
+                .with(
+                    "source",
+                    VipsValue::Source(source),
+                ),
+        );
+        utils::result(
+            vips_op_response,
+            out_out,
+            Error::OperationError("MatrixloadSource failed"),
+        )
     }
 
     /// Multiplies two matrix images.
@@ -9611,7 +9815,7 @@ impl VipsImage {
             VipsImage {
                 ctx: out_out,
             },
-            Error::OperationError("Globalbalance failed"),
+            Error::OperationError("median failed"),
         )
     }
 
@@ -10251,6 +10455,29 @@ impl VipsImage {
         )
     }
 
+    /// Read a OpenEXR file into a VIPS image.
+    pub fn openexrload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
+        let mut out_out = VipsImage::from(null_mut());
+
+        let vips_op_response = call(
+            "openexrload",
+            option
+                .with(
+                    "out",
+                    VipsValue::MutImage(&mut out_out),
+                )
+                .with(
+                    "filename",
+                    VipsValue::Str(filename),
+                ),
+        );
+        utils::result(
+            vips_op_response,
+            out_out,
+            Error::OperationError("openexrload failed"),
+        )
+    }
+
     /// Read a virtual slide supported by the OpenSlide library into a VIPS image.
     pub fn openslideload(filename: &str) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
@@ -10305,7 +10532,7 @@ impl VipsImage {
         utils::result(
             vips_op_response,
             out_out,
-            Error::OperationError("openslideload_with_opts failed"),
+            Error::OperationError("openslideload failed"),
         )
     }
 
@@ -10366,7 +10593,7 @@ impl VipsImage {
         utils::result(
             vips_op_response,
             out_out,
-            Error::OperationError("openslideload_source_with_opts failed"),
+            Error::OperationError("openslideload_source failed"),
         )
     }
 
@@ -10917,7 +11144,6 @@ impl VipsImage {
                     VipsValue::MutBlob(&mut blob),
                 ),
         );
-
         utils::result(
             vips_op_response,
             blob.into(),
@@ -11004,6 +11230,29 @@ impl VipsImage {
         }
     }
 
+    /// Read a PPM/PBM/PGM/PFM file into a VIPS image.
+    pub fn ppmload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
+        let mut out_out = VipsImage::from(null_mut());
+
+        let vips_op_response = call(
+            "ppmload",
+            option
+                .with(
+                    "out",
+                    VipsValue::MutImage(&mut out_out),
+                )
+                .with(
+                    "filename",
+                    VipsValue::Str(filename),
+                ),
+        );
+        utils::result(
+            vips_op_response,
+            out_out,
+            Error::OperationError("Ppmload failed"),
+        )
+    }
+
     /// Exactly as vips_ppmload(), but read from a memory source.
     pub fn ppmload_buffer(buffer: &[u8]) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
@@ -11020,7 +11269,29 @@ impl VipsImage {
                     VipsValue::Buffer(buffer),
                 ),
         );
+        utils::result(
+            vips_op_response,
+            out_out,
+            Error::OperationError("ppmload_buffer failed"),
+        )
+    }
 
+    /// Exactly as vips_ppmload(), but read from a memory source.
+    pub fn ppmload_buffer_with_opts(buffer: &[u8], option: VOption) -> Result<VipsImage> {
+        let mut out_out = VipsImage::from(null_mut());
+
+        let vips_op_response = call(
+            "ppmload_buffer",
+            option
+                .with(
+                    "out",
+                    VipsValue::MutImage(&mut out_out),
+                )
+                .with(
+                    "buffer",
+                    VipsValue::Buffer(buffer),
+                ),
+        );
         utils::result(
             vips_op_response,
             out_out,
@@ -11047,6 +11318,29 @@ impl VipsImage {
                 Error::OperationError("PpmloadSource failed"),
             )
         }
+    }
+
+    /// Exactly as vips_ppmload(), but read from a source.
+    pub fn ppmload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
+        let mut out_out = VipsImage::from(null_mut());
+
+        let vips_op_response = call(
+            "ppmload_source",
+            option
+                .with(
+                    "out",
+                    VipsValue::MutImage(&mut out_out),
+                )
+                .with(
+                    "source",
+                    VipsValue::Source(source),
+                ),
+        );
+        utils::result(
+            vips_op_response,
+            out_out,
+            Error::OperationError("PpmloadSource failed"),
+        )
     }
 
     /// Write a VIPS image to a file as PPM.
@@ -11416,6 +11710,29 @@ impl VipsImage {
         }
     }
 
+    /// Read a Radiance (HDR) file into a VIPS image.
+    pub fn radload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
+        let mut out_out = VipsImage::from(null_mut());
+
+        let vips_op_response = call(
+            "radload",
+            option
+                .with(
+                    "out",
+                    VipsValue::MutImage(&mut out_out),
+                )
+                .with(
+                    "filename",
+                    VipsValue::Str(filename),
+                ),
+        );
+        utils::result(
+            vips_op_response,
+            out_out,
+            Error::OperationError("Radload failed"),
+        )
+    }
+
     /// Exactly as vips_radload(), but read from a HDR-formatted memory block.
     pub fn radload_buffer(buffer: &[u8]) -> Result<VipsImage> {
         unsafe {
@@ -11433,9 +11750,32 @@ impl VipsImage {
                 VipsImage {
                     ctx: out_out,
                 },
-                Error::OperationError("RadloadBuffer failed"),
+                Error::OperationError("radload_buffer failed"),
             )
         }
+    }
+
+    /// Exactly as vips_radload(), but read from a HDR-formatted memory block.
+    pub fn radload_buffer_with_opts(buffer: &[u8], option: VOption) -> Result<VipsImage> {
+        let mut out_out = VipsImage::from(null_mut());
+
+        let vips_op_response = call(
+            "radload_buffer",
+            option
+                .with(
+                    "out",
+                    VipsValue::MutImage(&mut out_out),
+                )
+                .with(
+                    "buffer",
+                    VipsValue::Buffer(buffer),
+                ),
+        );
+        utils::result(
+            vips_op_response,
+            out_out,
+            Error::OperationError("radload_buffer failed"),
+        )
     }
 
     /// Exactly as vips_radload(), but read from a source.
@@ -11459,6 +11799,29 @@ impl VipsImage {
         }
     }
 
+    /// Exactly as vips_radload(), but read from a source.
+    pub fn radload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
+        let mut out_out = VipsImage::from(null_mut());
+
+        let vips_op_response = call(
+            "radload_source",
+            option
+                .with(
+                    "out",
+                    VipsValue::MutImage(&mut out_out),
+                )
+                .with(
+                    "source",
+                    VipsValue::Source(source),
+                ),
+        );
+        utils::result(
+            vips_op_response,
+            out_out,
+            Error::OperationError("RadloadSource failed"),
+        )
+    }
+
     /// Write a VIPS image in Radiance (HDR) format.
     pub fn radsave(&self, filename: &str) -> Result<()> {
         unsafe {
@@ -11476,6 +11839,27 @@ impl VipsImage {
                 Error::OperationError("Radsave failed"),
             )
         }
+    }
+
+    /// Write a VIPS image in Radiance (HDR) format.
+    pub fn radsave_with_opts(&self, filename: &str, option: VOption) -> Result<()> {
+        let vips_op_response = call(
+            "radsave",
+            option
+                .with(
+                    "in",
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
+                )
+                .with(
+                    "filename",
+                    VipsValue::Str(filename),
+                ),
+        );
+        utils::result(
+            vips_op_response,
+            (),
+            Error::OperationError("Radsave failed"),
+        )
     }
 
     /// As vips_radsave(), but save to a memory buffer.
@@ -11502,6 +11886,29 @@ impl VipsImage {
         }
     }
 
+    /// As vips_radsave(), but save to a memory buffer.
+    pub fn radsave_buffer_with_opts(&self, option: VOption) -> Result<Vec<u8>> {
+        let mut blob = VipsBlob::from(null_mut());
+
+        let vips_op_response = call(
+            "radsave_buffer",
+            option
+                .with(
+                    "in",
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
+                )
+                .with(
+                    "buffer",
+                    VipsValue::MutBlob(&mut blob),
+                ),
+        );
+        utils::result(
+            vips_op_response,
+            blob.into(),
+            Error::OperationError("RadsaveBuffer failed"),
+        )
+    }
+
     /// As vips_radsave(), but save to a target.
     pub fn radsave_target(&self, target: &VipsTarget) -> Result<()> {
         unsafe {
@@ -11519,6 +11926,27 @@ impl VipsImage {
                 Error::OperationError("RadsaveTarget failed"),
             )
         }
+    }
+
+    /// As vips_radsave(), but save to a target.
+    pub fn radsave_target_with_opts(&self, target: &VipsTarget, option: VOption) -> Result<()> {
+        let vips_op_response = call(
+            "radsave_target",
+            option
+                .with(
+                    "in",
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
+                )
+                .with(
+                    "target",
+                    VipsValue::Target(target),
+                ),
+        );
+        utils::result(
+            vips_op_response,
+            (),
+            Error::OperationError("RadsaveTarget failed"),
+        )
     }
 
     /// Rank filter
@@ -11649,6 +12077,27 @@ impl VipsImage {
         }
     }
 
+    /// Writes the pixels in image to the file filename with no header or other metadata.
+    pub fn rawsave_with_opts(&self, filename: &str, option: VOption) -> Result<()> {
+        let vips_op_response = call(
+            "rawsave",
+            option
+                .with(
+                    "in",
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
+                )
+                .with(
+                    "filename",
+                    VipsValue::Str(filename),
+                ),
+        );
+        utils::result(
+            vips_op_response,
+            (),
+            Error::OperationError("Rawsave failed"),
+        )
+    }
+
     /// As vips_rawsave(), but save to a memory buffer.
     pub fn rawsave_buffer(&self) -> Result<Vec<u8>> {
         unsafe {
@@ -11673,6 +12122,29 @@ impl VipsImage {
         }
     }
 
+    /// As vips_rawsave(), but save to a memory buffer.
+    pub fn rawsave_buffer_with_opts(&self, option: VOption) -> Result<Vec<u8>> {
+        let mut blob = VipsBlob::from(null_mut());
+
+        let vips_op_response = call(
+            "rawsave_buffer",
+            option
+                .with(
+                    "in",
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
+                )
+                .with(
+                    "buffer",
+                    VipsValue::MutBlob(&mut blob),
+                ),
+        );
+        utils::result(
+            vips_op_response,
+            blob.into(),
+            Error::OperationError("RawsaveBuffer failed"),
+        )
+    }
+
     /// As vips_rawsave(), but save to a target.
     pub fn rawsave_target(&self, target: &VipsTarget) -> Result<()> {
         unsafe {
@@ -11690,6 +12162,27 @@ impl VipsImage {
                 Error::OperationError("RawsaveTarget failed"),
             )
         }
+    }
+
+    /// As vips_rawsave(), but save to a target.
+    pub fn rawsave_target_with_opts(&self, target: &VipsTarget, option: VOption) -> Result<()> {
+        let vips_op_response = call(
+            "rawsave_target",
+            option
+                .with(
+                    "in",
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
+                )
+                .with(
+                    "target",
+                    VipsValue::Target(target),
+                ),
+        );
+        utils::result(
+            vips_op_response,
+            (),
+            Error::OperationError("RawsaveTarget failed"),
+        )
     }
 
     /// Linear recombination with matrix
@@ -12990,7 +13483,7 @@ impl VipsImage {
                 VipsImage {
                     ctx: out_out,
                 },
-                Error::OperationError("Sine failed"),
+                Error::OperationError("Sines failed"),
             )
         }
     }
@@ -13027,7 +13520,7 @@ impl VipsImage {
         utils::result(
             vips_op_response,
             out_out,
-            Error::OperationError("sines_with_opts failed"),
+            Error::OperationError("Sines failed"),
         )
     }
 
@@ -13184,7 +13677,7 @@ impl VipsImage {
                 VipsImage {
                     ctx: out_out,
                 },
-                Error::OperationError("Stat failed"),
+                Error::OperationError("Stats failed"),
             )
         }
     }
@@ -13496,7 +13989,31 @@ impl VipsImage {
     }
 
     /// Exactly as vips_svgload(), but read from a source.
-    pub fn svgload_source(source: &VipsSource, option: VOption) -> Result<VipsImage> {
+    pub fn svgload_source(source: &VipsSource) -> Result<VipsImage> {
+        let mut out_out = VipsImage::from(null_mut());
+
+        let vips_op_response = call(
+            "svgload_source",
+            VOption::new()
+                .with(
+                    "out",
+                    VipsValue::MutImage(&mut out_out),
+                )
+                .with(
+                    "source",
+                    VipsValue::Source(source),
+                ),
+        );
+
+        utils::result(
+            vips_op_response,
+            out_out,
+            Error::OperationError("svgload_source failed"),
+        )
+    }
+
+    /// Exactly as vips_svgload(), but read from a source.
+    pub fn svgload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
 
         let vips_op_response = call(
@@ -14630,6 +15147,29 @@ impl VipsImage {
         }
     }
 
+    /// Read in a vips image.
+    pub fn vipsload_with_opts(filename: &str, option: VOption) -> Result<VipsImage> {
+        let mut out_out = VipsImage::from(null_mut());
+
+        let vips_op_response = call(
+            "vipsload",
+            option
+                .with(
+                    "out",
+                    VipsValue::MutImage(&mut out_out),
+                )
+                .with(
+                    "filename",
+                    VipsValue::Str(filename),
+                ),
+        );
+        utils::result(
+            vips_op_response,
+            out_out,
+            Error::OperationError("Vipsload failed"),
+        )
+    }
+
     /// Exactly as vips_vipsload(), but read from a source.
     pub fn vipsload_source(source: &VipsSource) -> Result<VipsImage> {
         unsafe {
@@ -14651,6 +15191,29 @@ impl VipsImage {
         }
     }
 
+    /// Exactly as vips_vipsload(), but read from a source.
+    pub fn vipsload_source_with_opts(source: &VipsSource, option: VOption) -> Result<VipsImage> {
+        let mut out_out = VipsImage::from(null_mut());
+
+        let vips_op_response = call(
+            "vipsload_source",
+            option
+                .with(
+                    "out",
+                    VipsValue::MutImage(&mut out_out),
+                )
+                .with(
+                    "source",
+                    VipsValue::Source(source),
+                ),
+        );
+        utils::result(
+            vips_op_response,
+            out_out,
+            Error::OperationError("VipsloadSource failed"),
+        )
+    }
+
     /// Write image to filename in VIPS format.
     pub fn vipssave(&self, filename: &str) -> Result<()> {
         unsafe {
@@ -14670,6 +15233,27 @@ impl VipsImage {
         }
     }
 
+    /// Write image to filename in VIPS format.
+    pub fn vipssave_with_opts(&self, filename: &str, option: VOption) -> Result<()> {
+        let vips_op_response = call(
+            "vipssave",
+            option
+                .with(
+                    "in",
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
+                )
+                .with(
+                    "filename",
+                    VipsValue::Str(filename),
+                ),
+        );
+        utils::result(
+            vips_op_response,
+            (),
+            Error::OperationError("Vipssave failed"),
+        )
+    }
+
     /// As vips_vipssave(), but save to a target.
     pub fn vipssave_target(&self, target: &VipsTarget) -> Result<()> {
         unsafe {
@@ -14687,6 +15271,27 @@ impl VipsImage {
                 Error::OperationError("VipssaveTarget failed"),
             )
         }
+    }
+
+    /// As vips_vipssave(), but save to a target.
+    pub fn vipssave_target_with_opts(&self, target: &VipsTarget, option: VOption) -> Result<()> {
+        let vips_op_response = call(
+            "vipssave_target",
+            option
+                .with(
+                    "in",
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
+                )
+                .with(
+                    "target",
+                    VipsValue::Target(target),
+                ),
+        );
+        utils::result(
+            vips_op_response,
+            (),
+            Error::OperationError("VipssaveTarget failed"),
+        )
     }
 
     /// Read a WebP file into a VIPS image.
