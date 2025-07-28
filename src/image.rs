@@ -904,6 +904,60 @@ impl VipsImage {
             ) == 1
         }
     }
+
+    pub fn minpos(&self) -> Result<(f64, f64)> {
+        let mut x: f64 = 0.0;
+        let mut y: f64 = 0.0;
+
+        let vips_op_response = call(
+            "min",
+            VOption::new()
+                .with(
+                    "in",
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
+                )
+                .with(
+                    "x",
+                    VipsValue::MutDouble(&mut x),
+                )
+                .with(
+                    "y",
+                    VipsValue::MutDouble(&mut y),
+                ),
+        );
+        utils::result(
+            vips_op_response,
+            (x, y),
+            Error::OperationError("minpos failed"),
+        )
+    }
+
+    pub fn maxpos(&self) -> Result<(f64, f64)> {
+        let mut x: f64 = 0.0;
+        let mut y: f64 = 0.0;
+
+        let vips_op_response = call(
+            "max",
+            VOption::new()
+                .with(
+                    "in",
+                    VipsValue::Image(&VipsImage::from(self.ctx)),
+                )
+                .with(
+                    "x",
+                    VipsValue::MutDouble(&mut x),
+                )
+                .with(
+                    "y",
+                    VipsValue::MutDouble(&mut y),
+                ),
+        );
+        utils::result(
+            vips_op_response,
+            (x, y),
+            Error::OperationError("maxpos failed"),
+        )
+    }
 }
 
 impl VipsConnection {
