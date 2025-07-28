@@ -100,6 +100,12 @@ impl<'a> V_Value<'a> for &'a String {
     }
 }
 
+impl<'a> V_Value<'a> for &'a [u8] {
+    fn value(self) -> VipsValue<'a> {
+        VipsValue::Buffer(self)
+    }
+}
+
 impl<'a> V_Value<'a> for &'a [i32] {
     fn value(self) -> VipsValue<'a> {
         VipsValue::IntArray(self)

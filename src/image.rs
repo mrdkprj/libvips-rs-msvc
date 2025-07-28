@@ -1,7 +1,7 @@
 use crate::{
     bindings,
     error::Error,
-    operations::*,
+    ops::*,
     utils::{self, ensure_null_terminated},
     voption::{call, VOption, VipsValue},
     Result,

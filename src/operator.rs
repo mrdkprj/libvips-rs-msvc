@@ -1,5 +1,5 @@
 use crate::{
-    operations::{OperationBoolean, OperationRelational},
+    ops::{OperationBoolean, OperationRelational},
     VipsImage,
 };
 use std::ops::{Add, BitAnd, BitOr, BitXor, Div, Mul, Rem, Shl, Shr, Sub};

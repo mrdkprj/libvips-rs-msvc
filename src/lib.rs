@@ -10,8 +10,9 @@ extern crate num_traits;
 pub mod bindings;
 pub mod error;
 mod image;
-pub mod operations;
+// pub mod operations;
 pub mod operator;
+pub mod ops;
 pub mod utils;
 pub mod voption;
 
