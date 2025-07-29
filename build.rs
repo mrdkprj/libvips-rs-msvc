@@ -2,18 +2,14 @@ fn main() {
     #[cfg(target_os = "windows")]
     {
         if let Ok(env_path) = std::env::var("PATH") {
-            let env_paths: Vec<&str> = env_path
+            env_path
                 .split(";")
-                .collect();
-            if let Some(lib) = env_paths
-                .iter()
-                .find(|env_path| env_path.ends_with("libvips"))
-            {
-                println!(
-                    "cargo:rustc-link-search=native={}",
-                    lib
-                );
-            }
+                .for_each(|path| {
+                    println!(
+                        "cargo:rustc-link-search=native={}",
+                        path
+                    );
+                });
         }
         println!("cargo:rustc-link-lib=dylib=libvips");
     }
