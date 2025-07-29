@@ -14,7 +14,7 @@ use std::ptr::null_mut;
 
 const NULL: *const c_void = null_mut();
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum Access {
     ///  `Random` -> VIPS_ACCESS_RANDOM = 0
     Random = 0,
@@ -26,7 +26,7 @@ pub enum Access {
     Last = 3,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum Align {
     ///  `Low` -> VIPS_ALIGN_LOW = 0
     Low = 0,
@@ -38,7 +38,7 @@ pub enum Align {
     Last = 3,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum Angle {
     ///  `D0` -> VIPS_ANGLE_D0 = 0
     D0 = 0,
@@ -52,7 +52,7 @@ pub enum Angle {
     Last = 4,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum Angle45 {
     ///  `D0` -> VIPS_ANGLE45_D0 = 0
     D0 = 0,
@@ -74,7 +74,7 @@ pub enum Angle45 {
     Last = 8,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum BandFormat {
     ///  `Notset` -> VIPS_FORMAT_NOTSET = -1
     Notset = -1,
@@ -102,7 +102,7 @@ pub enum BandFormat {
     Last = 10,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum BlendMode {
     ///  `Clear` -> VIPS_BLEND_MODE_CLEAR = 0
     Clear = 0,
@@ -158,7 +158,7 @@ pub enum BlendMode {
     Last = 25,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum Coding {
     ///  `Error` -> VIPS_CODING_ERROR = -1
     Error = -1,
@@ -172,7 +172,7 @@ pub enum Coding {
     Last = 7,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum Combine {
     ///  `Max` -> VIPS_COMBINE_MAX = 0
     Max = 0,
@@ -184,7 +184,7 @@ pub enum Combine {
     Last = 3,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum CombineMode {
     ///  `Set` -> VIPS_COMBINE_MODE_SET = 0
     Set = 0,
@@ -194,7 +194,7 @@ pub enum CombineMode {
     Last = 2,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum CompassDirection {
     ///  `Centre` -> VIPS_COMPASS_DIRECTION_CENTRE = 0
     Centre = 0,
@@ -218,7 +218,7 @@ pub enum CompassDirection {
     Last = 9,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum Direction {
     ///  `Horizontal` -> VIPS_DIRECTION_HORIZONTAL = 0
     Horizontal = 0,
@@ -228,7 +228,7 @@ pub enum Direction {
     Last = 2,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum Extend {
     ///  `Black` -> VIPS_EXTEND_BLACK = 0
     Black = 0,
@@ -246,7 +246,7 @@ pub enum Extend {
     Last = 6,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum FailOn {
     ///  `None` -> VIPS_FAIL_ON_NONE = 0
     None = 0,
@@ -260,10 +260,10 @@ pub enum FailOn {
     Last = 4,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum ForeignDzContainer {
-    ///  `F` -> VIPS_FOREIGN_DZ_CONTAINER_FS = 0
-    F = 0,
+    ///  `Fs` -> VIPS_FOREIGN_DZ_CONTAINER_FS = 0
+    Fs = 0,
     ///  `Zip` -> VIPS_FOREIGN_DZ_CONTAINER_ZIP = 1
     Zip = 1,
     ///  `Szi` -> VIPS_FOREIGN_DZ_CONTAINER_SZI = 2
@@ -272,7 +272,7 @@ pub enum ForeignDzContainer {
     Last = 3,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum ForeignDzDepth {
     ///  `Onepixel` -> VIPS_FOREIGN_DZ_DEPTH_ONEPIXEL = 0
     Onepixel = 0,
@@ -284,7 +284,7 @@ pub enum ForeignDzDepth {
     Last = 3,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum ForeignDzLayout {
     ///  `Dz` -> VIPS_FOREIGN_DZ_LAYOUT_DZ = 0
     Dz = 0,
@@ -300,7 +300,7 @@ pub enum ForeignDzLayout {
     Last = 5,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum ForeignFlags {
     ///  `None` -> VIPS_FOREIGN_NONE = 0
     None = 0,
@@ -314,7 +314,7 @@ pub enum ForeignFlags {
     All = 7,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum ForeignHeifCompression {
     ///  `Hevc` -> VIPS_FOREIGN_HEIF_COMPRESSION_HEVC = 1
     Hevc = 1,
@@ -328,7 +328,7 @@ pub enum ForeignHeifCompression {
     Last = 5,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum ForeignHeifEncoder {
     ///  `Auto` -> VIPS_FOREIGN_HEIF_ENCODER_AUTO = 0
     Auto = 0,
@@ -344,7 +344,7 @@ pub enum ForeignHeifEncoder {
     Last = 5,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum ForeignKeep {
     ///  `None` -> VIPS_FOREIGN_KEEP_NONE = 0
     None = 0,
@@ -362,7 +362,7 @@ pub enum ForeignKeep {
     All = 31,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum ForeignPngFilter {
     ///  `None` -> VIPS_FOREIGN_PNG_FILTER_NONE = 8
     None = 8,
@@ -378,7 +378,7 @@ pub enum ForeignPngFilter {
     All = 248,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum ForeignPpmFormat {
     ///  `Pbm` -> VIPS_FOREIGN_PPM_FORMAT_PBM = 0
     Pbm = 0,
@@ -394,7 +394,7 @@ pub enum ForeignPpmFormat {
     Last = 5,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum ForeignSubsample {
     ///  `Auto` -> VIPS_FOREIGN_SUBSAMPLE_AUTO = 0
     Auto = 0,
@@ -406,7 +406,7 @@ pub enum ForeignSubsample {
     Last = 3,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum ForeignTiffCompression {
     ///  `None` -> VIPS_FOREIGN_TIFF_COMPRESSION_NONE = 0
     None = 0,
@@ -414,8 +414,8 @@ pub enum ForeignTiffCompression {
     Jpeg = 1,
     ///  `Deflate` -> VIPS_FOREIGN_TIFF_COMPRESSION_DEFLATE = 2
     Deflate = 2,
-    ///  `Packbit` -> VIPS_FOREIGN_TIFF_COMPRESSION_PACKBITS = 3
-    Packbit = 3,
+    ///  `Packbits` -> VIPS_FOREIGN_TIFF_COMPRESSION_PACKBITS = 3
+    Packbits = 3,
     ///  `Ccittfax4` -> VIPS_FOREIGN_TIFF_COMPRESSION_CCITTFAX4 = 4
     Ccittfax4 = 4,
     ///  `Lzw` -> VIPS_FOREIGN_TIFF_COMPRESSION_LZW = 5
@@ -430,7 +430,7 @@ pub enum ForeignTiffCompression {
     Last = 9,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum ForeignTiffPredictor {
     ///  `None` -> VIPS_FOREIGN_TIFF_PREDICTOR_NONE = 1
     None = 1,
@@ -442,7 +442,7 @@ pub enum ForeignTiffPredictor {
     Last = 4,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum ForeignTiffResunit {
     ///  `Cm` -> VIPS_FOREIGN_TIFF_RESUNIT_CM = 0
     Cm = 0,
@@ -452,7 +452,7 @@ pub enum ForeignTiffResunit {
     Last = 2,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum ForeignWebpPreset {
     ///  `Default` -> VIPS_FOREIGN_WEBP_PRESET_DEFAULT = 0
     Default = 0,
@@ -470,7 +470,7 @@ pub enum ForeignWebpPreset {
     Last = 6,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum Intent {
     ///  `Perceptual` -> VIPS_INTENT_PERCEPTUAL = 0
     Perceptual = 0,
@@ -484,7 +484,7 @@ pub enum Intent {
     Last = 4,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum Interesting {
     ///  `None` -> VIPS_INTERESTING_NONE = 0
     None = 0,
@@ -504,7 +504,7 @@ pub enum Interesting {
     Last = 7,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum Interpretation {
     ///  `Error` -> VIPS_INTERPRETATION_ERROR = -1
     Error = -1,
@@ -528,7 +528,7 @@ pub enum Interpretation {
     Cmc = 18,
     ///  `Lch` -> VIPS_INTERPRETATION_LCH = 19
     Lch = 19,
-    ///  `Lab` -> VIPS_INTERPRETATION_LABS = 21
+    ///  `Labs` -> VIPS_INTERPRETATION_LABS = 21
     Labs = 21,
     ///  `Srgb` -> VIPS_INTERPRETATION_sRGB = 22
     Srgb = 22,
@@ -550,7 +550,7 @@ pub enum Interpretation {
     Last = 30,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum Kernel {
     ///  `Nearest` -> VIPS_KERNEL_NEAREST = 0
     Nearest = 0,
@@ -568,7 +568,7 @@ pub enum Kernel {
     Last = 6,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum OperationBoolean {
     ///  `And` -> VIPS_OPERATION_BOOLEAN_AND = 0
     And = 0,
@@ -584,7 +584,7 @@ pub enum OperationBoolean {
     Last = 5,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum OperationComplex {
     ///  `Polar` -> VIPS_OPERATION_COMPLEX_POLAR = 0
     Polar = 0,
@@ -596,7 +596,7 @@ pub enum OperationComplex {
     Last = 3,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum OperationComplex2 {
     ///  `CrossPhase` -> VIPS_OPERATION_COMPLEX2_CROSS_PHASE = 0
     CrossPhase = 0,
@@ -604,7 +604,7 @@ pub enum OperationComplex2 {
     Last = 1,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum OperationComplexget {
     ///  `Real` -> VIPS_OPERATION_COMPLEXGET_REAL = 0
     Real = 0,
@@ -614,18 +614,18 @@ pub enum OperationComplexget {
     Last = 2,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum OperationMath {
     ///  `Sin` -> VIPS_OPERATION_MATH_SIN = 0
     Sin = 0,
-    ///  `Co` -> VIPS_OPERATION_MATH_COS = 1
-    Co = 1,
+    ///  `Cos` -> VIPS_OPERATION_MATH_COS = 1
+    Cos = 1,
     ///  `Tan` -> VIPS_OPERATION_MATH_TAN = 2
     Tan = 2,
     ///  `Asin` -> VIPS_OPERATION_MATH_ASIN = 3
     Asin = 3,
-    ///  `Aco` -> VIPS_OPERATION_MATH_ACOS = 4
-    Aco = 4,
+    ///  `Acos` -> VIPS_OPERATION_MATH_ACOS = 4
+    Acos = 4,
     ///  `Atan` -> VIPS_OPERATION_MATH_ATAN = 5
     Atan = 5,
     ///  `Log` -> VIPS_OPERATION_MATH_LOG = 6
@@ -652,7 +652,7 @@ pub enum OperationMath {
     Last = 16,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum OperationMath2 {
     ///  `Pow` -> VIPS_OPERATION_MATH2_POW = 0
     Pow = 0,
@@ -664,7 +664,7 @@ pub enum OperationMath2 {
     Last = 3,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum OperationMorphology {
     ///  `Erode` -> VIPS_OPERATION_MORPHOLOGY_ERODE = 0
     Erode = 0,
@@ -674,7 +674,7 @@ pub enum OperationMorphology {
     Last = 2,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum OperationRelational {
     ///  `Equal` -> VIPS_OPERATION_RELATIONAL_EQUAL = 0
     Equal = 0,
@@ -692,7 +692,7 @@ pub enum OperationRelational {
     Last = 6,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum OperationRound {
     ///  `Rint` -> VIPS_OPERATION_ROUND_RINT = 0
     Rint = 0,
@@ -704,7 +704,7 @@ pub enum OperationRound {
     Last = 3,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum PCS {
     ///  `Lab` -> VIPS_PCS_LAB = 0
     Lab = 0,
@@ -714,7 +714,7 @@ pub enum PCS {
     Last = 2,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum Precision {
     ///  `Integer` -> VIPS_PRECISION_INTEGER = 0
     Integer = 0,
@@ -726,7 +726,7 @@ pub enum Precision {
     Last = 3,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum RegionShrink {
     ///  `Mean` -> VIPS_REGION_SHRINK_MEAN = 0
     Mean = 0,
@@ -744,7 +744,7 @@ pub enum RegionShrink {
     Last = 6,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum SdfShape {
     ///  `Circle` -> VIPS_SDF_SHAPE_CIRCLE = 0
     Circle = 0,
@@ -758,7 +758,7 @@ pub enum SdfShape {
     Last = 4,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum Size {
     ///  `Both` -> VIPS_SIZE_BOTH = 0
     Both = 0,
@@ -772,7 +772,7 @@ pub enum Size {
     Last = 4,
 }
 
-#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive)]
+#[derive(Copy, Clone, Debug, FromPrimitive, ToPrimitive, PartialEq, PartialOrd)]
 pub enum TextWrap {
     ///  `Word` -> VIPS_TEXT_WRAP_WORD = 0
     Word = 0,
@@ -805,9 +805,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Cmc2LCh (vips_CMC2LCh) failed"),
         )
     }
@@ -830,9 +828,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Cmyk2Xyz (vips_CMYK2XYZ) failed"),
         )
     }
@@ -855,9 +851,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Hsv2SRgb (vips_HSV2sRGB) failed"),
         )
     }
@@ -880,9 +874,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("LCh2Cmc (vips_LCh2CMC) failed"),
         )
     }
@@ -905,9 +897,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("LCh2Lab (vips_LCh2Lab) failed"),
         )
     }
@@ -930,9 +920,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Lab2LCh (vips_Lab2LCh) failed"),
         )
     }
@@ -955,9 +943,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Lab2LabQ (vips_Lab2LabQ) failed"),
         )
     }
@@ -980,10 +966,8 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
-            Error::OperationError("Lab2LabS (vips_Lab2LabS) failed"),
+            out_out,
+            Error::OperationError("Lab2LabSs (vips_Lab2LabS) failed"),
         )
     }
 
@@ -1005,9 +989,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Lab2Xyz (vips_Lab2XYZ) failed"),
         )
     }
@@ -1034,9 +1016,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Lab2Xyz (vips_Lab2XYZ) failed"),
         )
     }
@@ -1059,9 +1039,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("LabQ2Lab (vips_LabQ2Lab) failed"),
         )
     }
@@ -1084,10 +1062,8 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
-            Error::OperationError("LabQ2LabS (vips_LabQ2LabS) failed"),
+            out_out,
+            Error::OperationError("LabQ2LabSs (vips_LabQ2LabS) failed"),
         )
     }
 
@@ -1109,9 +1085,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("LabQ2SRgb (vips_LabQ2sRGB) failed"),
         )
     }
@@ -1134,9 +1108,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("LabS2Lab (vips_LabS2Lab) failed"),
         )
     }
@@ -1159,9 +1131,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("LabS2LabQ (vips_LabS2LabQ) failed"),
         )
     }
@@ -1184,9 +1154,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Xyz2Cmyk (vips_XYZ2CMYK) failed"),
         )
     }
@@ -1209,9 +1177,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Xyz2Lab (vips_XYZ2Lab) failed"),
         )
     }
@@ -1238,9 +1204,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Xyz2Lab (vips_XYZ2Lab) failed"),
         )
     }
@@ -1263,9 +1227,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Xyz2Yxy (vips_XYZ2Yxy) failed"),
         )
     }
@@ -1288,9 +1250,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Xyz2ScRgb (vips_XYZ2scRGB) failed"),
         )
     }
@@ -1313,9 +1273,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Yxy2Xyz (vips_Yxy2XYZ) failed"),
         )
     }
@@ -1338,10 +1296,8 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
-            Error::OperationError("Ab (vips_abs) failed"),
+            out_out,
+            Error::OperationError("Abs (vips_abs) failed"),
         )
     }
 
@@ -1369,9 +1325,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Add (vips_add) failed"),
         )
     }
@@ -1394,9 +1348,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Addalpha (vips_addalpha) failed"),
         )
     }
@@ -1404,14 +1356,8 @@ impl VipsImage {
     /// VipsAffine (affine), affine transform of an image
     /// returns `VipsImage` - Output image
     ///
-    /// a: `f64` -> Transformation Matrix coefficient
-    ///
-    /// b: `f64` -> Transformation Matrix coefficient
-    ///
-    /// c: `f64` -> Transformation Matrix coefficient
-    ///
-    /// d: `f64` -> Transformation Matrix coefficient
-    pub fn affine(&self, a: f64, b: f64, c: f64, d: f64) -> Result<VipsImage> {
+    /// matrix: `&[f64]` -> Transformation matrix
+    pub fn affine(&self, matrix: &[f64]) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
         let vips_op_response = call(
             "affine",
@@ -1425,27 +1371,13 @@ impl VipsImage {
                     v_value!(&mut out_out),
                 )
                 .with(
-                    "a",
-                    v_value!(a),
-                )
-                .with(
-                    "b",
-                    v_value!(b),
-                )
-                .with(
-                    "c",
-                    v_value!(c),
-                )
-                .with(
-                    "d",
-                    v_value!(d),
+                    "matrix",
+                    v_value!(matrix),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Affine (vips_affine) failed"),
         )
     }
@@ -1453,13 +1385,7 @@ impl VipsImage {
     /// VipsAffine (affine), affine transform of an image
     /// returns `VipsImage` - Output image
     ///
-    /// a: `f64` -> Transformation Matrix coefficient
-    ///
-    /// b: `f64` -> Transformation Matrix coefficient
-    ///
-    /// c: `f64` -> Transformation Matrix coefficient
-    ///
-    /// d: `f64` -> Transformation Matrix coefficient
+    /// matrix: `&[f64]` -> Transformation matrix
     ///
     /// <ins>Optional arguments</ins>
     ///
@@ -1480,14 +1406,7 @@ impl VipsImage {
     /// premultiplied: `bool` -> Images have premultiplied alpha
     ///
     /// extend: `Extend` -> How to generate the extra pixels
-    pub fn affine_with_opts(
-        &self,
-        a: f64,
-        b: f64,
-        c: f64,
-        d: f64,
-        option: VOption,
-    ) -> Result<VipsImage> {
+    pub fn affine_with_opts(&self, matrix: &[f64], option: VOption) -> Result<VipsImage> {
         let mut out_out = VipsImage::from(null_mut());
         let vips_op_response = call(
             "affine",
@@ -1501,27 +1420,13 @@ impl VipsImage {
                     v_value!(&mut out_out),
                 )
                 .with(
-                    "a",
-                    v_value!(a),
-                )
-                .with(
-                    "b",
-                    v_value!(b),
-                )
-                .with(
-                    "c",
-                    v_value!(c),
-                )
-                .with(
-                    "d",
-                    v_value!(d),
+                    "matrix",
+                    v_value!(matrix),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Affine (vips_affine) failed"),
         )
     }
@@ -1546,9 +1451,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Analyzeload (vips_analyzeload) failed"),
         )
     }
@@ -1585,9 +1488,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Analyzeload (vips_analyzeload) failed"),
         )
     }
@@ -1602,19 +1503,17 @@ impl VipsImage {
             "arrayjoin",
             VOption::new()
                 .with(
-                    "inp",
+                    "in",
                     v_value!(inp),
                 )
                 .with(
-                    "inp",
+                    "out",
                     v_value!(&mut out_out),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Arrayjoin (vips_arrayjoin) failed"),
         )
     }
@@ -1645,19 +1544,17 @@ impl VipsImage {
             "arrayjoin",
             option
                 .with(
-                    "inp",
+                    "in",
                     v_value!(inp),
                 )
                 .with(
-                    "inp",
+                    "out",
                     v_value!(&mut out_out),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Arrayjoin (vips_arrayjoin) failed"),
         )
     }
@@ -1680,9 +1577,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Autorot (vips_autorot) failed"),
         )
     }
@@ -1711,9 +1606,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Autorot (vips_autorot) failed"),
         )
     }
@@ -1765,9 +1658,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Bandbool (vips_bandbool) failed"),
         )
     }
@@ -1790,9 +1681,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Bandfold (vips_bandfold) failed"),
         )
     }
@@ -1819,9 +1708,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Bandfold (vips_bandfold) failed"),
         )
     }
@@ -1836,19 +1723,17 @@ impl VipsImage {
             "bandjoin",
             VOption::new()
                 .with(
-                    "inp",
+                    "in",
                     v_value!(inp),
                 )
                 .with(
-                    "inp",
+                    "out",
                     v_value!(&mut out_out),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Bandjoin (vips_bandjoin) failed"),
         )
     }
@@ -1877,9 +1762,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("BandjoinConst (vips_bandjoin_const) failed"),
         )
     }
@@ -1902,9 +1785,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Bandmean (vips_bandmean) failed"),
         )
     }
@@ -1919,19 +1800,17 @@ impl VipsImage {
             "bandrank",
             VOption::new()
                 .with(
-                    "inp",
+                    "in",
                     v_value!(inp),
                 )
                 .with(
-                    "inp",
+                    "out",
                     v_value!(&mut out_out),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Bandrank (vips_bandrank) failed"),
         )
     }
@@ -1950,19 +1829,17 @@ impl VipsImage {
             "bandrank",
             option
                 .with(
-                    "inp",
+                    "in",
                     v_value!(inp),
                 )
                 .with(
-                    "inp",
+                    "out",
                     v_value!(&mut out_out),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Bandrank (vips_bandrank) failed"),
         )
     }
@@ -1985,9 +1862,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Bandunfold (vips_bandunfold) failed"),
         )
     }
@@ -2014,9 +1889,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Bandunfold (vips_bandunfold) failed"),
         )
     }
@@ -2047,9 +1920,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Black (vips_black) failed"),
         )
     }
@@ -2084,9 +1955,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Black (vips_black) failed"),
         )
     }
@@ -2121,9 +1990,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Boolean (vips_boolean) failed"),
         )
     }
@@ -2158,9 +2025,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("BooleanConst (vips_boolean_const) failed"),
         )
     }
@@ -2183,9 +2048,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Buildlut (vips_buildlut) failed"),
         )
     }
@@ -2208,9 +2071,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Byteswap (vips_byteswap) failed"),
         )
     }
@@ -2233,9 +2094,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Canny (vips_canny) failed"),
         )
     }
@@ -2264,9 +2123,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Canny (vips_canny) failed"),
         )
     }
@@ -2295,9 +2152,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Case (vips_case) failed"),
         )
     }
@@ -2326,9 +2181,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Cast (vips_cast) failed"),
         )
     }
@@ -2361,9 +2214,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Cast (vips_cast) failed"),
         )
     }
@@ -2386,9 +2237,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Clamp (vips_clamp) failed"),
         )
     }
@@ -2417,9 +2266,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Clamp (vips_clamp) failed"),
         )
     }
@@ -2448,9 +2295,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Colourspace (vips_colourspace) failed"),
         )
     }
@@ -2487,9 +2332,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Colourspace (vips_colourspace) failed"),
         )
     }
@@ -2518,9 +2361,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Compass (vips_compass) failed"),
         )
     }
@@ -2563,9 +2404,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Compass (vips_compass) failed"),
         )
     }
@@ -2600,9 +2439,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Complex2 (vips_complex2) failed"),
         )
     }
@@ -2631,9 +2468,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Complex (vips_complex) failed"),
         )
     }
@@ -2662,9 +2497,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Complexform (vips_complexform) failed"),
         )
     }
@@ -2693,9 +2526,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Complexget (vips_complexget) failed"),
         )
     }
@@ -2730,9 +2561,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Composite2 (vips_composite2) failed"),
         )
     }
@@ -2782,9 +2611,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Composite2 (vips_composite2) failed"),
         )
     }
@@ -2801,11 +2628,11 @@ impl VipsImage {
             "composite",
             VOption::new()
                 .with(
-                    "inp",
+                    "in",
                     v_value!(inp),
                 )
                 .with(
-                    "inp",
+                    "out",
                     v_value!(&mut out_out),
                 )
                 .with(
@@ -2815,9 +2642,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Composite (vips_composite) failed"),
         )
     }
@@ -2848,11 +2673,11 @@ impl VipsImage {
             "composite",
             option
                 .with(
-                    "inp",
+                    "in",
                     v_value!(inp),
                 )
                 .with(
-                    "inp",
+                    "out",
                     v_value!(&mut out_out),
                 )
                 .with(
@@ -2862,9 +2687,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Composite (vips_composite) failed"),
         )
     }
@@ -2893,9 +2716,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Conv (vips_conv) failed"),
         )
     }
@@ -2932,9 +2753,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Conv (vips_conv) failed"),
         )
     }
@@ -2963,9 +2782,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Conva (vips_conva) failed"),
         )
     }
@@ -3000,9 +2817,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Conva (vips_conva) failed"),
         )
     }
@@ -3031,9 +2846,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Convasep (vips_convasep) failed"),
         )
     }
@@ -3066,9 +2879,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Convasep (vips_convasep) failed"),
         )
     }
@@ -3097,9 +2908,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Convf (vips_convf) failed"),
         )
     }
@@ -3128,9 +2937,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Convi (vips_convi) failed"),
         )
     }
@@ -3159,9 +2966,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Convsep (vips_convsep) failed"),
         )
     }
@@ -3198,9 +3003,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Convsep (vips_convsep) failed"),
         )
     }
@@ -3223,9 +3026,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Copy (vips_copy) failed"),
         )
     }
@@ -3270,9 +3071,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Copy (vips_copy) failed"),
         )
     }
@@ -3302,7 +3101,7 @@ impl VipsImage {
         utils::result(
             vips_op_response,
             nolines_out,
-            Error::OperationError("Countline (vips_countlines) failed"),
+            Error::OperationError("Countlines (vips_countlines) failed"),
         )
     }
 
@@ -3326,9 +3125,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Csvload (vips_csvload) failed"),
         )
     }
@@ -3373,9 +3170,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Csvload (vips_csvload) failed"),
         )
     }
@@ -3400,9 +3195,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("CsvloadSource (vips_csvload_source) failed"),
         )
     }
@@ -3447,9 +3240,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("CsvloadSource (vips_csvload_source) failed"),
         )
     }
@@ -3594,9 +3385,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("DE00 (vips_dE00) failed"),
         )
     }
@@ -3625,9 +3414,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("DE76 (vips_dE76) failed"),
         )
     }
@@ -3656,9 +3443,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("DEcmc (vips_dECMC) failed"),
         )
     }
@@ -3710,9 +3495,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Divide (vips_divide) failed"),
         )
     }
@@ -4318,10 +4101,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out.ctx,
-            }
-            .into(),
+            buffer_out.into(),
             Error::OperationError("DzsaveBuffer (vips_dzsave_buffer) failed"),
         )
     }
@@ -4382,10 +4162,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out.ctx,
-            }
-            .into(),
+            buffer_out.into(),
             Error::OperationError("DzsaveBuffer (vips_dzsave_buffer) failed"),
         )
     }
@@ -4516,9 +4293,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Embed (vips_embed) failed"),
         )
     }
@@ -4578,9 +4353,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Embed (vips_embed) failed"),
         )
     }
@@ -4627,9 +4400,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("ExtractArea (vips_extract_area) failed"),
         )
     }
@@ -4676,9 +4447,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Crop (vips_crop) failed"),
         )
     }
@@ -4707,9 +4476,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("ExtractBand (vips_extract_band) failed"),
         )
     }
@@ -4742,9 +4509,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("ExtractBand (vips_extract_band) failed"),
         )
     }
@@ -4775,9 +4540,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Eye (vips_eye) failed"),
         )
     }
@@ -4814,9 +4577,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Eye (vips_eye) failed"),
         )
     }
@@ -4839,9 +4600,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Falsecolour (vips_falsecolour) failed"),
         )
     }
@@ -4860,7 +4619,7 @@ impl VipsImage {
                     v_value!(&VipsImage::from(self.ctx)),
                 )
                 .with(
-                    "refp",
+                    "ref",
                     v_value!(refp),
                 )
                 .with(
@@ -4870,9 +4629,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Fastcor (vips_fastcor) failed"),
         )
     }
@@ -4895,9 +4652,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("FillNearest (vips_fill_nearest) failed"),
         )
     }
@@ -4924,9 +4679,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("FillNearest (vips_fill_nearest) failed"),
         )
     }
@@ -5070,9 +4823,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Fitsload (vips_fitsload) failed"),
         )
     }
@@ -5109,9 +4860,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Fitsload (vips_fitsload) failed"),
         )
     }
@@ -5136,9 +4885,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("FitsloadSource (vips_fitsload_source) failed"),
         )
     }
@@ -5175,9 +4922,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("FitsloadSource (vips_fitsload_source) failed"),
         )
     }
@@ -5256,9 +5001,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Flatten (vips_flatten) failed"),
         )
     }
@@ -5287,9 +5030,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Flatten (vips_flatten) failed"),
         )
     }
@@ -5318,9 +5059,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Flip (vips_flip) failed"),
         )
     }
@@ -5343,9 +5082,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Float2Rad (vips_float2rad) failed"),
         )
     }
@@ -5376,15 +5113,13 @@ impl VipsImage {
                     v_value!(height),
                 )
                 .with(
-                    "fractal_dimension",
+                    "fractal-dimension",
                     v_value!(fractal_dimension),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Fractsurf (vips_fractsurf) failed"),
         )
     }
@@ -5413,9 +5148,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Freqmult (vips_freqmult) failed"),
         )
     }
@@ -5438,9 +5171,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Fwfft (vips_fwfft) failed"),
         )
     }
@@ -5463,9 +5194,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Gamma (vips_gamma) failed"),
         )
     }
@@ -5492,9 +5221,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Gamma (vips_gamma) failed"),
         )
     }
@@ -5523,9 +5250,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Gaussblur (vips_gaussblur) failed"),
         )
     }
@@ -5560,9 +5285,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Gaussblur (vips_gaussblur) failed"),
         )
     }
@@ -5587,15 +5310,13 @@ impl VipsImage {
                     v_value!(sigma),
                 )
                 .with(
-                    "min_ampl",
+                    "min-ampl",
                     v_value!(min_ampl),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Gaussmat (vips_gaussmat) failed"),
         )
     }
@@ -5626,15 +5347,13 @@ impl VipsImage {
                     v_value!(sigma),
                 )
                 .with(
-                    "min_ampl",
+                    "min-ampl",
                     v_value!(min_ampl),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Gaussmat (vips_gaussmat) failed"),
         )
     }
@@ -5665,9 +5384,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Gaussnoise (vips_gaussnoise) failed"),
         )
     }
@@ -5706,9 +5423,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Gaussnoise (vips_gaussnoise) failed"),
         )
     }
@@ -5729,7 +5444,7 @@ impl VipsImage {
                     v_value!(&VipsImage::from(self.ctx)),
                 )
                 .with(
-                    "out_array",
+                    "out-array",
                     v_value!(&mut out_array_out),
                 )
                 .with(
@@ -5768,7 +5483,7 @@ impl VipsImage {
                     v_value!(&VipsImage::from(self.ctx)),
                 )
                 .with(
-                    "out_array",
+                    "out-array",
                     v_value!(&mut out_array_out),
                 )
                 .with(
@@ -5807,9 +5522,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Gifload (vips_gifload) failed"),
         )
     }
@@ -5850,9 +5563,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Gifload (vips_gifload) failed"),
         )
     }
@@ -5877,9 +5588,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("GifloadBuffer (vips_gifload_buffer) failed"),
         )
     }
@@ -5920,9 +5629,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("GifloadBuffer (vips_gifload_buffer) failed"),
         )
     }
@@ -5947,9 +5654,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("GifloadSource (vips_gifload_source) failed"),
         )
     }
@@ -5990,9 +5695,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("GifloadSource (vips_gifload_source) failed"),
         )
     }
@@ -6085,10 +5788,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out.ctx,
-            }
-            .into(),
+            buffer_out.into(),
             Error::OperationError("GifsaveBuffer (vips_gifsave_buffer) failed"),
         )
     }
@@ -6135,10 +5835,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out.ctx,
-            }
-            .into(),
+            buffer_out.into(),
             Error::OperationError("GifsaveBuffer (vips_gifsave_buffer) failed"),
         )
     }
@@ -6231,9 +5928,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Globalbalance (vips_globalbalance) failed"),
         )
     }
@@ -6262,9 +5957,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Globalbalance (vips_globalbalance) failed"),
         )
     }
@@ -6310,9 +6003,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Gravity (vips_gravity) failed"),
         )
     }
@@ -6365,9 +6056,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Gravity (vips_gravity) failed"),
         )
     }
@@ -6398,9 +6087,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Grey (vips_grey) failed"),
         )
     }
@@ -6435,9 +6122,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Grey (vips_grey) failed"),
         )
     }
@@ -6464,7 +6149,7 @@ impl VipsImage {
                     v_value!(&mut out_out),
                 )
                 .with(
-                    "tile_height",
+                    "tile-height",
                     v_value!(tile_height),
                 )
                 .with(
@@ -6478,9 +6163,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Grid (vips_grid) failed"),
         )
     }
@@ -6505,9 +6188,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Heifload (vips_heifload) failed"),
         )
     }
@@ -6552,9 +6233,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Heifload (vips_heifload) failed"),
         )
     }
@@ -6579,9 +6258,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("HeifloadBuffer (vips_heifload_buffer) failed"),
         )
     }
@@ -6626,9 +6303,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("HeifloadBuffer (vips_heifload_buffer) failed"),
         )
     }
@@ -6653,9 +6328,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("HeifloadSource (vips_heifload_source) failed"),
         )
     }
@@ -6700,9 +6373,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("HeifloadSource (vips_heifload_source) failed"),
         )
     }
@@ -6795,10 +6466,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out.ctx,
-            }
-            .into(),
+            buffer_out.into(),
             Error::OperationError("HeifsaveBuffer (vips_heifsave_buffer) failed"),
         )
     }
@@ -6845,10 +6513,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out.ctx,
-            }
-            .into(),
+            buffer_out.into(),
             Error::OperationError("HeifsaveBuffer (vips_heifsave_buffer) failed"),
         )
     }
@@ -6941,9 +6606,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("HistCum (vips_hist_cum) failed"),
         )
     }
@@ -6989,9 +6652,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("HistEqual (vips_hist_equal) failed"),
         )
     }
@@ -7018,9 +6679,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("HistEqual (vips_hist_equal) failed"),
         )
     }
@@ -7043,9 +6702,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("HistFind (vips_hist_find) failed"),
         )
     }
@@ -7072,9 +6729,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("HistFind (vips_hist_find) failed"),
         )
     }
@@ -7103,9 +6758,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("HistFindIndexed (vips_hist_find_indexed) failed"),
         )
     }
@@ -7142,9 +6795,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("HistFindIndexed (vips_hist_find_indexed) failed"),
         )
     }
@@ -7167,9 +6818,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("HistFindNdim (vips_hist_find_ndim) failed"),
         )
     }
@@ -7196,9 +6845,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("HistFindNdim (vips_hist_find_ndim) failed"),
         )
     }
@@ -7256,9 +6903,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("HistLocal (vips_hist_local) failed"),
         )
     }
@@ -7302,9 +6947,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("HistLocal (vips_hist_local) failed"),
         )
     }
@@ -7323,7 +6966,7 @@ impl VipsImage {
                     v_value!(&VipsImage::from(self.ctx)),
                 )
                 .with(
-                    "refp",
+                    "ref",
                     v_value!(refp),
                 )
                 .with(
@@ -7333,9 +6976,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("HistMatch (vips_hist_match) failed"),
         )
     }
@@ -7358,9 +6999,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("HistNorm (vips_hist_norm) failed"),
         )
     }
@@ -7383,9 +7022,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("HistPlot (vips_hist_plot) failed"),
         )
     }
@@ -7408,9 +7045,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("HoughCircle (vips_hough_circle) failed"),
         )
     }
@@ -7441,9 +7076,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("HoughCircle (vips_hough_circle) failed"),
         )
     }
@@ -7466,9 +7099,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("HoughLine (vips_hough_line) failed"),
         )
     }
@@ -7497,9 +7128,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("HoughLine (vips_hough_line) failed"),
         )
     }
@@ -7522,9 +7151,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("IccExport (vips_icc_export) failed"),
         )
     }
@@ -7559,9 +7186,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("IccExport (vips_icc_export) failed"),
         )
     }
@@ -7584,9 +7209,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("IccImport (vips_icc_import) failed"),
         )
     }
@@ -7621,9 +7244,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("IccImport (vips_icc_import) failed"),
         )
     }
@@ -7646,15 +7267,13 @@ impl VipsImage {
                     v_value!(&mut out_out),
                 )
                 .with(
-                    "output_profile",
+                    "output-profile",
                     v_value!(output_profile),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("IccTransform (vips_icc_transform) failed"),
         )
     }
@@ -7695,15 +7314,13 @@ impl VipsImage {
                     v_value!(&mut out_out),
                 )
                 .with(
-                    "output_profile",
+                    "output-profile",
                     v_value!(output_profile),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("IccTransform (vips_icc_transform) failed"),
         )
     }
@@ -7721,9 +7338,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Identity (vips_identity) failed"),
         )
     }
@@ -7749,9 +7364,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Identity (vips_identity) failed"),
         )
     }
@@ -7786,9 +7399,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Ifthenelse (vips_ifthenelse) failed"),
         )
     }
@@ -7832,9 +7443,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Ifthenelse (vips_ifthenelse) failed"),
         )
     }
@@ -7875,9 +7484,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Insert (vips_insert) failed"),
         )
     }
@@ -7930,9 +7537,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Insert (vips_insert) failed"),
         )
     }
@@ -7955,9 +7560,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Invert (vips_invert) failed"),
         )
     }
@@ -7980,9 +7583,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Invertlut (vips_invertlut) failed"),
         )
     }
@@ -8009,9 +7610,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Invertlut (vips_invertlut) failed"),
         )
     }
@@ -8034,9 +7633,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Invfft (vips_invfft) failed"),
         )
     }
@@ -8063,9 +7660,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Invfft (vips_invfft) failed"),
         )
     }
@@ -8100,9 +7695,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Join (vips_join) failed"),
         )
     }
@@ -8152,9 +7745,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Join (vips_join) failed"),
         )
     }
@@ -8179,9 +7770,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Jp2Kload (vips_jp2kload) failed"),
         )
     }
@@ -8220,9 +7809,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Jp2Kload (vips_jp2kload) failed"),
         )
     }
@@ -8247,9 +7834,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Jp2KloadBuffer (vips_jp2kload_buffer) failed"),
         )
     }
@@ -8288,9 +7873,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Jp2KloadBuffer (vips_jp2kload_buffer) failed"),
         )
     }
@@ -8315,9 +7898,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Jp2KloadSource (vips_jp2kload_source) failed"),
         )
     }
@@ -8356,9 +7937,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Jp2KloadSource (vips_jp2kload_source) failed"),
         )
     }
@@ -8447,10 +8026,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out.ctx,
-            }
-            .into(),
+            buffer_out.into(),
             Error::OperationError("Jp2KsaveBuffer (vips_jp2ksave_buffer) failed"),
         )
     }
@@ -8493,10 +8069,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out.ctx,
-            }
-            .into(),
+            buffer_out.into(),
             Error::OperationError("Jp2KsaveBuffer (vips_jp2ksave_buffer) failed"),
         )
     }
@@ -8587,9 +8160,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Jpegload (vips_jpegload) failed"),
         )
     }
@@ -8632,9 +8203,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Jpegload (vips_jpegload) failed"),
         )
     }
@@ -8659,9 +8228,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("JpegloadBuffer (vips_jpegload_buffer) failed"),
         )
     }
@@ -8704,9 +8271,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("JpegloadBuffer (vips_jpegload_buffer) failed"),
         )
     }
@@ -8731,9 +8296,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("JpegloadSource (vips_jpegload_source) failed"),
         )
     }
@@ -8776,9 +8339,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("JpegloadSource (vips_jpegload_source) failed"),
         )
     }
@@ -8875,10 +8436,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out.ctx,
-            }
-            .into(),
+            buffer_out.into(),
             Error::OperationError("JpegsaveBuffer (vips_jpegsave_buffer) failed"),
         )
     }
@@ -8929,10 +8487,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out.ctx,
-            }
-            .into(),
+            buffer_out.into(),
             Error::OperationError("JpegsaveBuffer (vips_jpegsave_buffer) failed"),
         )
     }
@@ -9091,9 +8646,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Jxlload (vips_jxlload) failed"),
         )
     }
@@ -9134,9 +8687,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Jxlload (vips_jxlload) failed"),
         )
     }
@@ -9161,9 +8712,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("JxlloadBuffer (vips_jxlload_buffer) failed"),
         )
     }
@@ -9204,9 +8753,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("JxlloadBuffer (vips_jxlload_buffer) failed"),
         )
     }
@@ -9231,9 +8778,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("JxlloadSource (vips_jxlload_source) failed"),
         )
     }
@@ -9274,9 +8819,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("JxlloadSource (vips_jxlload_source) failed"),
         )
     }
@@ -9365,10 +8908,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out.ctx,
-            }
-            .into(),
+            buffer_out.into(),
             Error::OperationError("JxlsaveBuffer (vips_jxlsave_buffer) failed"),
         )
     }
@@ -9411,10 +8951,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out.ctx,
-            }
-            .into(),
+            buffer_out.into(),
             Error::OperationError("JxlsaveBuffer (vips_jxlsave_buffer) failed"),
         )
     }
@@ -9503,10 +9040,8 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: mask_out.ctx,
-            },
-            Error::OperationError("Labelregion (vips_labelregions) failed"),
+            mask_out,
+            Error::OperationError("Labelregions (vips_labelregions) failed"),
         )
     }
 
@@ -9532,10 +9067,8 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: mask_out.ctx,
-            },
-            Error::OperationError("Labelregion (vips_labelregions) failed"),
+            mask_out,
+            Error::OperationError("Labelregions (vips_labelregions) failed"),
         )
     }
 
@@ -9569,9 +9102,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Linear (vips_linear) failed"),
         )
     }
@@ -9610,9 +9141,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Linear (vips_linear) failed"),
         )
     }
@@ -9635,9 +9164,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Linecache (vips_linecache) failed"),
         )
     }
@@ -9670,9 +9197,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Linecache (vips_linecache) failed"),
         )
     }
@@ -9697,15 +9222,13 @@ impl VipsImage {
                     v_value!(sigma),
                 )
                 .with(
-                    "min_ampl",
+                    "min-ampl",
                     v_value!(min_ampl),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Logmat (vips_logmat) failed"),
         )
     }
@@ -9736,15 +9259,13 @@ impl VipsImage {
                     v_value!(sigma),
                 )
                 .with(
-                    "min_ampl",
+                    "min-ampl",
                     v_value!(min_ampl),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Logmat (vips_logmat) failed"),
         )
     }
@@ -9769,9 +9290,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Magickload (vips_magickload) failed"),
         )
     }
@@ -9814,9 +9333,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Magickload (vips_magickload) failed"),
         )
     }
@@ -9841,9 +9358,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("MagickloadBuffer (vips_magickload_buffer) failed"),
         )
     }
@@ -9886,9 +9401,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("MagickloadBuffer (vips_magickload_buffer) failed"),
         )
     }
@@ -9977,10 +9490,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out.ctx,
-            }
-            .into(),
+            buffer_out.into(),
             Error::OperationError("MagicksaveBuffer (vips_magicksave_buffer) failed"),
         )
     }
@@ -10023,10 +9533,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out.ctx,
-            }
-            .into(),
+            buffer_out.into(),
             Error::OperationError("MagicksaveBuffer (vips_magicksave_buffer) failed"),
         )
     }
@@ -10055,9 +9562,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Mapim (vips_mapim) failed"),
         )
     }
@@ -10096,9 +9601,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Mapim (vips_mapim) failed"),
         )
     }
@@ -10127,9 +9630,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Maplut (vips_maplut) failed"),
         )
     }
@@ -10162,9 +9663,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Maplut (vips_maplut) failed"),
         )
     }
@@ -10209,19 +9708,17 @@ impl VipsImage {
                     v_value!(order),
                 )
                 .with(
-                    "frequency_cutoff",
+                    "frequency-cutoff",
                     v_value!(frequency_cutoff),
                 )
                 .with(
-                    "amplitude_cutoff",
+                    "amplitude-cutoff",
                     v_value!(amplitude_cutoff),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("MaskButterworth (vips_mask_butterworth) failed"),
         )
     }
@@ -10277,19 +9774,17 @@ impl VipsImage {
                     v_value!(order),
                 )
                 .with(
-                    "frequency_cutoff",
+                    "frequency-cutoff",
                     v_value!(frequency_cutoff),
                 )
                 .with(
-                    "amplitude_cutoff",
+                    "amplitude-cutoff",
                     v_value!(amplitude_cutoff),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("MaskButterworth (vips_mask_butterworth) failed"),
         )
     }
@@ -10340,11 +9835,11 @@ impl VipsImage {
                     v_value!(order),
                 )
                 .with(
-                    "frequency_cutoff_x",
+                    "frequency-cutoff-x",
                     v_value!(frequency_cutoff_x),
                 )
                 .with(
-                    "frequency_cutoff_y",
+                    "frequency-cutoff-y",
                     v_value!(frequency_cutoff_y),
                 )
                 .with(
@@ -10352,15 +9847,13 @@ impl VipsImage {
                     v_value!(radius),
                 )
                 .with(
-                    "amplitude_cutoff",
+                    "amplitude-cutoff",
                     v_value!(amplitude_cutoff),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("MaskButterworthBand (vips_mask_butterworth_band) failed"),
         )
     }
@@ -10422,11 +9915,11 @@ impl VipsImage {
                     v_value!(order),
                 )
                 .with(
-                    "frequency_cutoff_x",
+                    "frequency-cutoff-x",
                     v_value!(frequency_cutoff_x),
                 )
                 .with(
-                    "frequency_cutoff_y",
+                    "frequency-cutoff-y",
                     v_value!(frequency_cutoff_y),
                 )
                 .with(
@@ -10434,15 +9927,13 @@ impl VipsImage {
                     v_value!(radius),
                 )
                 .with(
-                    "amplitude_cutoff",
+                    "amplitude-cutoff",
                     v_value!(amplitude_cutoff),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("MaskButterworthBand (vips_mask_butterworth_band) failed"),
         )
     }
@@ -10490,11 +9981,11 @@ impl VipsImage {
                     v_value!(order),
                 )
                 .with(
-                    "frequency_cutoff",
+                    "frequency-cutoff",
                     v_value!(frequency_cutoff),
                 )
                 .with(
-                    "amplitude_cutoff",
+                    "amplitude-cutoff",
                     v_value!(amplitude_cutoff),
                 )
                 .with(
@@ -10504,9 +9995,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("MaskButterworthRing (vips_mask_butterworth_ring) failed"),
         )
     }
@@ -10565,11 +10054,11 @@ impl VipsImage {
                     v_value!(order),
                 )
                 .with(
-                    "frequency_cutoff",
+                    "frequency-cutoff",
                     v_value!(frequency_cutoff),
                 )
                 .with(
-                    "amplitude_cutoff",
+                    "amplitude-cutoff",
                     v_value!(amplitude_cutoff),
                 )
                 .with(
@@ -10579,9 +10068,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("MaskButterworthRing (vips_mask_butterworth_ring) failed"),
         )
     }
@@ -10612,15 +10099,13 @@ impl VipsImage {
                     v_value!(height),
                 )
                 .with(
-                    "fractal_dimension",
+                    "fractal-dimension",
                     v_value!(fractal_dimension),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("MaskFractal (vips_mask_fractal) failed"),
         )
     }
@@ -10666,15 +10151,13 @@ impl VipsImage {
                     v_value!(height),
                 )
                 .with(
-                    "fractal_dimension",
+                    "fractal-dimension",
                     v_value!(fractal_dimension),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("MaskFractal (vips_mask_fractal) failed"),
         )
     }
@@ -10712,19 +10195,17 @@ impl VipsImage {
                     v_value!(height),
                 )
                 .with(
-                    "frequency_cutoff",
+                    "frequency-cutoff",
                     v_value!(frequency_cutoff),
                 )
                 .with(
-                    "amplitude_cutoff",
+                    "amplitude-cutoff",
                     v_value!(amplitude_cutoff),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("MaskGaussian (vips_mask_gaussian) failed"),
         )
     }
@@ -10773,19 +10254,17 @@ impl VipsImage {
                     v_value!(height),
                 )
                 .with(
-                    "frequency_cutoff",
+                    "frequency-cutoff",
                     v_value!(frequency_cutoff),
                 )
                 .with(
-                    "amplitude_cutoff",
+                    "amplitude-cutoff",
                     v_value!(amplitude_cutoff),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("MaskGaussian (vips_mask_gaussian) failed"),
         )
     }
@@ -10829,11 +10308,11 @@ impl VipsImage {
                     v_value!(height),
                 )
                 .with(
-                    "frequency_cutoff_x",
+                    "frequency-cutoff-x",
                     v_value!(frequency_cutoff_x),
                 )
                 .with(
-                    "frequency_cutoff_y",
+                    "frequency-cutoff-y",
                     v_value!(frequency_cutoff_y),
                 )
                 .with(
@@ -10841,15 +10320,13 @@ impl VipsImage {
                     v_value!(radius),
                 )
                 .with(
-                    "amplitude_cutoff",
+                    "amplitude-cutoff",
                     v_value!(amplitude_cutoff),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("MaskGaussianBand (vips_mask_gaussian_band) failed"),
         )
     }
@@ -10904,11 +10381,11 @@ impl VipsImage {
                     v_value!(height),
                 )
                 .with(
-                    "frequency_cutoff_x",
+                    "frequency-cutoff-x",
                     v_value!(frequency_cutoff_x),
                 )
                 .with(
-                    "frequency_cutoff_y",
+                    "frequency-cutoff-y",
                     v_value!(frequency_cutoff_y),
                 )
                 .with(
@@ -10916,15 +10393,13 @@ impl VipsImage {
                     v_value!(radius),
                 )
                 .with(
-                    "amplitude_cutoff",
+                    "amplitude-cutoff",
                     v_value!(amplitude_cutoff),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("MaskGaussianBand (vips_mask_gaussian_band) failed"),
         )
     }
@@ -10965,11 +10440,11 @@ impl VipsImage {
                     v_value!(height),
                 )
                 .with(
-                    "frequency_cutoff",
+                    "frequency-cutoff",
                     v_value!(frequency_cutoff),
                 )
                 .with(
-                    "amplitude_cutoff",
+                    "amplitude-cutoff",
                     v_value!(amplitude_cutoff),
                 )
                 .with(
@@ -10979,9 +10454,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("MaskGaussianRing (vips_mask_gaussian_ring) failed"),
         )
     }
@@ -11033,11 +10506,11 @@ impl VipsImage {
                     v_value!(height),
                 )
                 .with(
-                    "frequency_cutoff",
+                    "frequency-cutoff",
                     v_value!(frequency_cutoff),
                 )
                 .with(
-                    "amplitude_cutoff",
+                    "amplitude-cutoff",
                     v_value!(amplitude_cutoff),
                 )
                 .with(
@@ -11047,9 +10520,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("MaskGaussianRing (vips_mask_gaussian_ring) failed"),
         )
     }
@@ -11080,15 +10551,13 @@ impl VipsImage {
                     v_value!(height),
                 )
                 .with(
-                    "frequency_cutoff",
+                    "frequency-cutoff",
                     v_value!(frequency_cutoff),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("MaskIdeal (vips_mask_ideal) failed"),
         )
     }
@@ -11134,15 +10603,13 @@ impl VipsImage {
                     v_value!(height),
                 )
                 .with(
-                    "frequency_cutoff",
+                    "frequency-cutoff",
                     v_value!(frequency_cutoff),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("MaskIdeal (vips_mask_ideal) failed"),
         )
     }
@@ -11183,11 +10650,11 @@ impl VipsImage {
                     v_value!(height),
                 )
                 .with(
-                    "frequency_cutoff_x",
+                    "frequency-cutoff-x",
                     v_value!(frequency_cutoff_x),
                 )
                 .with(
-                    "frequency_cutoff_y",
+                    "frequency-cutoff-y",
                     v_value!(frequency_cutoff_y),
                 )
                 .with(
@@ -11197,9 +10664,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("MaskIdealBand (vips_mask_ideal_band) failed"),
         )
     }
@@ -11251,11 +10716,11 @@ impl VipsImage {
                     v_value!(height),
                 )
                 .with(
-                    "frequency_cutoff_x",
+                    "frequency-cutoff-x",
                     v_value!(frequency_cutoff_x),
                 )
                 .with(
-                    "frequency_cutoff_y",
+                    "frequency-cutoff-y",
                     v_value!(frequency_cutoff_y),
                 )
                 .with(
@@ -11265,9 +10730,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("MaskIdealBand (vips_mask_ideal_band) failed"),
         )
     }
@@ -11305,7 +10768,7 @@ impl VipsImage {
                     v_value!(height),
                 )
                 .with(
-                    "frequency_cutoff",
+                    "frequency-cutoff",
                     v_value!(frequency_cutoff),
                 )
                 .with(
@@ -11315,9 +10778,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("MaskIdealRing (vips_mask_ideal_ring) failed"),
         )
     }
@@ -11366,7 +10827,7 @@ impl VipsImage {
                     v_value!(height),
                 )
                 .with(
-                    "frequency_cutoff",
+                    "frequency-cutoff",
                     v_value!(frequency_cutoff),
                 )
                 .with(
@@ -11376,9 +10837,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("MaskIdealRing (vips_mask_ideal_ring) failed"),
         )
     }
@@ -11466,10 +10925,8 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
-            Error::OperationError("Match (vips_match) failed"),
+            out_out,
+            Error::OperationError("Matchs (vips_match) failed"),
         )
     }
 
@@ -11567,10 +11024,8 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
-            Error::OperationError("Match (vips_match) failed"),
+            out_out,
+            Error::OperationError("Matchs (vips_match) failed"),
         )
     }
 
@@ -11604,9 +11059,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Math2 (vips_math2) failed"),
         )
     }
@@ -11641,9 +11094,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Math2Const (vips_math2_const) failed"),
         )
     }
@@ -11672,9 +11123,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Math (vips_math) failed"),
         )
     }
@@ -11699,9 +11148,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Matload (vips_matload) failed"),
         )
     }
@@ -11738,9 +11185,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Matload (vips_matload) failed"),
         )
     }
@@ -11763,9 +11208,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Matrixinvert (vips_matrixinvert) failed"),
         )
     }
@@ -11790,9 +11233,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Matrixload (vips_matrixload) failed"),
         )
     }
@@ -11829,9 +11270,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Matrixload (vips_matrixload) failed"),
         )
     }
@@ -11856,9 +11295,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("MatrixloadSource (vips_matrixload_source) failed"),
         )
     }
@@ -11895,9 +11332,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("MatrixloadSource (vips_matrixload_source) failed"),
         )
     }
@@ -12140,9 +11575,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Maxpair (vips_maxpair) failed"),
         )
     }
@@ -12177,9 +11610,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Measure (vips_measure) failed"),
         )
     }
@@ -12224,9 +11655,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Measure (vips_measure) failed"),
         )
     }
@@ -12279,9 +11708,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Merge (vips_merge) failed"),
         )
     }
@@ -12339,9 +11766,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Merge (vips_merge) failed"),
         )
     }
@@ -12430,9 +11855,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Minpair (vips_minpair) failed"),
         )
     }
@@ -12467,9 +11890,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Morph (vips_morph) failed"),
         )
     }
@@ -12564,9 +11985,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Mosaic1 (vips_mosaic1) failed"),
         )
     }
@@ -12674,9 +12093,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Mosaic1 (vips_mosaic1) failed"),
         )
     }
@@ -12743,9 +12160,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Mosaic (vips_mosaic) failed"),
         )
     }
@@ -12835,9 +12250,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Mosaic (vips_mosaic) failed"),
         )
     }
@@ -12860,9 +12273,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Msb (vips_msb) failed"),
         )
     }
@@ -12889,9 +12300,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Msb (vips_msb) failed"),
         )
     }
@@ -12920,9 +12329,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Multiply (vips_multiply) failed"),
         )
     }
@@ -12947,9 +12354,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Openexrload (vips_openexrload) failed"),
         )
     }
@@ -12986,9 +12391,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Openexrload (vips_openexrload) failed"),
         )
     }
@@ -13013,9 +12416,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Openslideload (vips_openslideload) failed"),
         )
     }
@@ -13062,9 +12463,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Openslideload (vips_openslideload) failed"),
         )
     }
@@ -13089,9 +12488,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("OpenslideloadSource (vips_openslideload_source) failed"),
         )
     }
@@ -13141,9 +12538,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("OpenslideloadSource (vips_openslideload_source) failed"),
         )
     }
@@ -13168,9 +12563,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Pdfload (vips_pdfload) failed"),
         )
     }
@@ -13219,9 +12612,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Pdfload (vips_pdfload) failed"),
         )
     }
@@ -13246,9 +12637,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("PdfloadBuffer (vips_pdfload_buffer) failed"),
         )
     }
@@ -13297,9 +12686,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("PdfloadBuffer (vips_pdfload_buffer) failed"),
         )
     }
@@ -13324,9 +12711,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("PdfloadSource (vips_pdfload_source) failed"),
         )
     }
@@ -13375,9 +12760,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("PdfloadSource (vips_pdfload_source) failed"),
         )
     }
@@ -13437,9 +12820,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Perlin (vips_perlin) failed"),
         )
     }
@@ -13478,9 +12859,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Perlin (vips_perlin) failed"),
         )
     }
@@ -13509,9 +12888,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Phasecor (vips_phasecor) failed"),
         )
     }
@@ -13536,9 +12913,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Pngload (vips_pngload) failed"),
         )
     }
@@ -13577,9 +12952,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Pngload (vips_pngload) failed"),
         )
     }
@@ -13604,9 +12977,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("PngloadBuffer (vips_pngload_buffer) failed"),
         )
     }
@@ -13645,9 +13016,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("PngloadBuffer (vips_pngload_buffer) failed"),
         )
     }
@@ -13672,9 +13041,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("PngloadSource (vips_pngload_source) failed"),
         )
     }
@@ -13713,9 +13080,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("PngloadSource (vips_pngload_source) failed"),
         )
     }
@@ -13810,10 +13175,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out.ctx,
-            }
-            .into(),
+            buffer_out.into(),
             Error::OperationError("PngsaveBuffer (vips_pngsave_buffer) failed"),
         )
     }
@@ -13862,10 +13224,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out.ctx,
-            }
-            .into(),
+            buffer_out.into(),
             Error::OperationError("PngsaveBuffer (vips_pngsave_buffer) failed"),
         )
     }
@@ -13962,9 +13321,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Ppmload (vips_ppmload) failed"),
         )
     }
@@ -14001,9 +13358,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Ppmload (vips_ppmload) failed"),
         )
     }
@@ -14028,9 +13383,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("PpmloadSource (vips_ppmload_source) failed"),
         )
     }
@@ -14067,9 +13420,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("PpmloadSource (vips_ppmload_source) failed"),
         )
     }
@@ -14216,9 +13567,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Premultiply (vips_premultiply) failed"),
         )
     }
@@ -14245,9 +13594,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Premultiply (vips_premultiply) failed"),
         )
     }
@@ -14270,9 +13617,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Prewitt (vips_prewitt) failed"),
         )
     }
@@ -14309,12 +13654,8 @@ impl VipsImage {
         utils::result(
             vips_op_response,
             (
-                VipsImage {
-                    ctx: columns_out.ctx,
-                },
-                VipsImage {
-                    ctx: rows_out.ctx,
-                },
+                columns_out,
+                rows_out,
             ),
             Error::OperationError("Profile (vips_profile) failed"),
         )
@@ -14340,10 +13681,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: profile_out.ctx,
-            }
-            .into(),
+            profile_out.into(),
             Error::OperationError("ProfileLoad (vips_profile_load) failed"),
         )
     }
@@ -14380,12 +13718,8 @@ impl VipsImage {
         utils::result(
             vips_op_response,
             (
-                VipsImage {
-                    ctx: columns_out.ctx,
-                },
-                VipsImage {
-                    ctx: rows_out.ctx,
-                },
+                columns_out,
+                rows_out,
             ),
             Error::OperationError("Project (vips_project) failed"),
         )
@@ -14415,9 +13749,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Quadratic (vips_quadratic) failed"),
         )
     }
@@ -14450,9 +13782,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Quadratic (vips_quadratic) failed"),
         )
     }
@@ -14475,9 +13805,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Rad2Float (vips_rad2float) failed"),
         )
     }
@@ -14502,9 +13830,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Radload (vips_radload) failed"),
         )
     }
@@ -14541,9 +13867,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Radload (vips_radload) failed"),
         )
     }
@@ -14568,9 +13892,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("RadloadBuffer (vips_radload_buffer) failed"),
         )
     }
@@ -14607,9 +13929,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("RadloadBuffer (vips_radload_buffer) failed"),
         )
     }
@@ -14634,9 +13954,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("RadloadSource (vips_radload_source) failed"),
         )
     }
@@ -14673,9 +13991,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("RadloadSource (vips_radload_source) failed"),
         )
     }
@@ -14754,10 +14070,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out.ctx,
-            }
-            .into(),
+            buffer_out.into(),
             Error::OperationError("RadsaveBuffer (vips_radsave_buffer) failed"),
         )
     }
@@ -14790,10 +14103,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out.ctx,
-            }
-            .into(),
+            buffer_out.into(),
             Error::OperationError("RadsaveBuffer (vips_radsave_buffer) failed"),
         )
     }
@@ -14890,9 +14200,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Rank (vips_rank) failed"),
         )
     }
@@ -14935,9 +14243,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Rawload (vips_rawload) failed"),
         )
     }
@@ -15004,9 +14310,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Rawload (vips_rawload) failed"),
         )
     }
@@ -15085,10 +14389,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out.ctx,
-            }
-            .into(),
+            buffer_out.into(),
             Error::OperationError("RawsaveBuffer (vips_rawsave_buffer) failed"),
         )
     }
@@ -15121,10 +14422,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out.ctx,
-            }
-            .into(),
+            buffer_out.into(),
             Error::OperationError("RawsaveBuffer (vips_rawsave_buffer) failed"),
         )
     }
@@ -15209,9 +14507,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Recomb (vips_recomb) failed"),
         )
     }
@@ -15246,9 +14542,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Reduce (vips_reduce) failed"),
         )
     }
@@ -15294,9 +14588,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Reduce (vips_reduce) failed"),
         )
     }
@@ -15325,9 +14617,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Reduceh (vips_reduceh) failed"),
         )
     }
@@ -15362,9 +14652,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Reduceh (vips_reduceh) failed"),
         )
     }
@@ -15393,9 +14681,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Reducev (vips_reducev) failed"),
         )
     }
@@ -15430,9 +14716,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Reducev (vips_reducev) failed"),
         )
     }
@@ -15471,9 +14755,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Relational (vips_relational) failed"),
         )
     }
@@ -15512,9 +14794,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("RelationalConst (vips_relational_const) failed"),
         )
     }
@@ -15543,9 +14823,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Remainder (vips_remainder) failed"),
         )
     }
@@ -15574,9 +14852,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("RemainderConst (vips_remainder_const) failed"),
         )
     }
@@ -15611,9 +14887,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Replicate (vips_replicate) failed"),
         )
     }
@@ -15642,9 +14916,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Resize (vips_resize) failed"),
         )
     }
@@ -15681,9 +14953,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Resize (vips_resize) failed"),
         )
     }
@@ -15706,9 +14976,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Rot45 (vips_rot45) failed"),
         )
     }
@@ -15735,9 +15003,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Rot45 (vips_rot45) failed"),
         )
     }
@@ -15766,9 +15032,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Rot (vips_rot) failed"),
         )
     }
@@ -15797,9 +15061,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Rotate (vips_rotate) failed"),
         )
     }
@@ -15842,9 +15104,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Rotate (vips_rotate) failed"),
         )
     }
@@ -15873,9 +15133,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Round (vips_round) failed"),
         )
     }
@@ -15898,9 +15156,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("SRgb2Hsv (vips_sRGB2HSV) failed"),
         )
     }
@@ -15923,9 +15179,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("SRgb2ScRgb (vips_sRGB2scRGB) failed"),
         )
     }
@@ -15948,9 +15202,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("ScRgb2Bw (vips_scRGB2BW) failed"),
         )
     }
@@ -15977,9 +15229,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("ScRgb2Bw (vips_scRGB2BW) failed"),
         )
     }
@@ -16002,9 +15252,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("ScRgb2Xyz (vips_scRGB2XYZ) failed"),
         )
     }
@@ -16027,9 +15275,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("ScRgb2SRgb (vips_scRGB2sRGB) failed"),
         )
     }
@@ -16056,9 +15302,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("ScRgb2SRgb (vips_scRGB2sRGB) failed"),
         )
     }
@@ -16081,9 +15325,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Scale (vips_scale) failed"),
         )
     }
@@ -16112,9 +15354,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Scale (vips_scale) failed"),
         )
     }
@@ -16137,9 +15377,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Scharr (vips_scharr) failed"),
         )
     }
@@ -16176,9 +15414,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Sdf (vips_sdf) failed"),
         )
     }
@@ -16230,9 +15466,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Sdf (vips_sdf) failed"),
         )
     }
@@ -16255,9 +15489,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Sequential (vips_sequential) failed"),
         )
     }
@@ -16284,9 +15516,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Sequential (vips_sequential) failed"),
         )
     }
@@ -16309,9 +15539,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Sharpen (vips_sharpen) failed"),
         )
     }
@@ -16348,9 +15576,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Sharpen (vips_sharpen) failed"),
         )
     }
@@ -16385,9 +15611,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Shrink (vips_shrink) failed"),
         )
     }
@@ -16431,9 +15655,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Shrink (vips_shrink) failed"),
         )
     }
@@ -16462,9 +15684,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Shrinkh (vips_shrinkh) failed"),
         )
     }
@@ -16497,9 +15717,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Shrinkh (vips_shrinkh) failed"),
         )
     }
@@ -16528,9 +15746,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Shrinkv (vips_shrinkv) failed"),
         )
     }
@@ -16563,9 +15779,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Shrinkv (vips_shrinkv) failed"),
         )
     }
@@ -16588,9 +15802,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Sign (vips_sign) failed"),
         )
     }
@@ -16613,9 +15825,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Similarity (vips_similarity) failed"),
         )
     }
@@ -16656,9 +15866,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Similarity (vips_similarity) failed"),
         )
     }
@@ -16689,10 +15897,8 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
-            Error::OperationError("Sine (vips_sines) failed"),
+            out_out,
+            Error::OperationError("Sines (vips_sines) failed"),
         )
     }
 
@@ -16730,10 +15936,8 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
-            Error::OperationError("Sine (vips_sines) failed"),
+            out_out,
+            Error::OperationError("Sines (vips_sines) failed"),
         )
     }
 
@@ -16767,9 +15971,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Smartcrop (vips_smartcrop) failed"),
         )
     }
@@ -16819,9 +16021,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Smartcrop (vips_smartcrop) failed"),
         )
     }
@@ -16844,9 +16044,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Sobel (vips_sobel) failed"),
         )
     }
@@ -16865,7 +16063,7 @@ impl VipsImage {
                     v_value!(&VipsImage::from(self.ctx)),
                 )
                 .with(
-                    "refp",
+                    "ref",
                     v_value!(refp),
                 )
                 .with(
@@ -16875,9 +16073,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Spcor (vips_spcor) failed"),
         )
     }
@@ -16900,9 +16096,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Spectrum (vips_spectrum) failed"),
         )
     }
@@ -16925,10 +16119,8 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
-            Error::OperationError("Stat (vips_stats) failed"),
+            out_out,
+            Error::OperationError("Stats (vips_stats) failed"),
         )
     }
 
@@ -16962,9 +16154,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Stdif (vips_stdif) failed"),
         )
     }
@@ -17009,9 +16199,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Stdif (vips_stdif) failed"),
         )
     }
@@ -17046,9 +16234,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Subsample (vips_subsample) failed"),
         )
     }
@@ -17087,9 +16273,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Subsample (vips_subsample) failed"),
         )
     }
@@ -17118,9 +16302,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Subtract (vips_subtract) failed"),
         )
     }
@@ -17135,19 +16317,17 @@ impl VipsImage {
             "sum",
             VOption::new()
                 .with(
-                    "inp",
+                    "in",
                     v_value!(inp),
                 )
                 .with(
-                    "inp",
+                    "out",
                     v_value!(&mut out_out),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Sum (vips_sum) failed"),
         )
     }
@@ -17172,9 +16352,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Svgload (vips_svgload) failed"),
         )
     }
@@ -17217,9 +16395,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Svgload (vips_svgload) failed"),
         )
     }
@@ -17244,9 +16420,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("SvgloadBuffer (vips_svgload_buffer) failed"),
         )
     }
@@ -17289,9 +16463,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("SvgloadBuffer (vips_svgload_buffer) failed"),
         )
     }
@@ -17316,9 +16488,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("SvgloadSource (vips_svgload_source) failed"),
         )
     }
@@ -17361,9 +16531,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("SvgloadSource (vips_svgload_source) failed"),
         )
     }
@@ -17382,15 +16550,13 @@ impl VipsImage {
                     v_value!(tests),
                 )
                 .with(
-                    "tests",
+                    "out",
                     v_value!(&mut out_out),
                 ),
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Switch (vips_switch) failed"),
         )
     }
@@ -17402,7 +16568,7 @@ impl VipsImage {
         let vips_op_response = call(
             "system",
             VOption::new().with(
-                "cmd_format",
+                "cmd-format",
                 v_value!(cmd_format),
             ),
         );
@@ -17432,7 +16598,7 @@ impl VipsImage {
         let vips_op_response = call(
             "system",
             option.with(
-                "cmd_format",
+                "cmd-format",
                 v_value!(cmd_format),
             ),
         );
@@ -17463,9 +16629,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Text (vips_text) failed"),
         )
     }
@@ -17514,9 +16678,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Text (vips_text) failed"),
         )
     }
@@ -17547,9 +16709,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Thumbnail (vips_thumbnail) failed"),
         )
     }
@@ -17600,9 +16760,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Thumbnail (vips_thumbnail) failed"),
         )
     }
@@ -17633,9 +16791,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("ThumbnailBuffer (vips_thumbnail_buffer) failed"),
         )
     }
@@ -17692,9 +16848,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("ThumbnailBuffer (vips_thumbnail_buffer) failed"),
         )
     }
@@ -17723,9 +16877,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("ThumbnailImage (vips_thumbnail_image) failed"),
         )
     }
@@ -17774,9 +16926,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("ThumbnailImage (vips_thumbnail_image) failed"),
         )
     }
@@ -17807,9 +16957,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("ThumbnailSource (vips_thumbnail_source) failed"),
         )
     }
@@ -17866,9 +17014,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("ThumbnailSource (vips_thumbnail_source) failed"),
         )
     }
@@ -17893,9 +17039,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Tiffload (vips_tiffload) failed"),
         )
     }
@@ -17940,9 +17084,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Tiffload (vips_tiffload) failed"),
         )
     }
@@ -17967,9 +17109,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("TiffloadBuffer (vips_tiffload_buffer) failed"),
         )
     }
@@ -18014,9 +17154,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("TiffloadBuffer (vips_tiffload_buffer) failed"),
         )
     }
@@ -18041,9 +17179,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("TiffloadSource (vips_tiffload_source) failed"),
         )
     }
@@ -18088,9 +17224,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("TiffloadSource (vips_tiffload_source) failed"),
         )
     }
@@ -18209,10 +17343,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out.ctx,
-            }
-            .into(),
+            buffer_out.into(),
             Error::OperationError("TiffsaveBuffer (vips_tiffsave_buffer) failed"),
         )
     }
@@ -18285,10 +17416,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out.ctx,
-            }
-            .into(),
+            buffer_out.into(),
             Error::OperationError("TiffsaveBuffer (vips_tiffsave_buffer) failed"),
         )
     }
@@ -18407,9 +17535,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Tilecache (vips_tilecache) failed"),
         )
     }
@@ -18446,9 +17572,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Tilecache (vips_tilecache) failed"),
         )
     }
@@ -18466,9 +17590,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Tonelut (vips_tonelut) failed"),
         )
     }
@@ -18508,9 +17630,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Tonelut (vips_tonelut) failed"),
         )
     }
@@ -18533,9 +17653,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Transpose3D (vips_transpose3d) failed"),
         )
     }
@@ -18562,9 +17680,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Transpose3D (vips_transpose3d) failed"),
         )
     }
@@ -18587,9 +17703,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Unpremultiply (vips_unpremultiply) failed"),
         )
     }
@@ -18618,9 +17732,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Unpremultiply (vips_unpremultiply) failed"),
         )
     }
@@ -18645,9 +17757,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Vipsload (vips_vipsload) failed"),
         )
     }
@@ -18684,9 +17794,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Vipsload (vips_vipsload) failed"),
         )
     }
@@ -18711,9 +17819,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("VipsloadSource (vips_vipsload_source) failed"),
         )
     }
@@ -18750,9 +17856,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("VipsloadSource (vips_vipsload_source) failed"),
         )
     }
@@ -18889,9 +17993,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Webpload (vips_webpload) failed"),
         )
     }
@@ -18934,9 +18036,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Webpload (vips_webpload) failed"),
         )
     }
@@ -18961,9 +18061,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("WebploadBuffer (vips_webpload_buffer) failed"),
         )
     }
@@ -19006,9 +18104,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("WebploadBuffer (vips_webpload_buffer) failed"),
         )
     }
@@ -19033,9 +18129,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("WebploadSource (vips_webpload_source) failed"),
         )
     }
@@ -19078,9 +18172,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("WebploadSource (vips_webpload_source) failed"),
         )
     }
@@ -19187,10 +18279,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out.ctx,
-            }
-            .into(),
+            buffer_out.into(),
             Error::OperationError("WebpsaveBuffer (vips_webpsave_buffer) failed"),
         )
     }
@@ -19251,10 +18340,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsBlob {
-                ctx: buffer_out.ctx,
-            }
-            .into(),
+            buffer_out.into(),
             Error::OperationError("WebpsaveBuffer (vips_webpsave_buffer) failed"),
         )
     }
@@ -19439,9 +18525,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Worley (vips_worley) failed"),
         )
     }
@@ -19478,9 +18562,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Worley (vips_worley) failed"),
         )
     }
@@ -19503,9 +18585,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Wrap (vips_wrap) failed"),
         )
     }
@@ -19534,9 +18614,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Wrap (vips_wrap) failed"),
         )
     }
@@ -19567,9 +18645,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Xyz (vips_xyz) failed"),
         )
     }
@@ -19608,9 +18684,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Xyz (vips_xyz) failed"),
         )
     }
@@ -19641,9 +18715,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Zone (vips_zone) failed"),
         )
     }
@@ -19678,9 +18750,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Zone (vips_zone) failed"),
         )
     }
@@ -19715,9 +18785,7 @@ impl VipsImage {
         );
         utils::result(
             vips_op_response,
-            VipsImage {
-                ctx: out_out.ctx,
-            },
+            out_out,
             Error::OperationError("Zoom (vips_zoom) failed"),
         )
     }
@@ -19725,5 +18793,55 @@ impl VipsImage {
     // Alias for operator overload
     pub(crate) fn add_image(&self, right: &VipsImage) -> Result<VipsImage> {
         self.add(right)
+    }
+
+    /// VipsBandjoin (bandjoin), bandwise join a set of images
+    /// returns `VipsImage` - Output image
+    ///
+    /// others: `&[VipsImage]` -> Array of input images
+    pub fn bandjoin_with(&self, others: &[VipsImage]) -> Result<VipsImage> {
+        let mut inp_in = Vec::new();
+        inp_in.push(
+            VipsImage {
+                ctx: self.ctx,
+            },
+        );
+        for img in others {
+            inp_in.push(
+                VipsImage {
+                    ctx: img.ctx,
+                },
+            )
+        }
+
+        let mut out_out = VipsImage::from(null_mut());
+        let vips_op_response = call(
+            "bandjoin",
+            VOption::new()
+                .with(
+                    "in",
+                    v_value!(inp_in.as_slice()),
+                )
+                .with(
+                    "out",
+                    v_value!(&mut out_out),
+                ),
+        );
+        utils::result(
+            vips_op_response,
+            VipsImage {
+                ctx: out_out.ctx,
+            },
+            Error::OperationError("Bandjoin (vips_bandjoin) failed"),
+        )
+    }
+
+    /// VipsMedian (median), median filter of the specified size.
+    pub fn median(&self, size: i32) -> Result<VipsImage> {
+        self.rank(
+            size,
+            size,
+            (size * size) / 2,
+        )
     }
 }
