@@ -51,6 +51,7 @@ pub fn call(operation: &str, option: VOption) -> std::os::raw::c_int {
     }
 }
 
+/// Generates the value of a name-value pair of VOption
 #[macro_export]
 macro_rules! v_value {
     ($value:expr) => {
@@ -106,13 +107,31 @@ impl<'a> V_Value<'a> for &'a [u8] {
     }
 }
 
+impl<'a, const N: usize> V_Value<'a> for &'a [u8; N] {
+    fn value(self) -> VipsValue<'a> {
+        VipsValue::Buffer(self)
+    }
+}
+
 impl<'a> V_Value<'a> for &'a [i32] {
     fn value(self) -> VipsValue<'a> {
         VipsValue::IntArray(self)
     }
 }
 
+impl<'a, const N: usize> V_Value<'a> for &'a [i32; N] {
+    fn value(self) -> VipsValue<'a> {
+        VipsValue::IntArray(self)
+    }
+}
+
 impl<'a> V_Value<'a> for &'a [f64] {
+    fn value(self) -> VipsValue<'a> {
+        VipsValue::DoubleArray(self)
+    }
+}
+
+impl<'a, const N: usize> V_Value<'a> for &'a [f64; N] {
     fn value(self) -> VipsValue<'a> {
         VipsValue::DoubleArray(self)
     }
@@ -125,6 +144,12 @@ impl<'a> V_Value<'a> for &'a crate::VipsImage {
 }
 
 impl<'a> V_Value<'a> for &'a [crate::VipsImage] {
+    fn value(self) -> VipsValue<'a> {
+        VipsValue::ImageArray(self)
+    }
+}
+
+impl<'a, const N: usize> V_Value<'a> for &'a [crate::VipsImage; N] {
     fn value(self) -> VipsValue<'a> {
         VipsValue::ImageArray(self)
     }
@@ -213,6 +238,7 @@ struct Pair<'a> {
     value: VipsValue<'a>,
 }
 
+/// VOption, a list of name-value pairs
 #[derive(Default)]
 pub struct VOption<'a> {
     options: Vec<Pair<'a>>,
@@ -225,33 +251,7 @@ impl<'a> VOption<'a> {
         }
     }
 
-    pub fn set(&mut self, name: &str, vips_value: VipsValue<'a>) {
-        match vips_value {
-            VipsValue::MutBool(_)
-            | VipsValue::MutInt(_)
-            | VipsValue::MutDouble(_)
-            | VipsValue::MutImage(_)
-            | VipsValue::MutDoubleArray(_)
-            | VipsValue::MutBlob(_) => {
-                self.options
-                    .push(Pair {
-                        input: false,
-                        name: name.to_string(),
-                        value: vips_value,
-                    });
-            }
-            _ => {
-                self.options
-                    .push(Pair {
-                        input: true,
-                        name: name.to_string(),
-                        value: vips_value,
-                    });
-            }
-        };
-    }
-
-    pub fn with(mut self, name: &str, vips_value: VipsValue<'a>) -> Self {
+    pub fn set(mut self, name: &str, vips_value: VipsValue<'a>) -> Self {
         match vips_value {
             VipsValue::MutBool(_)
             | VipsValue::MutInt(_)
@@ -277,6 +277,32 @@ impl<'a> VOption<'a> {
         };
 
         self
+    }
+
+    pub fn add(&mut self, name: &str, vips_value: VipsValue<'a>) {
+        match vips_value {
+            VipsValue::MutBool(_)
+            | VipsValue::MutInt(_)
+            | VipsValue::MutDouble(_)
+            | VipsValue::MutImage(_)
+            | VipsValue::MutDoubleArray(_)
+            | VipsValue::MutBlob(_) => {
+                self.options
+                    .push(Pair {
+                        input: false,
+                        name: name.to_string(),
+                        value: vips_value,
+                    });
+            }
+            _ => {
+                self.options
+                    .push(Pair {
+                        input: true,
+                        name: name.to_string(),
+                        value: vips_value,
+                    });
+            }
+        };
     }
 }
 

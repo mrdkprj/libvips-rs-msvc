@@ -1,10 +1,17 @@
+//! Operator overloads for VipsImage
+//!
+//! `+`, `-`, `*`, `/`
+//!
+//! `lt`(<), `le`(<=), `gt`(>), `ge`(>=), and `at`([])
+//!
+//! Every overload returns VipsImage as the result of Vips operation.
 use crate::{
     ops::{OperationBoolean, OperationRelational},
     VipsImage,
 };
 use std::ops::{Add, BitAnd, BitOr, BitXor, Div, Mul, Rem, Shl, Shr, Sub};
 
-pub trait MyIndex<Idx> {
+pub trait Index<Idx> {
     type Output: ?Sized;
     fn at(&self, index: Idx) -> Self::Output;
 }
@@ -30,7 +37,7 @@ fn negate(vector: &[f64]) -> Vec<f64> {
 }
 
 // index
-impl MyIndex<i32> for VipsImage {
+impl Index<i32> for VipsImage {
     type Output = VipsImage;
     fn at(&self, index: i32) -> Self::Output {
         self.extract_band(index)

@@ -10,10 +10,11 @@ extern crate num_traits;
 pub mod bindings;
 pub mod error;
 mod image;
-// pub mod operations;
 pub mod operator;
+/// Vips Enumerations
 pub mod ops;
 pub mod utils;
+/// VOption, a list of name-value pairs
 pub mod voption;
 
 use error::Error;

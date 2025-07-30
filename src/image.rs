@@ -101,11 +101,11 @@ impl VipsImage {
                     .to_str()
                     .unwrap(),
                 option
-                    .with(
+                    .set(
                         "filename",
                         VipsValue::Str(filename),
                     )
-                    .with(
+                    .set(
                         "out",
                         VipsValue::MutImage(&mut out_out),
                     ),
@@ -206,11 +206,11 @@ impl VipsImage {
                     .to_str()
                     .unwrap(),
                 option
-                    .with(
+                    .set(
                         "buffer",
                         VipsValue::Buffer(buffer),
                     )
-                    .with(
+                    .set(
                         "out",
                         VipsValue::MutImage(&mut out_out),
                     ),
@@ -912,15 +912,15 @@ impl VipsImage {
         let vips_op_response = call(
             "min",
             VOption::new()
-                .with(
+                .set(
                     "in",
                     VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
-                .with(
+                .set(
                     "x",
                     VipsValue::MutDouble(&mut x),
                 )
-                .with(
+                .set(
                     "y",
                     VipsValue::MutDouble(&mut y),
                 ),
@@ -939,15 +939,15 @@ impl VipsImage {
         let vips_op_response = call(
             "max",
             VOption::new()
-                .with(
+                .set(
                     "in",
                     VipsValue::Image(&VipsImage::from(self.ctx)),
                 )
-                .with(
+                .set(
                     "x",
                     VipsValue::MutDouble(&mut x),
                 )
-                .with(
+                .set(
                     "y",
                     VipsValue::MutDouble(&mut y),
                 ),
